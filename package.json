@@ -1,0 +1,38 @@
+{
+  "name": "mosquee-bilal",
+  "version": "1.0.0",
+  "description": "Site web de la Mosquée Bilal - Neuville-en-Ferrain",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nasreddineberra/mosquee-bilal-neuville.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nasreddineberra/mosquee-bilal-neuville/issues"
+  },
+  "homepage": "https://github.com/nasreddineberra/mosquee-bilal-neuville#readme",
+  "dependencies": {
+    "next": "^16.2.3",
+    "next-intl": "^4.9.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "autoprefixer": "^10.4.27",
+    "eslint-config-next": "^16.2.3",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2"
+  }
+}

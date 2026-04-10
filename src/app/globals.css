@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   LIGHT MODE - "The Living Sanctuary" (sakinah_ui_light_mode)
+   Palette: Émeraude profond + Crème + Or mat
+   ========================================================================== */
+:root,
+[data-theme="light"] {
+  /* Primary - Émeraude profond */
+  --color-primary: #064E3B;
+  --color-primary-container: #064E3B;
+  --color-primary-fixed: #B0F0D6;
+  --color-primary-fixed-dim: #95D3BA;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-container: #80BEA6;
+  --color-on-primary-fixed: #002117;
+  --color-inverse-primary: #95D3BA;
+
+  /* Secondary - Neutre chaud */
+  --color-secondary: #5E5E5C;
+  --color-secondary-container: #E1DFDC;
+  --color-secondary-fixed: #E4E2DE;
+  --color-secondary-fixed-dim: #C8C6C3;
+  --color-on-secondary: #FFFFFF;
+  --color-on-secondary-container: #636360;
+  --color-on-secondary-fixed: #1B1C1A;
+
+  /* Tertiary - Or mat */
+  --color-tertiary: #B45309;
+  --color-tertiary-container: #733100;
+  --color-tertiary-fixed: #FFDBCA;
+  --color-tertiary-fixed-dim: #FFB68E;
+  --color-on-tertiary: #FFFFFF;
+  --color-on-tertiary-container: #FF985A;
+  --color-on-tertiary-fixed: #331200;
+
+  /* Background & Surface */
+  --color-background: #F9F9FF;
+  --color-on-background: #111C2D;
+  --color-surface: #F9F9FF;
+  --color-surface-bright: #F9F9FF;
+  --color-surface-container: #E7EEFF;
+  --color-surface-container-low: #F0F3FF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-high: #DEE8FF;
+  --color-surface-container-highest: #D8E3FB;
+  --color-surface-variant: #D8E3FB;
+  --color-on-surface: #111C2D;
+  --color-on-surface-variant: #404944;
+
+  /* Inverse */
+  --color-inverse-surface: #263143;
+  --color-inverse-on-surface: #ECF1FF;
+
+  /* Outline & Border */
+  --color-outline: #707974;
+  --color-outline-variant: #BFC9C3;
+
+  /* Error */
+  --color-error: #BA1A1A;
+  --color-error-container: #FFDAD6;
+  --color-on-error: #FFFFFF;
+  --color-on-error-container: #93000A;
+}
+
+/* ==========================================================================
+   DARK MODE - "The Celestial Sanctuary" (saphir_ambre_dark_mode)
+   Palette: Saphir profond + Ambre doré
+   ========================================================================== */
+[data-theme="dark"] {
+  /* Primary - Ambre doré */
+  --color-primary: #FBBF24;
+  --color-on-primary: #0F172A;
+
+  /* Primary Container - Sapphire profond */
+  --color-primary-container: #0F172A;
+
+  /* Secondary - Ardoise clair */
+  --color-secondary: #94A3B8;
+  --color-on-secondary: #0F172A;
+
+  /* Tertiary - Accent ambré */
+  --color-tertiary: #FFB95F;
+  --color-on-tertiary: #0B1326;
+
+  /* Background & Surface - Midnight */
+  --color-background: #020617;
+  --color-on-background: #F8FAFC;
+  --color-surface: #0F172A;
+  --color-on-surface: #F8FAFC;
+  --color-surface-bright: #31394D;
+  --color-surface-container: #1A2235;
+  --color-surface-container-low: #131B2E;
+  --color-surface-container-lowest: #060E20;
+  --color-surface-container-high: #222A3D;
+  --color-surface-container-highest: #2D3449;
+  --color-surface-variant: rgba(30, 41, 59, 0.5);
+  --color-on-surface-variant: #94A3B8;
+
+  /* Inverse */
+  --color-inverse-surface: #E2E8F0;
+  --color-inverse-on-surface: #0F172A;
+  --color-inverse-primary: #D97706;
+
+  /* Outline & Border */
+  --color-outline: #475569;
+  --color-outline-variant: #45464D;
+
+  /* Error */
+  --color-error: #FCA5A5;
+  --color-error-container: #991B1B;
+  --color-on-error: #0F172A;
+  --color-on-error-container: #FEE2E2;
+}
+
+/* ==========================================================================
+   BASE STYLES
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography - Noto Serif pour les titres */
+h1, h2, h3, .font-serif {
+  font-family: var(--font-noto-serif), serif;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM UTILITIES
+   ========================================================================== */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(251, 191, 36, 0.1);
+}
+
+.glass-nav {
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.1);
+}
+
+/* Light mode glass */
+:root .glass-card,
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(6, 78, 59, 0.1);
+}
+
+:root .glass-nav,
+[data-theme="light"] .glass-nav {
+  background: rgba(249, 249, 255, 0.8);
+  border-bottom: 1px solid rgba(6, 78, 59, 0.1);
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
