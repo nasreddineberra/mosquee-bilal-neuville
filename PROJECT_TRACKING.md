@@ -262,17 +262,15 @@ mosquee-bilal-neuville/
 | - | Messages AR | Traductions arabes complètes | ✅ Fait |
 | - | Composant LocaleSwitcher | Sélecteur de langue | ✅ Fait |
 
-### 10 Avril 2026 - Intégration des polices
+### 10 Avril 2026 - Correction du routage
 | Heure | Action | Détails | Statut |
 |-------|--------|---------|--------|
-| - | Sous-étape 2.2 | Intégration des polices Google Fonts | ✅ Fait |
-| - | Noto Serif | Titres et éléments spirituels (400, 700) | ✅ Fait |
-| - | Inter | Body text pour light mode | ✅ Fait |
-| - | Manrope | Alternative body pour dark mode | ✅ Fait |
-| - | Support RTL | Direction automatique pour l'arabe | ✅ Fait |
-| - | Layout root | Configuration NextIntlClientProvider | ✅ Fait |
-| - | Build test | Build successful | ✅ Fait |
-| - | Dev server | Serveur de développement lancé | ✅ Fait |
+| - | Sous-étape 2.4 | Correction définitive du routage 404 | ✅ Fait |
+| - | Structure statique | Remplacement de [locale] par fr/ et ar/ | ✅ Fait |
+| - | Suppression middleware | Cause des conflits de routage | ✅ Fait |
+| - | Layouts dédiés | setRequestLocale pour chaque langue | ✅ Fait |
+| - | Affichage validé | Site fonctionnel sur /fr | ✅ Fait |
+| - | Commit & Push | Sauvegarde sur GitHub | ✅ Fait |
 
 ---
 
@@ -304,6 +302,7 @@ mosquee-bilal-neuville/
 - [ ] Configuration Supabase (projet à créer)
 - [ ] Images du site (photos de la mosquée ?)
 - [ ] Contenu initial (articles, événements)
+- [ ] **Reprise demain :** Implémentation du Header et du Design System visuel
 
 ---
 
