@@ -10,7 +10,18 @@
       "Bash(npm run *)",
       "Bash(move *)",
       "Bash(del *)",
-      "Bash(start *)"
+      "Bash(start *)",
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(taskkill *)",
+      "Bash(timeout *)",
+      "Bash(curl *)",
+      "Bash(findstr *)",
+      "Bash(select-string *)",
+      "Bash(dir *)",
+      "Bash(rmdir *)",
+      "Bash(mkdir *)",
+      "Bash(copy *)"
     ]
   },
   "$version": 3

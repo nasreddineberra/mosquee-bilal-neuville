@@ -7,11 +7,11 @@ export default createMiddleware({
   // Used when no locale matches
   defaultLocale: 'fr',
 
-  // The prefix for the default locale
-  localePrefix: 'as-needed',
+  // Toujours afficher le préfixe de locale dans l'URL
+  localePrefix: 'always',
 });
 
 export const config = {
-  // Match only internationalized pathnames
+  // Match les routes internationalisées
   matcher: ['/', '/(fr|ar)/:path*']
 };
