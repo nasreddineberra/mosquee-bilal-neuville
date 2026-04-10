@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary": "#ffffff",
+                    "background": "#f9f9ff",
+                    "surface-container-high": "#dee8ff",
+                    "surface-container-highest": "#d8e3fb",
+                    "surface": "#f9f9ff",
+                    "on-primary-fixed-variant": "#0b513d",
+                    "tertiary-fixed-dim": "#ffb68e",
+                    "primary-fixed-dim": "#95d3ba",
+                    "tertiary": "#502000",
+                    "on-secondary-container": "#636360",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#e1dfdc",
+                    "surface-variant": "#d8e3fb",
+                    "on-surface-variant": "#404944",
+                    "surface-bright": "#f9f9ff",
+                    "surface-container": "#e7eeff",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#e4e2de",
+                    "on-tertiary-container": "#ff985a",
+                    "secondary-fixed-dim": "#c8c6c3",
+                    "on-surface": "#111c2d",
+                    "primary-container": "#064e3b",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#5e5e5c",
+                    "on-primary-container": "#80bea6",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#ecf1ff",
+                    "tertiary-container": "#733100",
+                    "inverse-surface": "#263143",
+                    "on-primary-fixed": "#002117",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline-variant": "#bfc9c3",
+                    "surface-dim": "#cfdaf2",
+                    "on-tertiary-fixed": "#331200",
+                    "inverse-primary": "#95d3ba",
+                    "on-secondary-fixed-variant": "#474744",
+                    "on-tertiary-fixed-variant": "#763300",
+                    "primary": "#003527",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#1b1c1a",
+                    "on-background": "#111c2d",
+                    "surface-container-low": "#f0f3ff",
+                    "primary-fixed": "#b0f0d6",
+                    "outline": "#707974",
+                    "surface-tint": "#2b6954",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-serif { font-family: 'Noto Serif', serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 left-0 right-0 bg-emerald-50/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-emerald-100/30 z-50 h-20 px-8">
+<div class="max-w-[1600px] mx-auto h-full flex items-center justify-between">
+<!-- Brand -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-primary-fixed overflow-hidden">
+<img alt="Mosquée Bilal Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXsPuuD0Ad6iUCry4r2xAI2gNzu_Y8RhOesEKRODphnRWioKzXDaSU8S7aHvkf3dcc1PPz0q-M_s4A7wjDGYEdxUsjDkTAH32xFsCKVhl2JH5VFiSmAdNC0WxUai28ht86IT3ZT3kWlZoGA7RpEhHqIDe77woaXc6M1qVxwrOC678a0kWl6dmpTZLCqu3qM0yBh4EnxNKQYhiGWvIVbCSWQfAizXN69o7ydNRd4coKoDPE_GMXRaZ6oAWQJSHzispa7So4xTsKOqIi"/>
+</div>
+<div class="hidden sm:block">
+<h1 class="text-xl font-bold font-serif text-emerald-900 dark:text-emerald-400 leading-tight">Mosquée Bilal</h1>
+<p class="text-[10px] tracking-widest uppercase text-emerald-800/60 font-bold">The Living Sanctuary</p>
+</div>
+</div>
+<!-- Links -->
+<div class="hidden lg:flex items-center gap-2">
+<a class="flex items-center gap-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-emerald-800 hover:bg-emerald-100/50 transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-emerald-800 hover:bg-emerald-100/50 transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="newspaper">newspaper</span>
+                News
+            </a>
+<a class="flex items-center gap-2 px-4 py-2 rounded-full text-slate-600 dark:text-slate-400 hover:text-emerald-800 hover:bg-emerald-100/50 transition-all font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="event">event</span>
+                Activities
+            </a>
+<a class="flex items-center gap-2 px-4 py-2 rounded-full text-emerald-900 dark:text-emerald-400 font-bold bg-emerald-100/40 border border-emerald-200/50 text-sm" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="admin_panel_settings" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+                Admin
+            </a>
+</div>
+<!-- Actions & Profile -->
+<div class="flex items-center gap-4">
+<div class="relative group hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-800 transition-colors text-lg" data-icon="search">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-9 pr-6 py-2 w-48 xl:w-64 text-sm focus:ring-2 focus:ring-emerald-800 transition-all outline-none" placeholder="Search..." type="text"/>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-900 hover:bg-emerald-100 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-[1px] bg-emerald-200/30 mx-2 hidden sm:block"></div>
+<!-- Profile / Logout Context -->
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right hidden md:block">
+<p class="text-xs font-bold text-emerald-950 leading-none">Ahmed Al-Basri</p>
+<span class="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">Admin</span>
+</div>
+<div class="relative cursor-pointer group">
+<img alt="Admin Avatar" class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWHNDeSw727ugBsNTgbqj1TEpahKkdxO195enM_U-iQlMUIGryzJS2ZMgpGD0XmCWblplJk1J3yokJ16034pAAzGvczOZ_qEVHgj5d4WIuALvOSc06iy2F-3LHXz7AQuJ7sqzhRCl-FDIr2se4fkzRXERnrPGmzjbQk7WjeRYXzBL6Fm_dh-zFPt48yNleWuDJBQZV5Ptibcl-jIVysXbOXg-adJKcEZcJZ6x8BX1pSolKLfBDnVUKAeL4B4Lz-lrGVMgevjRylstw"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-emerald-50 rounded-full"></div>
+<!-- Tooltip Logout -->
+<div class="absolute top-full right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-outline-variant/10 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all transform origin-top-right scale-95 group-hover:scale-100 py-1">
+<a class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-900 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span> Profile
+                        </a>
+<a class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-error hover:bg-error-container/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span> Déconnexion
+                        </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Shell -->
+<main class="pt-28 pb-12 px-8 max-w-[1600px] mx-auto min-h-screen">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div>
+<h1 class="text-4xl font-serif font-bold text-on-surface mb-2">Gestion du Contenu</h1>
+<p class="text-slate-500 font-medium">Manage your sanctuary's digital presence and community outreach.</p>
+</div>
+<button class="flex items-center gap-2 px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold shadow-lg shadow-primary-container/20 hover:scale-105 transition-transform w-fit">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+            Nouveau Post
+        </button>
+</div>
+<!-- Stats Overview Bento -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)] group hover:bg-primary transition-colors">
+<div class="flex items-start justify-between mb-4">
+<div class="p-3 bg-primary-fixed/30 rounded-2xl group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors" data-icon="article">article</span>
+</div>
+<span class="text-xs font-bold text-emerald-600 group-hover:text-emerald-200">+12% vs last month</span>
+</div>
+<div class="text-3xl font-serif font-bold text-on-surface group-hover:text-white transition-colors">148</div>
+<div class="text-sm font-medium text-slate-500 group-hover:text-emerald-100 transition-colors">Articles Publiés</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)] group hover:bg-tertiary transition-colors">
+<div class="flex items-start justify-between mb-4">
+<div class="p-3 bg-tertiary-fixed/30 rounded-2xl group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-tertiary group-hover:text-white transition-colors" data-icon="schedule">schedule</span>
+</div>
+<span class="text-xs font-bold text-tertiary-container group-hover:text-tertiary-fixed">Needs attention</span>
+</div>
+<div class="text-3xl font-serif font-bold text-on-surface group-hover:text-white transition-colors">7</div>
+<div class="text-sm font-medium text-slate-500 group-hover:text-tertiary-fixed transition-colors">Pending Events</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)] group hover:bg-emerald-900 transition-colors">
+<div class="flex items-start justify-between mb-4">
+<div class="p-3 bg-primary-fixed-dim/30 rounded-2xl group-hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-primary-container group-hover:text-white transition-colors" data-icon="mail">mail</span>
+</div>
+<span class="text-xs font-bold text-emerald-600 group-hover:text-emerald-200">+42 new today</span>
+</div>
+<div class="text-3xl font-serif font-bold text-on-surface group-hover:text-white transition-colors">2,481</div>
+<div class="text-sm font-medium text-slate-500 group-hover:text-emerald-100 transition-colors">Newsletter Subscribers</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Content Table -->
+<div class="xl:col-span-2 bg-surface-container-lowest rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)] overflow-hidden">
+<div class="px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/10">
+<h3 class="text-lg font-bold text-on-surface">Recent Content</h3>
+<div class="flex gap-2">
+<button class="px-4 py-1.5 text-xs font-bold bg-secondary-container text-on-secondary-container rounded-full hover:bg-primary hover:text-white transition-all">All Posts</button>
+<button class="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-all">Drafts</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low text-[10px] uppercase tracking-widest font-extrabold text-slate-400">
+<tr>
+<th class="px-8 py-4">Title</th>
+<th class="px-4 py-4">Category</th>
+<th class="px-4 py-4">Status</th>
+<th class="px-8 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Article Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoZ5NG2_H0CgEqr9_wXell-tjNmKIsChLOFR7BXRdA0ko09xuizznIok9q7wyAiUIQyQ_IddXoBTurJ_HkPILbdEg9po6qnQEnchMJkdaUjoEl5jmrWqJiy-DdwCzKarcsX2hnkNSw44kgLQ89HvglDCzVis3TwNNEWIKTvxmCtHCKPiezV_D8Lu_6xdpjmD3r0ndCFKqUuIMWdzHgBfK79K67Gdxb_ligDIo9jeJK37e483Qh-6ZPDp1UtjGlVsX2gDphGVnf7u-v"/>
+</div>
+<span class="text-sm font-bold text-emerald-950">Reflections on Ramadan 2024</span>
+</div>
+</td>
+<td class="px-4 py-5 text-sm font-medium text-slate-600">Spiritual News</td>
+<td class="px-4 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Published
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-emerald-800 hover:bg-emerald-50 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-error transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Event Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiBqxwnV4ofYIevjy1oAnYVK_pHf7iYW7sjJoofE1nIS1KH3cUE3TM8kDBFw-GqIlON7KGNsCZcFB553wMblo1p3LJdDudtDTDFmnwJe8ppVFVqhLanCy-5Fm0rGGMIp0ojMkA1fu-sw4d9suqL6oUgmTPYkKn7he4utkC8W65jQCLxYxXAbydew0V3sS2iKq5iPtmlOo5swBz7NS1EaPILrtym3P1n4XmDdvJ__EndgxInCehxD5BCq3fQhLHAy3GKYsQoLXWU2IZ"/>
+</div>
+<span class="text-sm font-bold text-emerald-950">Youth Community Iftar Event</span>
+</div>
+</td>
+<td class="px-4 py-5 text-sm font-medium text-slate-600">Activities</td>
+<td class="px-4 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-tertiary text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Draft
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-emerald-800 hover:bg-emerald-50 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-error transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Practical Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfBfOio22-Yl1ZsgA_OQgEFbpmVRymUwNG9s0Dz1xyhfaiAdnRASGTc4c5udgjXIAmPaAPYE0_fw3h3vSsTuTVaj4n6DpFXTGQuWhhZlVBhc8Q3pNu4zjvUXpOx0ovvH72IZSrXnYD9U0wUXqawJeAtcP_JY9InqE7aw2xBWO1caS1fFpgPG1DQhDle2xI6ooFFN_KptQ3iP6LCYKjGHHJgCm1KzDE6c8Bmqe3KBK2-WDtm130Qa_ru7-pcXhj1FOBNEC5vtkBNUNO"/>
+</div>
+<span class="text-sm font-bold text-emerald-950">New Parking Guidelines</span>
+</div>
+</td>
+<td class="px-4 py-5 text-sm font-medium text-slate-600">Practical Info</td>
+<td class="px-4 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Published
+                                </span>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-emerald-800 hover:bg-emerald-50 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-error transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Sidebar Widgets -->
+<div class="space-y-8">
+<!-- Media Preview -->
+<div class="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)]">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-on-surface">Recent Media</h3>
+<button class="text-xs font-bold text-primary hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<div class="aspect-square rounded-2xl overflow-hidden group relative cursor-pointer">
+<img alt="Media Item" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPVBLH8uvWnOQl-OANkDjfvH31MAGXeLkn_B6FFq91TOBQ4NCcGgzW8dRCCaelKmQxgjB9Om-FFdZdfTSPgknkzuYY-megk3pchBXms8fl_3FCQhNn1NrBd69QeXi2va21mu2QpK-gnbjDv_M30IHGarTgFQh58UnTaXXbu2l5UbEvyOPthyvxe57rGklZEGJEzPXrvKfZmn6YGxNrHSAP9n5nqG6olqtXcBJCYFvsPsQijRgV4bqjS46pUsxzJQHwg5uJtwgJT_v3"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden group relative cursor-pointer">
+<img alt="Media Item" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXPAxUQtfi89gXTz0SLCwk8fb0F7-wZvHnw1eOvb4BI8ShxwDK8H1z2t-Nsc69RBJjaXOubtp7NIdl_JjgqW4ey6ELSzotLfNR1c9fZ8zOPhMXPVp8WrA9b8p6mWgZ7gpngOrRWlkQjljfmy3PzmbGi5N8kv9AAEdi8uMR8watodB2QWKlwx3aOiFjYy0w_bhTLR22z3Xx56bZDkJatptMPxx93jVG2MLYY9Q7TiFHb4xXSpzKL-VDME1LHWQM7SNpeNe07Tyf3Ha8"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden group relative cursor-pointer">
+<img alt="Media Item" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYM534Wooj__LfVzaT4rm7kxZGf_r4EOsDYGh8BQnCEP41xUeOxxk4uT7rRIlKj72Azt--3-IV1xNT1oZJAGkEbIf4IX1RIADyER0VEVE3uR9dLxoWSZqcNwF0VkuENpT4iCmQ7FBrI5Fcm8fjnVVeO1WK7HAK9FQKMcTPbFUMvWQaacBnoWgP_DqMoBp0Hn1Yu-KVIZtlFZGAC4cYchsBlBSw8qx6GRPXB-mnNYYMXf-Pgu6P_xRjiBZMSSlBmTU51EnKlfJdJj5K"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden group relative cursor-pointer">
+<img alt="Media Item" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFuw9cIotRwyekbMLc0ald8OGQ729L_vhpIIWovJCxO4IPT5ZLAHUnzwgebZp5tFpdUgDiRGbz6VrPfBojYhY8HJD9xDdAYkftGaxOzajs0ZZpTg4AS72z7g-7_tNOY_baHBRmvWN8KfrjduWbXu0pijSlXBYlEnIzYAC1j1UchvkhC7uaWMHXNYbACr4YDQNdfCZ31J5-n6mUACEKkXD9YJpu9n1cEiZG8iReez56qMFRSi5fwP7r3Vk2eOF5Hjpnl7wlTFWj5Iks"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="aspect-square rounded-2xl overflow-hidden group relative cursor-pointer">
+<img alt="Media Item" class="w-full h-full object-cover group-hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYsjvzxjKIm0AKwEm_HFhsSudsTPpUvmvdf5qdvJjNsURmAD8ViIk3gp2wgtcEoypJJBNfBBS66OqPLPKL-BbZR212FN7cqay0jfEq6NG__hQvN6WCIzJQ8KFV2nA2QSSnC3tFFSZ3diHXPxIzenb_d2QHInLVc7bdIqKgqe6JjT9Fr-BW2uI-u05AwlyBev-JYh1xNJWk3kOqB4l03xG0GHXvxFpnk6vzBbKZ3Kkanxt7hNC30fpnrYCoKKp3y5ZEpwP4YMpvxSH8"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="aspect-square rounded-2xl bg-surface-container flex flex-col items-center justify-center gap-1 hover:bg-primary-fixed/30 transition-colors cursor-pointer border-2 border-dashed border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="upload">upload</span>
+<span class="text-[10px] font-bold text-primary tracking-tighter uppercase">Add New</span>
+</div>
+</div>
+</div>
+<!-- Task List -->
+<div class="bg-tertiary text-white p-6 rounded-3xl shadow-[0px_20px_40px_rgba(17,28,45,0.06)] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12"></div>
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="lightbulb" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+                    Admin Reminders
+                </h3>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<div class="w-5 h-5 rounded border border-white/30 flex-shrink-0 mt-0.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] hidden" data-icon="check">check</span>
+</div>
+<p class="text-sm text-tertiary-fixed/90 leading-tight">Review Friday Khutbah highlights post by tonight.</p>
+</li>
+<li class="flex items-start gap-3">
+<div class="w-5 h-5 rounded border border-white/30 flex-shrink-0 mt-0.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] hidden" data-icon="check">check</span>
+</div>
+<p class="text-sm text-tertiary-fixed/90 leading-tight">Approve 4 new community event requests.</p>
+</li>
+<li class="flex items-start gap-3">
+<div class="w-5 h-5 rounded border-2 border-white flex-shrink-0 mt-0.5 flex items-center justify-center bg-white">
+<span class="material-symbols-outlined text-[10px] text-tertiary" data-icon="check">check</span>
+</div>
+<p class="text-sm text-white/50 line-through leading-tight">Update Ramadan prayer times schedule.</p>
+</li>
+</ul>
+<button class="mt-6 w-full py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold transition-all">Add Quick Task</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

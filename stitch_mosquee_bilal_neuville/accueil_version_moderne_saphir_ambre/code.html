@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mosquée Bilal - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "primary": "#fbbf24", // Amber-400
+                "on-primary": "#0f172a", // Deep Sapphire
+                "background": "#020617", // Slate-950 (Deepest Sapphire)
+                "surface": "#0f172a", // Slate-900
+                "surface-variant": "rgba(30, 41, 59, 0.5)", // Glassmorphism base
+                "on-surface": "#f8fafc",
+                "on-surface-variant": "#94a3b8",
+                "amber": {
+                    "50": "#fffbeb",
+                    "100": "#fef3c7",
+                    "200": "#fde68a",
+                    "300": "#fcd34d",
+                    "400": "#fbbf24",
+                    "500": "#f59e0b",
+                    "600": "#d97706",
+                    "700": "#b45309",
+                    "800": "#92400e",
+                    "900": "#78350f"
+                },
+                "sapphire": {
+                    "900": "#0f172a",
+                    "950": "#020617"
+                }
+              },
+              "borderRadius": {
+                "DEFAULT": "0.5rem",
+                "lg": "0.75rem",
+                "xl": "1rem",
+                "2xl": "1.5rem",
+                "3xl": "2rem",
+                "full": "9999px"
+              },
+              "fontFamily": {
+                "headline": ["Noto Serif", "serif"],
+                "body": ["Inter", "sans-serif"],
+                "label": ["Inter", "sans-serif"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, .font-serif { font-family: 'Noto Serif', serif; }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.1);
+        }
+        
+        .glass-nav {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(251, 191, 36, 0.1);
+        }
+
+        .nav-link-active {
+            @apply text-primary relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen selection:bg-amber-500/30">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+<div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+<!-- Logo & Branding -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-sapphire-950 shadow-lg shadow-amber-500/20">
+<span class="material-symbols-outlined font-bold" data-icon="mosque">mosque</span>
+</div>
+<div class="hidden sm:block">
+<h1 class="text-xl font-bold font-serif text-white leading-none tracking-tight">Mosquée Bilal</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-amber-400/80 font-semibold mt-1">The Living Sanctuary</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold text-amber-400 relative py-2 after:content-[''] after:absolute after:-bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-amber-400 after:rounded-full" href="#">Dashboard</a>
+<a class="text-sm font-medium text-slate-400 hover:text-amber-200 transition-colors" href="#">News</a>
+<a class="text-sm font-medium text-slate-400 hover:text-amber-200 transition-colors" href="#">Activities</a>
+<a class="text-sm font-medium text-slate-400 hover:text-amber-200 transition-colors" href="#">Islam</a>
+<a class="text-sm font-medium text-slate-400 hover:text-amber-200 transition-colors" href="#">Info</a>
+<a class="text-sm font-medium text-slate-400 hover:text-amber-200 transition-colors" href="#">Contact</a>
+</nav>
+<!-- Right Side Actions -->
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg" data-icon="search">search</span>
+<input class="bg-slate-900/50 border border-slate-800 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 w-48 transition-all" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="relative text-slate-400 hover:text-amber-400 transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-amber-500 rounded-full border-2 border-slate-950"></span>
+</button>
+<a class="bg-amber-500 text-sapphire-950 px-6 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-amber-500/10 hover:bg-amber-400 hover:shadow-amber-500/20 transition-all active:scale-95" href="#">
+                Connexion
+            </a>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-12 px-4">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Welcome Banner (Bento Style) -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 relative h-[360px] rounded-3xl overflow-hidden shadow-2xl group border border-white/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" data-alt="Stunning architectural view of a modern mosque interior" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDM4WxR70Tx6a4PLEdDVV4QaoMy9YfP7J6wj37nasrjQijUDCX-uzaof-kWtb8dB10YAOszgUehYSYclQt7Lak3lewy9VV_P9Ee4N3wrJpzRM3PTxSyAaVAyyciB3EBbeJlXkZ1tq-UnEI5IbnJmyWx7-fJzKh9jKE_C382zDEq1wfzQCphSBgTGC4zDtiE6gpf8nAPZ2qSeysP4_ZD-Z6S9RymkhPuE6q-QmIBgV3yKtfWZjsdeC7B7UW5KTCe3KcyHYvZIF2V7Lqd')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full max-w-2xl">
+<span class="bg-amber-500/10 backdrop-blur-md border border-amber-500/20 text-amber-400 px-4 py-1.5 rounded-full text-[10px] font-bold tracking-[0.2em] mb-4 inline-block uppercase">Salam Alaykum</span>
+<h2 class="text-4xl md:text-5xl font-serif text-white leading-tight">Bienvenue à la <br/>Mosquée Bilal</h2>
+<p class="text-slate-300 mt-4 max-w-md font-light leading-relaxed">Un sanctuaire de sérénité, de savoir et de fraternité au cœur de Neuville-en-Ferrain.</p>
+</div>
+</div>
+<div class="glass-card rounded-3xl p-8 flex flex-col justify-between text-white shadow-xl border border-white/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"></div>
+<div class="space-y-4 relative z-10">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-bold text-amber-400/60 uppercase tracking-[0.2em]">Prochaine Prière</span>
+<span class="material-symbols-outlined text-amber-400" data-icon="schedule">schedule</span>
+</div>
+<div>
+<h3 class="text-6xl font-serif text-white tracking-tighter">Asr</h3>
+<p class="text-amber-400/80 mt-1 font-medium text-sm">Dans 1h 42min</p>
+</div>
+</div>
+<div class="space-y-4 relative z-10">
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-amber-500 to-amber-300 w-[65%] rounded-full shadow-[0_0_12px_rgba(251,191,36,0.4)]"></div>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-[10px] text-slate-400 italic leading-relaxed max-w-[150px]">“La prière est la clé du paradis.”</p>
+<span class="text-3xl font-serif text-white">16:14</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Prayer Times & Stats -->
+<section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<!-- Prayer Times Card -->
+<div class="lg:col-span-3 glass-card rounded-3xl p-8 shadow-2xl overflow-hidden relative">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-2xl font-serif text-white">Les Horaires de Prière</h3>
+<p class="text-sm text-slate-400 mt-1">Neuville-en-Ferrain &amp; alentours</p>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-800 text-amber-400 border border-white/5 hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="location_on">location_on</span>
+</button>
+</div>
+</div>
+<div class="w-full rounded-2xl overflow-hidden border border-white/5 bg-slate-950/30">
+<iframe class="widget w-full h-[400px] opacity-90 invert-[0.05] hue-rotate-[10deg]" frameborder="0" scrolling="no" src="//mawaqit.net/fr/w/bilal-neuville?showOnly5PrayerTimes=0"></iframe>
+</div>
+</div>
+<!-- Quick Stats Column -->
+<div class="space-y-6">
+<div class="glass-card rounded-2xl p-6 shadow-sm border border-white/5 group hover:border-amber-500/20 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+</div>
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Annonces</h4>
+<p class="text-xl font-serif text-white">04 Nouvelles</p>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-6 shadow-sm border border-white/5 group hover:border-amber-500/20 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+</div>
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Conférence</h4>
+<p class="text-xl font-serif text-white">Dans 2 jours</p>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-6 shadow-sm border border-white/5 group hover:border-amber-500/20 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+<div>
+<h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Communauté</h4>
+<p class="text-xl font-serif text-white">320 Inscrits</p>
+</div>
+</div>
+</div>
+<!-- Quick Link: Faire un Don (Prominent) -->
+<a class="group block relative overflow-hidden bg-gradient-to-br from-amber-500 to-amber-700 p-6 rounded-2xl shadow-xl shadow-amber-500/10 transition-transform active:scale-95" href="#">
+<div class="relative z-10 flex flex-col h-full justify-between min-h-[100px]">
+<span class="material-symbols-outlined text-sapphire-950/40 self-end text-4xl" data-icon="volunteer_activism">volunteer_activism</span>
+<div>
+<h4 class="text-sapphire-950 font-serif text-xl font-bold">Soutenir le projet</h4>
+<p class="text-sapphire-950/70 text-xs font-medium mt-1 uppercase tracking-wider">Faire un Don en ligne</p>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+</a>
+</div>
+</section>
+<!-- Quick Links Row -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<a class="flex items-center justify-between p-6 glass-card rounded-3xl border border-white/5 hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-amber-400 shadow-inner">
+<span class="material-symbols-outlined text-2xl" data-icon="school">school</span>
+</div>
+<div>
+<span class="text-sm font-bold text-white block">Cours &amp; Activités</span>
+<span class="text-xs text-slate-500 mt-0.5 block">Inscrivez-vous aux programmes éducatifs</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-700 group-hover:text-amber-400 transition-all translate-x-0 group-hover:translate-x-1" data-icon="chevron_right">chevron_right</span>
+</a>
+<a class="flex items-center justify-between p-6 glass-card rounded-3xl border border-white/5 hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all group" href="#">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-amber-400 shadow-inner">
+<span class="material-symbols-outlined text-2xl" data-icon="contact_mail">contact_mail</span>
+</div>
+<div>
+<span class="text-sm font-bold text-white block">Contact</span>
+<span class="text-xs text-slate-500 mt-0.5 block">Une question ? Notre équipe vous répond</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-700 group-hover:text-amber-400 transition-all translate-x-0 group-hover:translate-x-1" data-icon="chevron_right">chevron_right</span>
+</a>
+</section>
+<!-- Latest News Section -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-3xl font-serif text-white">Dernières Actualités</h2>
+<a class="text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-2 uppercase tracking-widest" href="#">
+                    Tout voir <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- News Card 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-2xl border border-white/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Community event at mosque" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA4qAAEhHzOFc3NBfpYA7iTtIoXbYyfXYlBRyimbgnt-DDZFVzm4HT-5fPy_LCBW4c7SY5C5I5s5QBbJa5i9_0en1hRhBz3BErnmW5YGJdFLwUQtFG9VfrpCSD4Eh9AHTTQfQQC0H4LlflFXOTMwuDxkBbyMUTI_2yPpRTVDBSd8x3DnFBLxnmv2utehDArxm2YMqxOyIhqB1MydYuzrcwcWrWw7i0PEicEVBHljcj_uOpteJoO7p14FYcPqchA4V4kLar_EpgPrH58')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="bg-amber-500/90 text-sapphire-950 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">Événement</span>
+</div>
+</div>
+<p class="text-amber-400/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">12 Octobre 2023</p>
+<h4 class="text-xl font-serif text-white group-hover:text-amber-400 transition-colors leading-tight mb-3">Soirée de fraternité : Rencontre annuelle de la communauté</h4>
+<p class="text-slate-400 text-sm line-clamp-2 font-light leading-relaxed">Rejoignez-nous pour une soirée d'échange et de partage autour d'un dîner communautaire exceptionnel ce samedi.</p>
+</div>
+<!-- News Card 2 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-2xl border border-white/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Open Quran" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuABqWSJCmSS4cY2t8O9tHosnAlYWeJ5FHsv8-SbCYik0zWNsKaqkMkorprm11hwlmfp4ta6F67lHcAE1ymoGALwECiOcyOWUGED78fZhxI1_LkR_rFHbouS6R9t6VwIcRInmyoW1Ze4gTiPkYiU4PLtScmWY3fdFcaHwlFHF-oEjSMH1JRCSoO3jgjn18PDYfczUN6VsCWNuDCFeExRn5f1eDsD4r9OyKvkgsoh9wOrE1czc5j2L_LOX9yhkgBD850Zivgelk3i_I1O')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="bg-amber-500/90 text-sapphire-950 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">Éducation</span>
+</div>
+</div>
+<p class="text-amber-400/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">08 Octobre 2023</p>
+<h4 class="text-xl font-serif text-white group-hover:text-amber-400 transition-colors leading-tight mb-3">Inscriptions ouvertes : Cours de Tajwid et Langue Arabe</h4>
+<p class="text-slate-400 text-sm line-clamp-2 font-light leading-relaxed">Le nouveau semestre débute bientôt. Découvrez nos différents niveaux pour enfants et adultes.</p>
+</div>
+<!-- News Card 3 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-2xl border border-white/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Mosque minaret" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCaX_wHEQAxwjoUfzIgnb-9tn6a7IhLV81Ww_tE29tzyIrajoJBat2j2NXqrKF1NzGHEyEfIY35enNKPAOPga2CDILyPzYJ3MNV7HK_NQyF9caXjHSflfBVJqGP5HWDVae1R9BhzFuiBWt6b0OK48ETi7Vo-x9QyOZ3Q4EoT5G7K5Vafl6UodZfrIcCXzrw8fs8kO2CFwUFqXn0F6YeF3A6pEcbQJyCQj7GIHQwB57aGXvPpqRUuAdPpg0FhCOyCvLr0uT8Ff6K8ER_')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="bg-amber-500/90 text-sapphire-950 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg">Travaux</span>
+</div>
+</div>
+<p class="text-amber-400/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">05 Octobre 2023</p>
+<h4 class="text-xl font-serif text-white group-hover:text-amber-400 transition-colors leading-tight mb-3">Extension du parking : Fin de la première phase</h4>
+<p class="text-slate-400 text-sm line-clamp-2 font-light leading-relaxed">Les travaux avancent comme prévu pour améliorer votre accueil lors des grandes affluences du vendredi.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer class="glass-nav py-12 mt-12 px-4 border-t-0 bg-slate-950/90">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-sapphire-950">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="mosque">mosque</span>
+</div>
+<span class="font-serif font-bold text-white">Mosquée Bilal</span>
+</div>
+<div class="flex gap-8 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+<a class="hover:text-amber-400 transition-colors" href="#">Confidentialité</a>
+<a class="hover:text-amber-400 transition-colors" href="#">Mentions Légales</a>
+<a class="hover:text-amber-400 transition-colors" href="#">Admin Access</a>
+</div>
+<p class="text-[10px] text-slate-600 font-medium">© 2023 MOSQUÉE BILAL. NEUVILLE-EN-FERRAIN.</p>
+</div>
+</footer>
+</body></html>

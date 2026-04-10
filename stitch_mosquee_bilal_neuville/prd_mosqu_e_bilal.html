@@ -1,0 +1,43 @@
+# PRD - Site Web Mosquée Bilal (Neuville-sur-Saône)
+
+## 1. Vision du Projet
+Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mosquée Bilal. Le site doit servir de pont entre l'association et la communauté, tout en facilitant la gestion interne.
+
+## 2. Objectifs
+- **Informer :** Horaires de prière, actualités, événements.
+- **Éduquer :** Documentation sur l'Islam.
+- **Gérer :** Interface d'administration robuste (CMS maison).
+- **Sécuriser :** Architecture compatible Supabase (Auth + RLS).
+
+## 3. Architecture du Site (Sitemap)
+### Front-office (Public)
+- **Accueil :** Hero section, Widget Mawaqit, Dernières actus, CTA Dons/Activités.
+- **Actualités / Événements :** Liste filtrable des news et agenda.
+- **Activités communautaires :** Cours, sorties, services sociaux.
+- **Documentation sur l’Islam :** Articles pédagogiques, FAQ.
+- **Infos pratiques :** Accès, horaires, services (obsèques, assurances).
+- **Contact :** Formulaire et plan.
+
+### Back-office (Admin)
+- **Connexion :** Interface sécurisée (Supabase Auth).
+- **Dashboard :** Statistiques rapides, notifications de messages.
+- **Gestion de contenu :** Liste/Édition des articles, événements, pages.
+- **Médiathèque :** Gestion des images et documents.
+- **Paramètres :** Rôles (Admin, Éditeur, Lecteur), Profil.
+
+## 4. Spécifications Techniques
+- **Framework :** React / Next.js.
+- **Styling :** Tailwind CSS.
+- **Backend :** PostgreSQL via Supabase avec Row Level Security (RLS).
+- **Intégrations :** Iframe Mawaqit responsive.
+- **Accessibilité :** Contrastes élevés, navigation clavier, mobile-first.
+
+## 5. Design System & Identité
+- **Typographie :** Moderne, sans-serif pour la lisibilité, serif élégant pour les titres spirituels.
+- **Composants :** Cards, Badges, Modals, Inputs, Tabs, Breadcrumbs.
+- **Ambiance :** Sobre, premium, chaleureuse, spirituelle.
+
+## 6. Propositions de Chartes Graphiques (À venir)
+- **Charte A :** Sobre et Institutionnelle (Bleu nuit, Gris perle, Blanc).
+- **Charte B :** Chaleureuse et Communautaire (Vert olive, Terre cuite légère, Crème).
+- **Charte C :** Moderne Premium (Or brossé, Noir mat/Anthracite, Blanc cassé).
