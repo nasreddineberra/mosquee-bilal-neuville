@@ -57,7 +57,7 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ### Phase 3 : Front-Office (Site Public) 📝
 #### Page d'Accueil
-- [ ] Header avec navigation et logo
+- [x] Header avec navigation et logo
 - [ ] Hero Section (bento grid avec image de fond)
 - [ ] Widget Prochaine Prière (compte à rebours)
 - [ ] Widget Mawaqit (iframe responsive)

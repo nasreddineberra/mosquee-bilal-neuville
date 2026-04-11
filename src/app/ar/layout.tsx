@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Noto_Serif, Inter, Manrope } from 'next/font/google';
+import Header from '@/components/layout/Header';
 import '../globals.css';
 
 const notoSerif = Noto_Serif({
@@ -32,9 +33,12 @@ export default async function ArabicLayout({
 
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className={`${notoSerif.variable} ${inter.variable} ${manrope.variable} font-sans`}>
+      <body className={`${notoSerif.variable} ${inter.variable} ${manrope.variable} font-sans bg-background text-on-surface`}>
         <NextIntlClientProvider messages={messages} locale="ar">
-          {children}
+          <Header />
+          <main className="pt-24 min-h-screen">
+            {children}
+          </main>
         </NextIntlClientProvider>
       </body>
     </html>
