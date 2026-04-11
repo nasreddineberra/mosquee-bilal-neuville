@@ -12,9 +12,10 @@ export default function MawaqitWidget() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
+          <a
+            href="/infos"
             className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container hover:bg-primary/10 transition-colors"
-            aria-label="Localisation"
+            aria-label="Voir sur la carte"
           >
             <svg
               className="w-5 h-5 text-on-surface/50"
@@ -29,7 +30,7 @@ export default function MawaqitWidget() {
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-          </button>
+          </a>
         </div>
       </div>
 

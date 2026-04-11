@@ -15,7 +15,7 @@ export default function Footer() {
                   alt="Mosquée Bilal"
                   width={32}
                   height={32}
-                  className="object-cover [data-theme='dark']:invert"
+                  className="object-cover logo-invert"
                 />
               </div>
               <span className="font-serif font-bold text-primary">Mosquée Bilal</span>

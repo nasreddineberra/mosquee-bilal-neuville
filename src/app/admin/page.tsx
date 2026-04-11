@@ -35,19 +35,16 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         {/* Logo & Title */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-xl overflow-hidden mx-auto mb-4">
+          <div className="w-32 h-32 rounded-2xl overflow-hidden mx-auto mb-6">
             <Image
               src="/logo.png"
               alt="Mosquée Bilal"
-              width={64}
-              height={64}
-              className="object-cover [data-theme='dark']:invert"
+              width={128}
+              height={128}
+              className="object-cover logo-invert"
             />
           </div>
           <h1 className="text-3xl font-serif text-primary mb-2">Accès réservé</h1>
-          <p className="text-on-surface/60 text-sm">
-            Gestion du contenu - Mosquée Bilal
-          </p>
         </div>
 
         {/* Login Form */}

@@ -149,6 +149,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark mode logo inversion */
+[data-theme="dark"] .logo-invert {
+  filter: invert(1);
+}
+
 /* Typography */
 h1, h2, h3, .font-serif {
   font-family: 'Noto Serif', serif;

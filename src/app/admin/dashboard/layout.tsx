@@ -61,7 +61,7 @@ export default function AdminLayout({
                 alt="Mosquée Bilal"
                 width={40}
                 height={40}
-                className="object-cover [data-theme='dark']:invert"
+                className="object-cover logo-invert"
               />
             </div>
             <div className="hidden sm:block">
