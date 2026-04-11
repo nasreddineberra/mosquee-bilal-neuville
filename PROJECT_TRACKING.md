@@ -142,11 +142,6 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 7. ✅ Configuration `tailwind.config.js` avec tous les tokens de couleur CSS custom
 8. ✅ Serveur fonctionnel — HTTP 200 sur http://localhost:3000
 
-**Prochaines étapes :**
-- [ ] Phase 2 : Connexion Supabase réelle + Base de données
-- [ ] Phase 3 : CRUD Actualités/Événements avec Supabase
-- [ ] Phase 4 : Médiathèque upload + Rôles utilisateurs
-
 #### ✅ Sous-étape 1.7 : Page Admin - Connexion + Dashboard
 **Date :** 11 avril 2026
 **Statut :** ✅ Terminée
@@ -160,10 +155,34 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
    - Stats : 148 articles, 7 événements, 2 481 abonnés
    - Tableau de contenu récent avec statuts (Publié/Brouillon)
    - Rappels admin avec checkboxes
-6. ✅ Layout admin avec navigation : Dashboard, Actualités, Événements, Médiathèque, Paramètres
+6. ✅ Layout admin avec navigation : Dashboard, Hadiths, Actualités, Événements, Médiathèque, Paramètres
 7. ✅ Profil utilisateur + bouton déconnexion
-8. ✅ Sous-pages : `/news`, `/events`, `/media`, `/settings` (placeholders)
+8. ✅ Sous-pages : `/hadiths`, `/news`, `/events`, `/media`, `/settings` (placeholders)
 9. ✅ Toutes les pages admin répondent en HTTP 200
+
+#### ✅ Corrections UI et contenu (session 2)
+**Date :** 11 avril 2026
+**Statut :** ✅ Terminée
+
+**Actions menées :**
+1. ✅ Logo agrandi à 64px (header) puis 128px (admin login)
+2. ✅ Menu non opaque (`bg-background` au lieu de `glass-nav`)
+3. ✅ Slogan "Foi, fraternité, proximité" masqué sous lg (`lg:block hidden`)
+4. ✅ Logo taille fixe avec `flex-shrink-0`
+5. ✅ Champs recherche supprimé du header (desktop + mobile)
+6. ✅ Logo négatif en dark mode via classe CSS `.logo-invert`
+7. ✅ Page Infos pratiques : transport avec lignes bus colorées (TCL), parking
+8. ✅ Page Infos pratiques : 3 cards alignées (Horaires, Accès, Plan d'accès)
+9. ✅ Google Maps intégré dans card Plan d'accès, lien externe supprimé
+10. ✅ Icône localisation MawaqitWidget → lien vers /infos
+11. ✅ Hadith n°8 retiré (pas Bukhari/Muslim), type `Hadith` créé
+12. ✅ Page admin Hadiths (`/admin/dashboard/hadiths`) avec CRUD
+13. ✅ Commit et push vers GitHub
+
+**Prochaines étapes :**
+- [ ] Phase 2 : Connexion Supabase réelle + Base de données
+- [ ] Phase 3 : CRUD Actualités/Événements avec Supabase
+- [ ] Phase 4 : Médiathèque upload + Rôles utilisateurs
 
 #### ✅ Sous-étape 1.6 : Créer les pages de navigation
 **Date :** 11 avril 2026
