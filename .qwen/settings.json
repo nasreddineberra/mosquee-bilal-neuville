@@ -21,7 +21,9 @@
       "Bash(dir *)",
       "Bash(rmdir *)",
       "Bash(mkdir *)",
-      "Bash(copy *)"
+      "Bash(copy *)",
+      "Bash(tasklist)",
+      "Bash(echo.)"
     ]
   },
   "$version": 3

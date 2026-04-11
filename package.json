@@ -15,7 +15,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/nasreddineberra/mosquee-bilal-neuville/issues"
   },
@@ -33,7 +32,7 @@
     "autoprefixer": "^10.4.27",
     "eslint-config-next": "^16.2.3",
     "postcss": "^8.5.9",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^3.4.0",
     "typescript": "^6.0.2"
   }
 }
