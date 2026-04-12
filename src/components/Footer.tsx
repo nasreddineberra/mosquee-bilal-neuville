@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="bg-surface-container-lowest border-t border-outline-variant/10 py-12 px-4 mt-12">
+    <footer className="bg-surface-container-lowest border-t border-outline-variant/10 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">

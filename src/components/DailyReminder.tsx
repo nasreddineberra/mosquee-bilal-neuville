@@ -84,62 +84,28 @@ export default function DailyReminder() {
   }, []);
 
   return (
-    <div className="relative rounded-[2.5rem] overflow-hidden shadow-xl">
-      {/* Gradient Background */}
+    <div className="relative rounded-2xl overflow-hidden shadow-sm">
       <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-container" />
+      <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10" />
 
-      {/* Decorative Motifs */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12" />
-
-      {/* Content */}
-      <div className="relative z-10 p-8 flex flex-col justify-between min-h-[400px] text-white">
-        {/* Type Badge */}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold">
-            🌙 Hadith
+      <div className="relative z-10 p-5 text-white">
+        {/* Titre uniformisé */}
+        <div className="flex items-center gap-2 mb-3">
+          <svg className="w-5 h-5 text-white/70 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
+          <span className="text-sm font-bold uppercase tracking-wider text-white">
+            Hadith du jour
           </span>
         </div>
 
-        {/* Quote */}
-        <div className="space-y-5">
-          <blockquote className="text-xl md:text-2xl font-serif leading-relaxed text-white/95">
-            &laquo; {hadith.text} &raquo;
-          </blockquote>
-
-          {/* Narrator */}
-          <p className="text-sm text-white/60 italic">
-            {hadith.narrator}
-          </p>
-
-          {/* Source */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-[1px] bg-white/30" />
-            <cite className="text-sm font-medium not-italic text-white/70">
-              {hadith.source}
-            </cite>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <a
-          href="/documentation"
-          className="inline-flex items-center gap-2 text-sm font-bold text-white/80 hover:text-white transition-colors group"
-        >
-          Explorer la documentation
-          <svg
-            className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
+        {/* Quote + source */}
+        <blockquote className="text-sm font-serif leading-relaxed text-white/95 line-clamp-2">
+          &laquo; {hadith.text} &raquo;
+        </blockquote>
+        <cite className="text-xs text-white/60 not-italic mt-1 block">
+          {hadith.narrator} — {hadith.source}
+        </cite>
       </div>
     </div>
   );

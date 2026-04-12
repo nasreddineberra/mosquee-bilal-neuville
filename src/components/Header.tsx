@@ -9,8 +9,8 @@ const navLinks = [
   { label: 'Actualités', href: '/actualites' },
   { label: 'Activités', href: '/activites' },
   { label: 'Islam', href: '/documentation' },
-  { label: 'Infos pratiques', href: '/infos' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Don', href: '/don' },
+  { label: 'Contact', href: '/infos' },
 ];
 
 export default function Header() {

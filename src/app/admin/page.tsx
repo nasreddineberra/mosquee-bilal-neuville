@@ -1,17 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function AdminLoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Déjà connecté → rediriger vers le dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/admin/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +55,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+        <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>

@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -13,7 +14,7 @@ const navItems = [
   { label: 'Paramètres', href: '/admin/dashboard/settings', icon: 'settings' },
 ];
 
-const iconPaths: Record<string, JSX.Element> = {
+const iconPaths: Record<string, React.ReactElement> = {
   dashboard: (
     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
   ),

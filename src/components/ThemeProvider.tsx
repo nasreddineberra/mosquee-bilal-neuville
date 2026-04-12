@@ -36,8 +36,8 @@ export default function ThemeProvider({
   }, []);
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
     if (mounted) {
-      document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
     }
   }, [theme, mounted]);
@@ -45,11 +45,6 @@ export default function ThemeProvider({
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
-
-  // Éviter le flash de mauvais thème au chargement
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

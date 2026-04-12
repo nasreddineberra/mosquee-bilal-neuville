@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import LayoutShell from "@/components/LayoutShell";
 import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
@@ -37,9 +36,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <Header />
-            <main className="pt-20">{children}</main>
-            <Footer />
+            <LayoutShell>{children}</LayoutShell>
           </AuthProvider>
         </ThemeProvider>
       </body>
