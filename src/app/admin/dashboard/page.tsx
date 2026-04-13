@@ -34,7 +34,7 @@ export default function AdminDashboardPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {/* Articles */}
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm group hover:bg-primary transition-colors">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-sm group hover:bg-primary transition-colors">
           <div className="flex items-start justify-between mb-4">
             <div className="p-3 bg-primary-fixed/30 rounded-2xl group-hover:bg-white/20 transition-colors">
               <svg
@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Events */}
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm group hover:bg-tertiary transition-colors">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-sm group hover:bg-tertiary transition-colors">
           <div className="flex items-start justify-between mb-4">
             <div className="p-3 bg-tertiary-fixed/30 rounded-2xl group-hover:bg-white/20 transition-colors">
               <svg
@@ -99,7 +99,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Subscribers */}
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm group hover:bg-emerald-900 transition-colors">
+        <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-sm group hover:bg-emerald-900 transition-colors">
           <div className="flex items-start justify-between mb-4">
             <div className="p-3 bg-primary-fixed-dim/30 rounded-2xl group-hover:bg-white/20 transition-colors">
               <svg
@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
       {/* Content Table + Sidebar */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Content Table */}
-        <div className="xl:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div className="xl:col-span-2 bg-surface-container-lowest rounded-3xl shadow-sm overflow-hidden">
           <div className="px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/10">
             <h3 className="text-lg font-bold text-on-surface">Contenu Récent</h3>
             <div className="flex gap-2">
@@ -236,7 +236,7 @@ export default function AdminDashboardPage() {
         {/* Sidebar */}
         <div className="space-y-8">
           {/* Reminders */}
-          <div className="bg-tertiary text-white p-6 rounded-xl shadow-sm relative overflow-hidden">
+          <div className="bg-tertiary text-white p-6 rounded-3xl shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-12 translate-x-12" />
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
               <svg

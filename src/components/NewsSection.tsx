@@ -62,14 +62,14 @@ export default function NewsSection() {
       </div>
 
       {/* News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {newsItems.map((item) => (
           <article
             key={item.id}
             className="group cursor-pointer"
           >
             {/* Image */}
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-6 shadow-sm">
+            <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden mb-6 shadow-sm">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                 style={{ backgroundImage: `url(${item.image})` }}

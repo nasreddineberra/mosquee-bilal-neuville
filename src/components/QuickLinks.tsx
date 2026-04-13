@@ -7,8 +7,8 @@ export default function QuickLinks() {
         {/* Cours & Activités */}
         <Link
           href="/activites"
-          className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-xl 
-                     card-outline hover:shadow-md transition-shadow group"
+          className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-3xl 
+                     border border-outline-variant/15 hover:shadow-md transition-shadow group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center">
@@ -52,8 +52,8 @@ export default function QuickLinks() {
         {/* Contact */}
         <Link
           href="/contact"
-          className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-xl 
-                     card-outline hover:shadow-md transition-shadow group"
+          className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-3xl 
+                     border border-outline-variant/15 hover:shadow-md transition-shadow group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center">

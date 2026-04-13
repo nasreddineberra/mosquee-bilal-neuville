@@ -86,7 +86,7 @@ export default function AdminHadithsPage() {
 
       {/* Add Form */}
       {showForm && (
-        <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm mb-8">
+        <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm mb-8">
           <h2 className="text-xl font-serif text-primary mb-6">Nouveau hadith</h2>
           <form onSubmit={handleAdd} className="space-y-5">
             <div>
@@ -159,7 +159,7 @@ export default function AdminHadithsPage() {
         {hadiths.map((hadith) => (
           <div
             key={hadith.id}
-            className={`bg-surface-container-lowest rounded-xl p-6 shadow-sm transition-opacity ${
+            className={`bg-surface-container-lowest rounded-3xl p-6 shadow-sm transition-opacity ${
               !hadith.is_active ? 'opacity-50' : ''
             }`}
           >
