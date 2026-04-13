@@ -1,9 +1,11 @@
+import Link from 'next/link';
+
 export default function QuickLinks() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Cours & Activités */}
-        <a
+        <Link
           href="/activites"
           className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-3xl 
                      border border-outline-variant/15 hover:shadow-md transition-shadow group"
@@ -45,10 +47,10 @@ export default function QuickLinks() {
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
-        </a>
+        </Link>
 
         {/* Contact */}
-        <a
+        <Link
           href="/contact"
           className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-3xl 
                      border border-outline-variant/15 hover:shadow-md transition-shadow group"
@@ -88,7 +90,7 @@ export default function QuickLinks() {
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
-        </a>
+        </Link>
       </div>
     </section>
   );

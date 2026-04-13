@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, createContext, useContext } from 'react';
+import { useSyncExternalStore, useCallback, createContext, useContext } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -16,35 +16,33 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const useTheme = () => useContext(ThemeContext);
 
+/* ------------------------------------------------------------------ */
+/*  Le DOM (data-theme) est la source de vérité unique                */
+/*  Le script beforeInteractive le pose avant React                   */
+/*  useSyncExternalStore le lit de façon synchrone = pas de flash     */
+/* ------------------------------------------------------------------ */
+function getThemeFromDOM(): Theme {
+  return (document.documentElement.getAttribute('data-theme') as Theme) || 'light';
+}
+
+const subscribe = (cb: () => void) => {
+  const observer = new MutationObserver(cb);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => observer.disconnect();
+};
+
 export default function ThemeProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, setTheme] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
+  const theme = useSyncExternalStore(subscribe, getThemeFromDOM, () => 'light' as Theme);
 
-  useEffect(() => {
-    // Lire le thème sauvegardé ou utiliser la préférence système
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    }
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    if (mounted) {
-      localStorage.setItem('theme', theme);
-    }
-  }, [theme, mounted]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  const toggleTheme = useCallback(() => {
+    const next: Theme = theme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

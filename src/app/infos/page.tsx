@@ -1,19 +1,22 @@
+import { Clock, MapPin, Navigation, Mail, CheckSquare, NotebookTabs } from 'lucide-react';
+
 export default function InfosPage() {
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="bg-background pt-8 pb-2 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-serif text-primary mb-4">Contact et Infos pratiques</h1>
-        <p className="text-on-surface/60 mb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <NotebookTabs className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold font-serif text-primary uppercase tracking-wider">Contact et Infos pratiques</h1>
+        </div>
+        <p className="text-on-surface/60 text-sm mb-8">
           Accès, horaires, contact, services et informations utiles.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Horaires */}
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <svg className="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
+              <Clock className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Horaires d&apos;ouverture</h2>
             </div>
             <div className="space-y-3">
@@ -41,9 +44,7 @@ export default function InfosPage() {
           {/* Accès */}
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <svg className="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
+              <MapPin className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Accès</h2>
             </div>
             <div className="space-y-4">
@@ -87,9 +88,7 @@ export default function InfosPage() {
           {/* Plan d'accès */}
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm flex flex-col">
             <div className="flex items-center gap-2 mb-4">
-              <svg className="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-              </svg>
+              <Navigation className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Plan d&apos;accès</h2>
             </div>
             <div className="rounded-2xl overflow-hidden flex-1 min-h-[320px]">
@@ -110,56 +109,55 @@ export default function InfosPage() {
         </div>
 
         {/* LIGNE 2 — Contact (gauche) + Services (droite) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
           {/* Formulaire de contact */}
-          <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <svg className="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-              </svg>
-              <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Envoyez-nous un message</h2>
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-primary">
+            {/* Header */}
+            <div className="card-green rounded-t-xl p-5 flex items-center gap-2">
+              <Mail className="w-5 h-5 text-white" />
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Envoyez-nous un message</h2>
             </div>
-            <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstname" className="block text-sm font-medium text-on-surface/70 mb-1">Prénom</label>
-                  <input type="text" id="firstname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre prénom" />
+            <div className="p-6">
+              <form className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstname" className="block text-sm font-medium text-on-surface/70 mb-1">Prénom</label>
+                    <input type="text" id="firstname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre prénom" />
+                  </div>
+                  <div>
+                    <label htmlFor="lastname" className="block text-sm font-medium text-on-surface/70 mb-1">Nom</label>
+                    <input type="text" id="lastname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre nom" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-on-surface/70 mb-1">Email</label>
+                    <input type="email" id="email" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="votre@email.com" />
+                  </div>
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-on-surface/70 mb-1">Téléphone</label>
+                    <input type="tel" id="phone" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="06 XX XX XX XX" />
+                  </div>
                 </div>
                 <div>
-                  <label htmlFor="lastname" className="block text-sm font-medium text-on-surface/70 mb-1">Nom</label>
-                  <input type="text" id="lastname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre nom" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-on-surface/70 mb-1">Email</label>
-                  <input type="email" id="email" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="votre@email.com" />
+                  <label htmlFor="subject" className="block text-sm font-medium text-on-surface/70 mb-1">Sujet</label>
+                  <input type="text" id="subject" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Sujet de votre message" />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-on-surface/70 mb-1">Téléphone</label>
-                  <input type="tel" id="phone" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="06 XX XX XX XX" />
+                  <label htmlFor="message" className="block text-sm font-medium text-on-surface/70 mb-1">Message</label>
+                  <textarea id="message" rows={6} className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40 resize-none" placeholder="Votre message..." />
                 </div>
-              </div>
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-on-surface/70 mb-1">Sujet</label>
-                <input type="text" id="subject" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Sujet de votre message" />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-on-surface/70 mb-1">Message</label>
-                <textarea id="message" rows={6} className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40 resize-none" placeholder="Votre message..." />
-              </div>
-              <button type="submit" className="w-full bg-primary text-on-primary py-3 rounded-full font-bold shadow-md hover:opacity-90 transition-all active:scale-95">
-                Envoyer le message
-              </button>
-            </form>
+                <button type="submit" className="w-full card-green text-white py-3 rounded-full font-bold shadow-md hover:opacity-90 transition-all active:scale-95">
+                  Envoyer le message
+                </button>
+              </form>
+            </div>
           </div>
 
           {/* Services */}
           <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
-              <svg className="w-5 h-5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-              </svg>
+              <CheckSquare className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Services</h2>
             </div>
             <div className="grid grid-cols-1 gap-3">

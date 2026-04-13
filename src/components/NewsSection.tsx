@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const newsItems = [
   {
     id: 1,
@@ -39,7 +41,7 @@ export default function NewsSection() {
         <h2 className="text-3xl font-serif text-primary">
           Dernières Actualités
         </h2>
-        <a
+        <Link
           href="/actualites"
           className="text-sm font-bold text-primary hover:text-tertiary transition-colors flex items-center gap-2"
         >
@@ -56,7 +58,7 @@ export default function NewsSection() {
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
-        </a>
+        </Link>
       </div>
 
       {/* News Grid */}

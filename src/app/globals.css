@@ -244,8 +244,45 @@ h1, h2, h3, .font-serif {
 }
 
 .heart-pulse {
-  animation: heartbeat 5s ease-in-out infinite;
+  animation: heartbeat 3s ease-in-out infinite;
 }
 .group:hover .heart-pulse {
-  animation: heartbeat 2s ease-in-out infinite;
+  animation: heartbeat 1s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   STATUS BADGES — Light / Dark
+   ========================================================================== */
+.badge-open {
+  color: #064E3B;
+  background-color: rgba(6, 78, 59, 0.12);
+}
+[data-theme="dark"] .badge-open {
+  color: #6EE7B7;
+  background-color: rgba(110, 231, 183, 0.15);
+}
+
+.badge-full {
+  color: #991B1B;
+  background-color: rgba(153, 27, 27, 0.1);
+}
+[data-theme="dark"] .badge-full {
+  color: #FCA5A5;
+  background-color: rgba(252, 165, 165, 0.15);
+}
+
+.badge-soon {
+  color: #92400E;
+  background-color: rgba(146, 64, 14, 0.1);
+}
+[data-theme="dark"] .badge-soon {
+  color: #FCD34D;
+  background-color: rgba(252, 211, 77, 0.15);
+}
+
+/* ==========================================================================
+   ACCENT CARD — Suit le thème via primary tokens
+   ========================================================================== */
+.card-green {
+  background: linear-gradient(to bottom right, var(--color-primary), var(--color-primary-container));
 }

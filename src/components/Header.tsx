@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import ThemeToggle from './ThemeToggle';
 
@@ -20,13 +21,14 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo & Branding */}
-        <a href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <div className="w-16 h-16 overflow-hidden flex-shrink-0">
             <Image
               src="/logo.png"
               alt="Mosquée Bilal"
               width={64}
               height={64}
+              loading="eager"
               className="object-cover logo-invert"
             />
           </div>
@@ -38,18 +40,18 @@ export default function Header() {
               Foi, fraternité, proximité
             </p>
           </div>
-        </a>
+        </Link>
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-sm font-medium text-on-surface/70 hover:text-primary transition-colors py-2"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -59,13 +61,13 @@ export default function Header() {
           <ThemeToggle />
 
           {/* Connexion Button */}
-          <a
+          <Link
             href="/admin"
             className="bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-bold text-center
                        shadow-md hover:opacity-90 transition-all active:scale-95 whitespace-nowrap"
           >
             Accès réservé
-          </a>
+          </Link>
 
           {/* Mobile Menu Button */}
           <button
@@ -94,15 +96,15 @@ export default function Header() {
         <div className="md:hidden bg-surface-container-lowest border-t border-outline-variant/10 animate-slide-up">
           <nav className="px-4 py-4 space-y-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
-                className="block px-4 py-3 text-sm font-medium text-on-surface/80 hover:text-primary 
+                className="block px-4 py-3 text-sm font-medium text-on-surface/80 hover:text-primary
                            hover:bg-primary/5 rounded-xl transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

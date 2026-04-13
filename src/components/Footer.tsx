@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -21,7 +22,7 @@ export default function Footer() {
               <span className="font-serif font-bold text-primary">Mosquée Bilal</span>
             </div>
             <p className="text-sm text-on-surface/60 leading-relaxed">
-              Un sanctuaire de sérénité, de savoir et de fraternité au cœur de Neuville-sur-Saône.
+              Un lieu de sérénité, de savoir et de fraternité au cœur de Neuville-sur-Saône.
             </p>
           </div>
 
@@ -31,10 +32,10 @@ export default function Footer() {
               Navigation
             </h4>
             <ul className="space-y-2">
-              <li><a href="/" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Accueil</a></li>
-              <li><a href="/actualites" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Actualités</a></li>
-              <li><a href="/activites" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Activités</a></li>
-              <li><a href="/documentation" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Documentation</a></li>
+              <li><Link href="/" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Accueil</Link></li>
+              <li><Link href="/actualites" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Actualités</Link></li>
+              <li><Link href="/activites" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Activités</Link></li>
+              <li><Link href="/documentation" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Documentation</Link></li>
             </ul>
           </div>
 
@@ -44,8 +45,8 @@ export default function Footer() {
               Informations
             </h4>
             <ul className="space-y-2">
-              <li><a href="/infos" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Infos pratiques</a></li>
-              <li><a href="/contact" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Contact</a></li>
+              <li><Link href="/infos" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Infos pratiques</Link></li>
+              <li><Link href="/contact" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Contact</Link></li>
               <li><a href="#" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Faire un don</a></li>
             </ul>
           </div>
@@ -58,7 +59,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><a href="#" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Confidentialité</a></li>
               <li><a href="#" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Mentions légales</a></li>
-              <li><a href="/admin" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Accès admin</a></li>
+              <li><Link href="/admin" className="text-sm text-on-surface/70 hover:text-primary transition-colors">Accès admin</Link></li>
             </ul>
           </div>
         </div>
