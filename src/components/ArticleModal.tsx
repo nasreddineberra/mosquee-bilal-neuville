@@ -11,6 +11,7 @@ export interface Article {
   summary: string;
   content: string;
   image: string;
+  imagePosition?: string;
   featured?: boolean;
 }
 

@@ -21,6 +21,7 @@ const articles: Article[] = [
   },
   {
     id: 2,
+    featured: true,
     category: 'Cours',
     date: '08 avril 2026',
     title: 'Inscriptions ouvertes — Cours de Tajwid',
@@ -77,7 +78,7 @@ const articles: Article[] = [
     content:
       'La Mosquée Bilal propose un nouvel atelier d\'initiation à la langue arabe, destiné aux adultes débutants.\n\nLes séances auront lieu chaque dimanche matin de 10h à 11h30, à partir du 5 avril. L\'objectif est d\'acquérir les bases de la lecture et de l\'écriture arabe.\n\nAucun prérequis n\'est nécessaire. Les inscriptions sont ouvertes auprès du secrétariat.',
     image:
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&auto=format&fit=crop&q=80',
   },
 ];
 
@@ -94,7 +95,7 @@ export default function ActualitesPage() {
   const [activeCategory, setActiveCategory] = useState('Tous');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
-  const featuredArticle = articles.find((a) => a.featured)!;
+  const featuredArticles = articles.filter((a) => a.featured);
   const otherArticles = articles.filter((a) => !a.featured);
 
   const filteredArticles =
@@ -102,9 +103,9 @@ export default function ActualitesPage() {
       ? otherArticles
       : otherArticles.filter((a) => a.category === activeCategory);
 
-  // Hide featured if filter is active and doesn't match
   const showFeatured =
-    activeCategory === 'Tous' || featuredArticle.category === activeCategory;
+    activeCategory === 'Tous' ||
+    featuredArticles.some((a) => a.category === activeCategory);
 
   return (
     <>
@@ -140,171 +141,86 @@ export default function ActualitesPage() {
             ))}
           </div>
 
-          {/* Row 1 — Featured (2/3) + First article (1/3) */}
+          {/* Row 1 — 2 articles à la une, chacun 1/2 */}
           {showFeatured && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
-              {/* Featured — 1/2 */}
-              <button
-                onClick={() => setSelectedArticle(featuredArticle)}
-                className="sm:col-span-2 text-left card-green rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-lg"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-3 h-full">
-                  {/* Photo — 1/3 */}
-                  <div className="relative h-[180px] sm:h-full overflow-hidden">
-                    <Image
-                      src={featuredArticle.image}
-                      alt={featuredArticle.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, 30vw"
-                      priority
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">
-                        À la une
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Contenu — 2/3 */}
-                  <div className="sm:col-span-2 p-4 lg:p-5 flex flex-col justify-between">
-                    <div className="flex items-center gap-2 mb-3">
-                      {(() => { const Icon = categoryIcons[featuredArticle.category]; return Icon ? <Icon className="w-5 h-5 text-white/80" /> : null; })()}
-                      <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider">
-                        {featuredArticle.category}
-                      </h3>
-                      <span className="text-xs text-white/50 ml-1">
-                        - {featuredArticle.date}
-                      </span>
-                    </div>
-                    <h2 className="text-xl lg:text-2xl font-serif text-white mb-3 leading-tight">
-                      {featuredArticle.title}
-                    </h2>
-                    <p className="text-sm text-white/70 leading-relaxed line-clamp-3">
-                      {featuredArticle.summary}
-                    </p>
-                    <div className="flex items-center gap-2 text-white text-sm font-semibold justify-end mt-auto pt-3">
-                      <span>Lire l&apos;article</span>
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Second article — 1/4 */}
-              {filteredArticles[0] && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              {featuredArticles.map((fa) => (
                 <button
-                  onClick={() => setSelectedArticle(filteredArticles[0])}
-                  className="text-left bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-lg flex flex-col"
+                  key={fa.id}
+                  onClick={() => setSelectedArticle(fa)}
+                  className="text-left card-green rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-lg"
                 >
-                  <div className="relative h-[140px] overflow-hidden flex-shrink-0">
-                    <Image
-                      src={filteredArticles[0].image}
-                      alt={filteredArticles[0].title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 100vw, 33vw"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {(() => { const Icon = categoryIcons[filteredArticles[0].category]; return Icon ? <Icon className="w-4 h-4 text-primary" /> : null; })()}
-                      <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
-                        {filteredArticles[0].category}
-                      </h3>
-                      <span className="text-[10px] text-on-surface/40 ml-auto">
-                        {filteredArticles[0].date}
-                      </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 h-full">
+                    {/* Photo — 1/3 */}
+                    <div className="relative h-[120px] sm:h-full overflow-hidden">
+                      <Image
+                        src={fa.image}
+                        alt={fa.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, 25vw"
+                        priority
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                          À la une
+                        </span>
+                      </div>
                     </div>
-                    <h3 className="text-base font-serif text-on-surface mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                      {filteredArticles[0].title}
-                    </h3>
-                    <p className="text-xs text-on-surface/55 leading-relaxed line-clamp-3">
-                      {filteredArticles[0].summary}
-                    </p>
-                    <div className="mt-auto pt-3 flex items-center gap-2 text-primary text-sm font-semibold justify-end">
-                      <span>Lire l&apos;article</span>
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    {/* Contenu — 2/3 */}
+                    <div className="sm:col-span-2 p-4 flex flex-col justify-between">
+                      <div className="flex items-center gap-2 mb-2">
+                        {(() => { const Icon = categoryIcons[fa.category]; return Icon ? <Icon className="w-4 h-4 text-white/80" /> : null; })()}
+                        <h3 className="text-xs font-bold text-white/90 uppercase tracking-wider">{fa.category}</h3>
+                        <span className="text-xs text-white/50 ml-1">- {fa.date}</span>
+                      </div>
+                      <h2 className="text-base lg:text-lg font-serif text-white mb-2 leading-tight line-clamp-2">
+                        {fa.title}
+                      </h2>
+                      <p className="text-xs text-white/70 leading-relaxed line-clamp-2">
+                        {fa.summary}
+                      </p>
+                      <div className="flex items-center gap-2 text-white text-xs font-semibold justify-end mt-auto pt-2">
+                        <span>Lire l&apos;article</span>
+                        <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
                   </div>
                 </button>
-              )}
-
-              {/* Third article — 1/4 */}
-              {filteredArticles[1] && (
-                <button
-                  onClick={() => setSelectedArticle(filteredArticles[1])}
-                  className="text-left bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-lg flex flex-col"
-                >
-                  <div className="relative h-[140px] overflow-hidden flex-shrink-0">
-                    <Image
-                      src={filteredArticles[1].image}
-                      alt={filteredArticles[1].title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 50vw, 25vw"
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {(() => { const Icon = categoryIcons[filteredArticles[1].category]; return Icon ? <Icon className="w-4 h-4 text-primary" /> : null; })()}
-                      <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
-                        {filteredArticles[1].category}
-                      </h3>
-                      <span className="text-[10px] text-on-surface/40 ml-auto">
-                        {filteredArticles[1].date}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-serif text-on-surface mb-1 leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                      {filteredArticles[1].title}
-                    </h3>
-                    <p className="text-xs text-on-surface/55 leading-relaxed line-clamp-2">
-                      {filteredArticles[1].summary}
-                    </p>
-                    <div className="mt-auto pt-2 flex items-center gap-2 text-primary text-sm font-semibold justify-end">
-                      <span>Lire l&apos;article</span>
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </button>
-              )}
+              ))}
             </div>
           )}
 
           {/* Remaining Articles Grid — 4 columns */}
-          {filteredArticles.slice(showFeatured ? 2 : 0).length > 0 ? (
+          {filteredArticles.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {filteredArticles.slice(showFeatured ? 2 : 0).map((article) => (
-                <button
+              {filteredArticles.map((article) => (
+                <div
                   key={article.id}
                   onClick={() => setSelectedArticle(article)}
-                  className="text-left bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden group transition-all hover:shadow-lg"
+                  className="card-border cursor-pointer group rounded-2xl overflow-hidden bg-surface-container-lowest shadow-sm transition-all hover:shadow-lg"
                 >
-                  {/* Image */}
-                  <div className="relative h-[140px] overflow-hidden">
-                    <Image
-                      src={article.image}
-                      alt={article.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  </div>
-
-                  {/* Content */}
+                  <div
+                    className="w-full h-24"
+                    style={{
+                      backgroundImage: `url(${article.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
                   <div className="p-4">
                     <div className="flex items-center gap-2 mb-2">
                       {(() => { const Icon = categoryIcons[article.category]; return Icon ? <Icon className="w-4 h-4 text-primary" /> : null; })()}
-                      <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
+                      <span className="text-sm font-bold text-primary uppercase tracking-wider">
                         {article.category}
-                      </h3>
+                      </span>
                       <span className="text-[10px] text-on-surface/40 ml-auto">
                         {article.date}
                       </span>
                     </div>
-                    <h3 className="text-base font-serif text-on-surface mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                    <p className="text-base font-serif text-on-surface mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
                       {article.title}
-                    </h3>
+                    </p>
                     <p className="text-xs text-on-surface/55 leading-relaxed line-clamp-2">
                       {article.summary}
                     </p>
@@ -313,7 +229,7 @@ export default function ActualitesPage() {
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           ) : (
