@@ -7,9 +7,9 @@ export default function ContactPage() {
           Une question ? Notre équipe vous répond.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Formulaire */}
-          <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+          <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
             <h2 className="text-xl font-serif text-primary mb-6">Envoyez-nous un message</h2>
             <form className="space-y-4">
               <div>
@@ -72,7 +72,7 @@ export default function ContactPage() {
 
           {/* Infos Contact */}
           <div className="space-y-6">
-            <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+            <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
               <h3 className="text-lg font-serif text-primary mb-4">Nos coordonnées</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -107,15 +107,18 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map placeholder */}
-            <div className="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm h-64 flex items-center justify-center">
-              <div className="text-center">
-                <svg className="w-12 h-12 text-on-surface/30 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <p className="text-on-surface/40 text-sm">Carte Google Maps</p>
-              </div>
+            {/* Google Maps */}
+            <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm h-64">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2783.5!2d4.834!3d45.832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47f4ea7f0b0b0b0b%3A0x0!2s10+Avenue+Auguste+Wissel%2C+69250+Neuville-sur-Sa%C3%B4ne!5e0!3m2!1sfr!2sfr!4v1"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Plan d'accès Mosquée Bilal"
+              />
             </div>
           </div>
         </div>

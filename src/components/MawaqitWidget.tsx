@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function MawaqitWidget() {
   return (
-    <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm overflow-hidden">
+    <div className="bg-surface-container-lowest rounded-xl p-8 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

@@ -23,7 +23,8 @@
       "Bash(mkdir *)",
       "Bash(copy *)",
       "Bash(tasklist)",
-      "Bash(echo.)"
+      "Bash(echo.)",
+      "Bash(netstat *)"
     ]
   },
   "$version": 3

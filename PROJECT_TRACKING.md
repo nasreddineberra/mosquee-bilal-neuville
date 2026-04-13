@@ -18,7 +18,7 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 - **Sécuriser :** Architecture compatible Supabase (Auth + RLS)
 
 ### Architecture du Site (Sitemap)
-
+![alt text](image.png)
 #### Front-office (Public)
 | Page | Description |
 |------|-------------|
