@@ -220,6 +220,40 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ---
 
+### ✅ Session 5 — Page Documentation + refonte Actualités
+**Date :** 13 avril 2026
+**Statut :** ✅ Terminée
+
+#### Page Actualités — Refonte des cards grille
+**Actions menées :**
+1. ✅ 2 articles "à la une" en ligne (chacun 1/2 largeur), style `card-green`, layout 3 colonnes (photo 1/3 + texte 2/3)
+2. ✅ Hauteurs réduites d'1/3 sur toutes les cards (h-[120px] featured, h-[96px] grille)
+3. ✅ Cards grille : remplacement `<button>` par `<div>` + `cursor-pointer` (résolution du gap image)
+4. ✅ Image via `background-image` CSS inline (résolution définitive du gap entre card et image)
+5. ✅ `ArticleModal.tsx` : ajout champ `imagePosition?: string` et `featured?: boolean` sur interface `Article`
+
+#### Page Documentation Islam — Création complète
+**Actions menées :**
+1. ✅ 7 cards thématiques : Fondements de l'Islam, Le Coran, La Sira, Les Hadiths, La Prière, Le Jeûne, FAQ
+2. ✅ Chaque card : image banner h-24 + icône + titre + liste de sujets cliquables
+3. ✅ 4 à 6 sujets par card avec contenus détaillés en français
+4. ✅ Modale par sujet — **non fermable depuis l'extérieur** (uniquement via bouton ✕)
+5. ✅ Rendu du texte enrichi : `**gras**` parsé en `<strong>`
+6. ✅ Style identique aux cards Actualités (`bg-surface-container-lowest shadow-sm rounded-2xl`)
+7. ✅ Grille responsive : 1 → 2 → 4 colonnes
+8. ✅ En-tête page identique aux autres pages (icône + h1 serif uppercase + sous-titre)
+9. ✅ Titre : "Documentation sur l'Islam"
+
+#### Correction globale — Bordure visible sur les cards avec image
+**Actions menées :**
+1. ✅ Ajout classe CSS `.card-border` dans `globals.css` : pseudo-élément `::after` superposé (`position: absolute; inset: 0; border: 1px solid var(--color-card-border); pointer-events: none; z-index: 10`)
+2. ✅ Classe appliquée sur les cards grille Actualités et les cards Documentation
+3. ✅ Bordure visible en light mode (émeraude) et dark mode (ambre), même par-dessus les images
+
+**Commit :** `ddfcca7` — pushé sur GitHub
+
+---
+
 ### PHASE 2 : Front-office (À venir)
 - [ ] Sous-étape 2.1 : Page d'accueil - Header/Navigation
 - [ ] Sous-étape 2.2 : Page d'accueil - Hero Section

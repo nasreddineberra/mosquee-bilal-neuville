@@ -1,5 +1,5 @@
 # Audit du Projet — Mosquée Bilal
-**Date de dernière mise à jour :** 12 avril 2026 (Session 3)
+**Date de dernière mise à jour :** 13 avril 2026 (Session 5)
 **Branche :** main
 **Auditeur :** Claude Code (Sonnet 4.6)
 
@@ -7,12 +7,12 @@
 
 ## Résumé Exécutif
 
-Le projet est en **Phase 2 en cours**. La page d'accueil (bento grid) est quasi finalisée visuellement. La page "Contact et Infos pratiques" est structurée et complète. Le back-office reste à connecter à Supabase.
+Le projet est en **Phase 2 avancée**. La page d'accueil est finalisée. Les pages Actualités et Documentation Islam sont complètes. Il reste à créer la page Don, connecter le formulaire de contact, et démarrer l'intégration Supabase.
 
 | Domaine | Statut | Score |
 |---------|--------|-------|
 | Structure & Config | ✅ Solide | 9/10 |
-| Front-office (UI) | 🟡 Avancé | 7/10 |
+| Front-office (UI) | 🟡 Avancé | 8/10 |
 | Back-office (Admin) | 🟡 Partiel | 4/10 |
 | Backend / Data | ❌ Simulé | 1/10 |
 | Accessibilité | 🟡 Partiel | 5/10 |
@@ -21,6 +21,40 @@ Le projet est en **Phase 2 en cours**. La page d'accueil (bento grid) est quasi 
 ---
 
 ## Journal des Sessions
+
+### Session 5 — 13 avril 2026
+
+#### Page Actualités — Refonte des cards grille
+- [x] **2 articles à la une** : layout 2 × 1/2, style `card-green`, photo 1/3 + texte 2/3
+- [x] **Hauteurs réduites** d'1/3 : `h-[120px]` (featured) / `h-[96px]` (grille)
+- [x] **Gap image résolu** : remplacement `<button>` par `<div>` + `cursor-pointer` + `background-image` CSS inline
+- [x] **ArticleModal** : ajout `imagePosition?: string` et `featured?: boolean` sur l'interface `Article`
+
+#### Page Documentation Islam — Création complète
+- [x] **7 thèmes** : Fondements de l'Islam, Le Coran, La Sira, Les Hadiths, La Prière, Le Jeûne, FAQ
+- [x] **4 à 6 sujets par thème** avec contenus détaillés rédigés en français
+- [x] **Modale par sujet** — non fermable depuis l'extérieur (uniquement bouton ✕)
+- [x] **Parsing texte enrichi** : `**gras**` → `<strong>` via `parseContent()`
+- [x] **Style cohérent** avec les cards Actualités (`bg-surface-container-lowest shadow-sm rounded-2xl`)
+- [x] **Grille responsive** : 1 → 2 → 4 colonnes (`lg:grid-cols-4`)
+- [x] **Titre page** : "Documentation sur l'Islam" (icône + serif uppercase)
+
+#### Correction globale — Bordure visible sur cards avec image
+- [x] **Classe `.card-border`** ajoutée dans `globals.css` : pseudo-élément `::after` superposé (`position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--color-card-border); pointer-events: none; z-index: 10`)
+- [x] Appliquée sur les cards grille Actualités et les cards Documentation
+- [x] Bordure visible en light (émeraude) et dark mode (ambre), par-dessus les images
+
+**Commit :** `ddfcca7` — pushé sur GitHub (`b55dcaa..ddfcca7`)
+
+---
+
+### Session 4 — 12 avril 2026 (autre ordinateur)
+- [x] Thème dark/light cohérent sur l'ensemble du site
+- [x] Navigation SPA
+- [x] Formulaires mis à jour
+- [x] Commit `2c7fd51` — pushé sur GitHub
+
+---
 
 ### Session 3 — 12 avril 2026
 
@@ -167,7 +201,7 @@ Le projet est en **Phase 2 en cours**. La page d'accueil (bento grid) est quasi 
 |----------|---------|---------|
 | 🔴 HIGH | `src/context/AuthContext.tsx` | Auth simulée — accepte tout identifiant |
 | 🟡 MED | `src/app/infos/page.tsx` | Coordonnées Google Maps approximatives |
-| 🟡 MED | `src/app/documentation/page.tsx` | Liens `href="#"` non fonctionnels |
+| 🟢 LOW | `src/app/documentation/page.tsx` | Contenus statiques — à terme brancher sur Supabase |
 | 🟡 MED | Toutes pages admin (sauf hadiths) | Données 100% statiques/fake |
 | 🟢 LOW | `src/components/HeroSection.tsx` | `scrolling="no"` sur iframe : hint TypeScript (inoffensif, géré par `iframe.d.ts`) |
 | 🟢 LOW | `tailwind.config.ts` + `globals.css` | CSS variables hex incompatibles avec l'opacité Tailwind (`/xx`) — contourné par inline style |
@@ -224,4 +258,4 @@ Row 4 : Conférences | Cours & Activités | Contact+Assurances (stacked)
 
 ---
 
-*Dernière mise à jour : 12 avril 2026 — Session 3*
+*Dernière mise à jour : 13 avril 2026 — Session 5*
