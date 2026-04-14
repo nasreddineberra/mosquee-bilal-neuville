@@ -1,7 +1,7 @@
 # Audit du Projet — Mosquée Bilal
-**Date de dernière mise à jour :** 13 avril 2026 (Session 5)
+**Date de dernière mise à jour :** 14 avril 2026 (Session 6)
 **Branche :** main
-**Auditeur :** Claude Code (Sonnet 4.6)
+**Auditeur :** Claude Code (Opus 4.6)
 
 ---
 
@@ -21,6 +21,30 @@ Le projet est en **Phase 2 avancée**. La page d'accueil est finalisée. Les pag
 ---
 
 ## Journal des Sessions
+
+### Session 6 — 14 avril 2026
+
+#### Page Documentation Islam — Réécriture complète des textes
+- [x] **45 topics réécrits** sur 8 cards avec un ton ludique, empathique et pédagogique
+- [x] **Card 1** : Les fondements de l'Islam (6 topics) — Shahada, Salat, Zakat, Siyam, Hajj, Piliers de la foi
+- [x] **Card 2** : Le Coran (5 topics) — Qu'est-ce que le Coran, Révélation, Tajwid, Structure, Thèmes
+- [x] **Card 3** : La Sira (5 topics) — Naissance, Révélation, Hégire, Médine, L'adieu du Prophète
+- [x] **Card 4** : Les Hadiths (4 topics) — Qu'est-ce qu'un hadith, Grands recueils + 40 hadiths Nawawi, Hadith de Djibril (Gabriel)
+- [x] **Card 5** : La Prière (4 topics) — Conditions, Ablutions (étapes espacées), Étapes + rak'at par prière + Chaf' & Witr, Joumou'a
+- [x] **Card 6** : Le Jeûne (4 topics) — Piliers/conditions, Ramadan + Zakat al-Fitr, Laylat al-Qadr, Jeûnes hors Ramadan
+- [x] **Card 7** : Quelques Prophètes (12 topics détaillés) — Adam, Nouh, Ibrahim, Ismaïl, Ishaq, Yacoub, Youssouf, Moussa, Dawud, Sulayman, Younus, 'Issa
+- [x] **Card 8** : FAQ (5 topics) — Conversion, Halal, Apprendre à prier (Mawaqit), Islam en Occident (Darifton Prod), Apprendre l'arabe
+
+#### Modifications complémentaires
+- [x] **Titre page** changé : "C'est quoi l'Islam ?" avec icône MessageSquareHeart
+- [x] **Sous-titre Card 4** : "Paroles, actes et approbations du Prophète ﷺ"
+- [x] **Nouvelles images** : Card La Sira (calligraphie Muhammad), Card La Prière (homme priant), Card Le Jeûne (lanterne), Card FAQ (bokeh doré)
+- [x] **Remplacement systématique** de tous les "—" par "-"
+- [x] **Formulaire contact** (page Infos) : header en card-green style AideSocialeModal
+
+**Commit :** `40346d9` — pushé sur GitHub
+
+---
 
 ### Session 5 — 13 avril 2026
 
@@ -258,4 +282,4 @@ Row 4 : Conférences | Cours & Activités | Contact+Assurances (stacked)
 
 ---
 
-*Dernière mise à jour : 13 avril 2026 — Session 5*
+*Dernière mise à jour : 14 avril 2026 — Session 6*

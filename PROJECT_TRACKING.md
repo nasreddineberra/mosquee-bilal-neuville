@@ -254,6 +254,37 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ---
 
+### ✅ Session 6 — Réécriture complète page Documentation Islam
+**Date :** 14 avril 2026
+**Statut :** ✅ Terminée
+
+#### Réécriture des textes — Ton ludique, empathique et pédagogique
+**Actions menées :**
+1. ✅ Réécriture complète des 45 topics sur 8 cards avec un ton accessible et détaillé
+2. ✅ Card 1 : Les fondements de l'Islam (6 topics) — Shahada, Salat, Zakat, Siyam, Hajj, Piliers de la foi
+3. ✅ Card 2 : Le Coran (5 topics) — Qu'est-ce que le Coran, Révélation, Tajwid, Structure, Thèmes
+4. ✅ Card 3 : La Sira (5 topics) — Naissance, Révélation, Hégire, Médine, L'adieu du Prophète
+5. ✅ Card 4 : Les Hadiths (4 topics) — Qu'est-ce qu'un hadith, Grands recueils, 40 hadiths Nawawi, Hadith de Djibril
+6. ✅ Card 5 : La Prière (4 topics) — Conditions, Ablutions, Étapes, Joumou'a
+7. ✅ Card 6 : Le Jeûne (4 topics) — Piliers/conditions, Ramadan, Laylat al-Qadr, Jeûnes hors Ramadan
+8. ✅ Card 7 : Quelques Prophètes (12 topics détaillés) — Adam, Nouh, Ibrahim, Ismaïl, Ishaq, Yacoub, Youssouf, Moussa, Dawud, Sulayman, Younus, 'Issa
+9. ✅ Card 8 : FAQ (5 topics) — Conversion, Halal, Apprendre à prier, Islam en Occident, Apprendre l'arabe
+
+#### Modifications complémentaires
+**Actions menées :**
+1. ✅ Titre page changé : "C'est quoi l'Islam ?" avec icône MessageSquareHeart
+2. ✅ Sous-titre Card 4 : "Paroles, actes et approbations du Prophète ﷺ"
+3. ✅ Nouvelles images : Card La Sira (calligraphie Muhammad), Card La Prière, Card Le Jeûne (lanterne), Card FAQ (bokeh doré)
+4. ✅ Remplacement de tous les "—" par "-" dans les titres et contenus
+5. ✅ Ajout Chaf' & Witr dans les rak'at de la prière de l'Isha
+6. ✅ Zakat al-Fitr déplacée dans le topic Ramadan
+7. ✅ Ablutions : étapes séparées par des sauts de ligne pour meilleure lisibilité
+8. ✅ Formulaire contact (page Infos) : header en card-green style AideSocialeModal
+
+**Commit :** `40346d9` — pushé sur GitHub
+
+---
+
 ### PHASE 2 : Front-office (À venir)
 - [ ] Sous-étape 2.1 : Page d'accueil - Header/Navigation
 - [ ] Sous-étape 2.2 : Page d'accueil - Hero Section
