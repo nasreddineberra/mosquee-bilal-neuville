@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${notoSerif.variable} font-sans`}
         suppressHydrationWarning
