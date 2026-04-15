@@ -188,7 +188,7 @@ export default function ActivitesPage() {
                   Accompagnement et soutien pour les membres de la communauté en difficulté. Notre cellule d&apos;aide sociale est à votre écoute.
                 </p>
               </div>
-              <div className="bg-white text-primary py-2.5 rounded-full font-bold text-sm text-center shadow-md group-hover:opacity-90 transition-all group-active:scale-95">
+              <div className="aide-sociale-cta bg-white text-primary py-2.5 rounded-full font-bold text-sm text-center shadow-md transition-all group-active:scale-95">
                 Faire une demande
               </div>
             </button>

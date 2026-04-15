@@ -10,7 +10,7 @@ const navLinks = [
   { label: 'Actualités', href: '/actualites' },
   { label: 'Activités', href: '/activites' },
   { label: 'Islam', href: '/documentation' },
-  { label: 'Don', href: '/don' },
+  { label: 'Dons', href: '/don' },
   { label: 'Contact', href: '/infos' },
 ];
 

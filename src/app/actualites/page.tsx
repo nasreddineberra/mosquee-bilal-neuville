@@ -198,17 +198,17 @@ export default function ActualitesPage() {
                 <div
                   key={article.id}
                   onClick={() => setSelectedArticle(article)}
-                  className="card-border cursor-pointer group rounded-2xl overflow-hidden bg-surface-container-lowest shadow-sm transition-all hover:shadow-lg"
+                  className="card-border cursor-pointer group rounded-2xl overflow-hidden bg-surface-container-lowest shadow-sm transition-all hover:shadow-lg flex flex-col"
                 >
                   <div
-                    className="w-full h-24"
+                    className="w-full h-24 flex-shrink-0"
                     style={{
                       backgroundImage: `url(${article.image})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
                   />
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {(() => { const Icon = categoryIcons[article.category]; return Icon ? <Icon className="w-4 h-4 text-primary" /> : null; })()}
                       <span className="text-sm font-bold text-primary uppercase tracking-wider">
@@ -224,7 +224,7 @@ export default function ActualitesPage() {
                     <p className="text-xs text-on-surface/55 leading-relaxed line-clamp-2">
                       {article.summary}
                     </p>
-                    <div className="mt-3 flex items-center gap-2 text-primary text-sm font-semibold justify-end">
+                    <div className="mt-auto pt-3 flex items-center gap-2 text-primary text-sm font-semibold justify-end">
                       <span>Lire l&apos;article</span>
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
