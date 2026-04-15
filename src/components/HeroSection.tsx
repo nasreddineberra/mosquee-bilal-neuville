@@ -159,7 +159,7 @@ export default function HeroSection() {
                 <ChevronRight className="w-3 h-3" />
               </span>
             </div>
-            <p className="text-primary-fixed-dim text-xs">
+            <p className="text-white text-xs">
               Faire un Don en ligne
             </p>
           </div>

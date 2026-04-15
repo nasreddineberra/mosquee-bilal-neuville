@@ -68,7 +68,7 @@ export default function InfosPage() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-on-surface mb-2">Transport</h4>
+                  <h4 className="text-sm font-bold text-on-surface mb-2">Transport TCL</h4>
                   <p className="text-on-surface/60 text-sm mb-2">
                     Arrêt <strong>Neuville</strong> - Zone tarifaire 1
                   </p>
@@ -83,7 +83,7 @@ export default function InfosPage() {
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-800 text-white">JD 185</span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-800 text-white">JD 242</span>
                   </div>
-                  <p className="text-on-surface/60 text-sm">Petit parking disponible</p>
+                  <p className="text-on-surface/60 text-sm">Petit parking disponible - accès PMR</p>
                 </div>
                 <div className="flex-1 min-h-0 rounded-xl relative overflow-hidden">
                   <img
