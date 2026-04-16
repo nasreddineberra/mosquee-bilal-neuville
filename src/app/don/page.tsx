@@ -1,4 +1,4 @@
-import { Heart, Target, ShieldCheck, ExternalLink } from 'lucide-react';
+import { HeartHandshake, Goal, ShieldCheck, ExternalLink, ArrowBigRight, HandHeart } from 'lucide-react';
 
 export default function DonsPage() {
   return (
@@ -8,7 +8,7 @@ export default function DonsPage() {
         {/* En-tête */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-6 h-6 text-primary" />
+            <HeartHandshake className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold font-serif text-primary uppercase tracking-wider">
               Dons
             </h1>
@@ -25,7 +25,7 @@ export default function DonsPage() {
             {/* Pourquoi donner ? */}
             <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <Heart className="w-5 h-5 text-primary" />
+                <HandHeart className="w-5 h-5 text-primary" />
                 <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Pourquoi donner ?</h2>
               </div>
               <p className="text-on-surface/70 text-sm leading-relaxed mb-3">
@@ -62,21 +62,13 @@ export default function DonsPage() {
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-wrap gap-3">
-                <span className="inline-flex items-center px-4 py-2 bg-surface-container-low rounded-full text-sm font-semibold text-on-surface">
-                  HelloAsso
-                </span>
-                <span className="inline-flex items-center px-4 py-2 bg-surface-container-low rounded-full text-sm font-semibold text-on-surface">
-                  GoFundMe
-                </span>
-              </div>
             </div>
           </div>
 
           {/* Col 2 - Nos projets */}
           <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <Target className="w-5 h-5 text-primary" />
+              <Goal className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Nos projets</h2>
             </div>
 
@@ -86,7 +78,7 @@ export default function DonsPage() {
                 href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group card-green rounded-2xl p-5 shadow-sm flex flex-col justify-between transition-all hover:shadow-lg block"
+                className="group relative card-green card-green-link rounded-2xl p-5 shadow-sm flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2 mb-3">
@@ -104,9 +96,9 @@ export default function DonsPage() {
                     Contribuez au fonctionnement et au développement de la Mosquée Bilal. Vos dons sont éligibles à une réduction d&apos;impôt de 66%.
                   </p>
                 </div>
-                <div className="aide-sociale-cta bg-white text-primary py-2.5 rounded-full font-bold text-sm text-center shadow-md transition-all">
-                  Faire un don en ligne
-                </div>
+                <span className="card-green-btn">
+                  <ArrowBigRight className="w-4 h-4 fill-white" />
+                </span>
               </a>
 
               {/* Projets */}

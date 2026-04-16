@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Award, CheckCircle, FileText, Users, Heart, Plane, BookOpen, ChevronLeft } from 'lucide-react';
+import { Award, CheckCircle, FileText, Users, Heart, Plane, BookOpen, ChevronLeft, ArrowBigRight } from 'lucide-react';
 
 export default function CertificatPage() {
   return (
@@ -132,7 +132,7 @@ export default function CertificatPage() {
           {/* Section 4 - CTA Contact */}
           <Link
             href="/infos#contact"
-            className="group card-green rounded-xl p-5 shadow-sm flex flex-col justify-between transition-all hover:shadow-lg"
+            className="group relative card-green card-green-link rounded-xl p-5 shadow-sm self-start"
           >
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -146,9 +146,9 @@ export default function CertificatPage() {
                 N&apos;hésitez pas à nous écrire via le formulaire de contact. Nous vous répondrons dans les meilleurs délais et organiserons une rencontre à votre convenance.
               </p>
             </div>
-            <div className="aide-sociale-cta bg-white text-primary py-2.5 rounded-full font-bold text-sm text-center shadow-md transition-all">
-              Nous contacter
-            </div>
+            <span className="card-green-btn">
+              <ArrowBigRight className="w-4 h-4 fill-white" />
+            </span>
           </Link>
 
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Building, BookOpen, ScrollText, BookMarked, Moon, CircleHelp, ChevronRight, X, BookOpenCheck, Users, MessageSquareHeart } from 'lucide-react';
+import { Building, BookOpen, ScrollText, BookMarked, Moon, CircleHelp, ChevronRight, X, BookOpenCheck, Users, MessageSquareHeart, Star, UserStar } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 interface Topic {
@@ -24,7 +24,7 @@ const categories: DocCategory[] = [
     id: 1,
     title: 'Les fondements de l\'Islam',
     subtitle: 'Les 5 piliers et les 6 piliers de la foi',
-    icon: Building,
+    icon: Star,
     image: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=600&auto=format&fit=crop&q=80',
     topics: [
       {
@@ -557,7 +557,7 @@ Jeûner un jour sur deux. C'est le jeûne le plus aimé par Allah, mais aussi le
     id: 7,
     title: 'Quelques Prophètes',
     subtitle: '12 prophètes parmi les 25 mentionnés dans le Coran',
-    icon: Users,
+    icon: UserStar,
     image: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600&auto=format&fit=crop&q=80',
     topics: [
       {

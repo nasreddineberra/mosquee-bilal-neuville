@@ -85,7 +85,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-sm text-on-surface/65">04 XX XX XX XX</span>
+                <span className="text-sm text-on-surface/65">04 78 49 85 22</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
@@ -124,11 +124,11 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-outline-variant/10 pt-5 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="text-xs text-on-surface/35">
-            © {new Date().getFullYear()} Association Mosquée Bilal - Neuville-sur-Saône. Tous droits réservés.
+            © {new Date().getFullYear()} Association ACM - Mosquée Bilal. Tous droits réservés.
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Mentions légales</a>
-            <a href="#" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Confidentialité</a>
+            <Link href="/mentions-legales" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Mentions légales</Link>
+            <Link href="/confidentialite" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Confidentialité</Link>
             <Link href="/admin" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Accès réservé</Link>
           </div>
         </div>

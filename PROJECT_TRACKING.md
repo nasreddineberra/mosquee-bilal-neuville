@@ -27,7 +27,10 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Activités communautaires | Cours, sorties, services sociaux |
 | Documentation sur l'Islam | Articles pédagogiques, FAQ |
 | Infos pratiques | Accès, horaires, services (obsèques, assurances) |
-| Contact | Formulaire et plan |
+| Dons | Plateformes de collecte, projets, CTA |
+| Certificat de conversion | Définition, utilité, étapes, CTA contact |
+| Mentions légales | Éditeur, hébergement, propriété intellectuelle, crédits |
+| Confidentialité | RGPD, données collectées, droits, cookies |
 
 #### Back-office (Admin)
 | Page | Description |
@@ -300,6 +303,8 @@ Toutes les pages front-office sont créées avec un design cohérent light/dark 
 | Infos pratiques | `/infos` | ✅ Finalisé |
 | Dons | `/don` | ✅ Finalisé |
 | Certificat | `/certificat` | ✅ Finalisé |
+| Mentions légales | `/mentions-legales` | ✅ Finalisé |
+| Confidentialité | `/confidentialite` | ✅ Finalisé |
 | Admin Login | `/admin` | ✅ Finalisé |
 
 #### Session 7 - 15 avril 2026
@@ -326,6 +331,21 @@ Toutes les pages front-office sont créées avec un design cohérent light/dark 
 11. ✅ Card "Soutenir" (accueil) pointe vers `/don`
 
 **Commits :** `8e6236c` (Session 7) - pushé sur GitHub
+
+#### Session 9 - 16 avril 2026
+1. ✅ Effet hover card-green centralisé : `.card-green-link` + `.card-green-btn` (outline ambre + bouton fleche ArrowBigRight)
+2. ✅ Effet appliqué sur toutes les cards cliquables : Accueil (Soutenir), Dons (CTA), Activités (Aide Sociale), Certificat (CTA)
+3. ✅ Boutons texte supprimés sur cards card-green (seul le bouton fleche au hover)
+4. ✅ Card Aide Sociale réduite au contenu (`self-start`)
+5. ✅ Bouton "Accès réservé" (header) : effet contour ambre au hover (`btn-admin-link`)
+6. ✅ Icônes mises à jour : C'est quoi l'Islam (MessageSquareHeart), Langue Arabe (NotebookPen), Fondements (Star), Prophètes (UserStar), Dons (HeartHandshake), Pourquoi donner (HandHeart), Nos projets (Goal), Aide Sociale (Handshake)
+7. ✅ Correction Next.js 16 : `<Script>` remplacé par `<script dangerouslySetInnerHTML>` dans `<head>` (layout.tsx)
+8. ✅ Numéro de téléphone réel : 04 78 49 85 22 (page Infos + Footer)
+9. ✅ Adresse : 10 Avenue Auguste Wissel, 69250 Neuville-sur-Saône
+10. ✅ Footer : "© 2026 Association ACM - Mosquée Bilal. Tous droits réservés."
+11. ✅ Page `/mentions-legales` créée : éditeur, hébergement, propriété intellectuelle, responsabilité, crédits
+12. ✅ Page `/confidentialite` créée : données collectées, finalité, conservation, partage, cookies, droits RGPD, contact
+13. ✅ Liens Footer mis à jour : Mentions légales + Confidentialité pointent vers les nouvelles pages
 
 ### PHASE 3 : Back-office / Admin (À venir)
 - [ ] Sous-étape 3.1 : CRUD Actualités

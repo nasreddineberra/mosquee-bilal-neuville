@@ -49,7 +49,7 @@ export default function InfosPage() {
               <div className="space-y-3">
                 <div>
                   <h4 className="text-sm font-bold text-on-surface mb-1">Téléphone</h4>
-                  <p className="text-on-surface/60 text-sm">04 XX XX XX XX</p>
+                  <p className="text-on-surface/60 text-sm">04 78 49 85 22</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-on-surface mb-1">Email</h4>

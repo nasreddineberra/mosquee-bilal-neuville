@@ -310,3 +310,60 @@ h1, h2, h3, .font-serif {
 .card-green {
   background: linear-gradient(to bottom right, var(--color-primary), var(--color-primary-container));
 }
+
+/* Card-green cliquable — hover effect (light mode) */
+/* Bouton Admin Header — meme contour ambre que card-green au hover */
+:root .btn-admin-link {
+  transition: all 0.3s ease-out;
+}
+:root .btn-admin-link:hover {
+  outline: 2px solid #F59E0B;
+  outline-offset: -2px;
+}
+
+:root .card-green-link {
+  overflow: visible;
+  transition: all 0.5s ease-out;
+}
+:root .card-green-link:hover {
+  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.35);
+  ring: 2px;
+  outline: 2px solid #F59E0B;
+  outline-offset: -2px;
+}
+:root .card-green-link .card-green-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  transform: translateY(125%);
+  opacity: 0;
+  transition: all 0.3s ease-out;
+  background-color: #F59E0B;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 6px 16px;
+  border-radius: 0.75rem;
+  border: 1px solid #fff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+:root .card-green-link:hover .card-green-btn {
+  transform: translateY(-30%);
+  opacity: 1;
+}
+
+/* Dark mode — pas d'outline ambre, juste l'ombre */
+[data-theme="dark"] .card-green-link:hover {
+  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.5);
+  outline: 2px solid #FFB95F;
+  outline-offset: -2px;
+}
+[data-theme="dark"] .card-green-link .card-green-btn {
+  background-color: #0F172A;
+  border-color: #FFB95F;
+}
+

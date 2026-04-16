@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpenCheck, Pen, Users, Heart } from 'lucide-react';
+import { BookOpenCheck, NotebookPen, Users, Handshake, ArrowBigRight } from 'lucide-react';
 import AideSocialeModal from '@/components/AideSocialeModal';
 
 export default function ActivitesPage() {
@@ -72,7 +72,7 @@ export default function ActivitesPage() {
             {/* Langue Arabe */}
             <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <Pen className="w-5 h-5 text-primary" />
+                <NotebookPen className="w-5 h-5 text-primary" />
                 <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Langue Arabe</h3>
               </div>
               <p className="text-on-surface/60 text-sm mb-4">
@@ -177,20 +177,20 @@ export default function ActivitesPage() {
             {/* Aide Sociale-Green card */}
             <button
               onClick={() => setAideSocialeOpen(true)}
-              className="text-left card-green rounded-2xl p-5 shadow-sm group transition-all hover:shadow-lg flex flex-col justify-between"
+              className="text-left card-green card-green-link rounded-2xl p-5 shadow-sm group relative self-start"
             >
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Heart className="w-5 h-5 text-white" />
+                  <Handshake className="w-5 h-5 text-white" />
                   <h3 className="text-sm font-bold text-white uppercase tracking-wider">Aide Sociale</h3>
                 </div>
                 <p className="text-white/80 text-sm mb-6">
                   Accompagnement et soutien pour les membres de la communauté en difficulté. Notre cellule d&apos;aide sociale est à votre écoute.
                 </p>
               </div>
-              <div className="aide-sociale-cta bg-white text-primary py-2.5 rounded-full font-bold text-sm text-center shadow-md transition-all group-active:scale-95">
-                Faire une demande
-              </div>
+              <span className="card-green-btn">
+                <ArrowBigRight className="w-4 h-4 fill-white" />
+              </span>
             </button>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award } from 'lucide-react';
+import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, ArrowBigRight, MessageSquareHeart } from 'lucide-react';
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
 
@@ -138,32 +138,30 @@ export default function HeroSection() {
         {/* ROW 3 - Soutenir les projets (1/3) */}
         <Link
           href="/don"
-          className="group relative overflow-hidden card-green p-5 rounded-xl shadow-lg transition-transform active:scale-95 flex flex-col justify-start"
+          className="group relative card-green card-green-link p-5 rounded-xl shadow-lg active:scale-95 flex flex-col justify-start"
         >
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-white/80 flex-shrink-0 heart-pulse"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Soutenir les projets
-                </h4>
-              </div>
-              <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white flex-shrink-0 transition-colors group-hover:bg-amber-500 group-hover:text-white">
-                <ChevronRight className="w-3 h-3" />
-              </span>
+            <div className="flex items-center gap-2 mb-2">
+              <svg
+                className="w-5 h-5 text-white/80 flex-shrink-0 heart-pulse"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+                Soutenir les projets
+              </h4>
             </div>
             <p className="text-white text-xs">
               Faire un Don en ligne
             </p>
           </div>
           <div className="absolute -right-3 -bottom-3 w-16 h-16 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
+          <span className="card-green-btn">
+            <ArrowBigRight className="w-4 h-4 fill-white" />
+          </span>
         </Link>
 
         {/* ROW 4 - Cours + Islam (1/3, stacked) */}
@@ -187,7 +185,7 @@ export default function HeroSection() {
           <Link href="/documentation" className="group bg-surface-container-lowest rounded-xl p-5 shadow-sm block hover:bg-surface-container transition-colors">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <BookOpenCheck className="w-5 h-5 text-primary" />
+                <MessageSquareHeart className="w-5 h-5 text-primary" />
                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider">
                   C&apos;est quoi l&apos;Islam ?
                 </h4>
