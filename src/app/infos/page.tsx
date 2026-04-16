@@ -1,6 +1,14 @@
+'use client';
+
+import { useState } from 'react';
 import { Clock, MapPin, Mail, CheckSquare, NotebookTabs } from 'lucide-react';
+import { FloatInput, FloatTextarea } from '@/components/FloatField';
 
 export default function InfosPage() {
+  const [form, setForm] = useState({ firstname: '', lastname: '', email: '', phone: '', subject: '', message: '' });
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const isValid = Object.values(form).every((v) => v.trim() !== '') && isEmailValid;
+
   return (
     <div className="bg-background pt-8 pb-2 px-4">
       <div className="max-w-7xl mx-auto">
@@ -124,36 +132,21 @@ export default function InfosPage() {
             <div className="p-6">
               <form className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="firstname" className="block text-sm font-medium text-on-surface/70 mb-1">Prénom</label>
-                    <input type="text" id="firstname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre prénom" />
-                  </div>
-                  <div>
-                    <label htmlFor="lastname" className="block text-sm font-medium text-on-surface/70 mb-1">Nom</label>
-                    <input type="text" id="lastname" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre nom" />
-                  </div>
+                  <FloatInput id="firstname" label="Prénom" value={form.firstname} onChange={(v) => setForm({ ...form, firstname: v })} required transform="capitalize" />
+                  <FloatInput id="lastname" label="Nom" value={form.lastname} onChange={(v) => setForm({ ...form, lastname: v })} required transform="uppercase" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-on-surface/70 mb-1">Email</label>
-                    <input type="email" id="email" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="votre@email.com" />
-                  </div>
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-on-surface/70 mb-1">Téléphone</label>
-                    <input type="tel" id="phone" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="06 XX XX XX XX" />
-                  </div>
+                  <FloatInput id="email" label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} required transform="lowercase" error={form.email.length > 0 && !isEmailValid} />
+                  <FloatInput id="phone" label="Téléphone" type="tel" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required transform="phone" />
                 </div>
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-on-surface/70 mb-1">Sujet</label>
-                  <input type="text" id="subject" className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Sujet de votre message" />
+                <FloatInput id="subject" label="Sujet" value={form.subject} onChange={(v) => setForm({ ...form, subject: v })} required />
+                <FloatTextarea id="message" label="Message" rows={6} value={form.message} onChange={(v) => setForm({ ...form, message: v })} required />
+                <div className="flex items-center justify-between">
+                  <span className="text-red-500 text-xs font-medium">* obligatoire</span>
+                  <button type="submit" disabled={!isValid} className={`px-8 py-3 rounded-full font-bold shadow-md transition-all active:scale-95 ${isValid ? 'card-green text-white hover:opacity-90' : 'bg-on-surface/10 text-on-surface/30 cursor-not-allowed'}`}>
+                    Envoyer le message
+                  </button>
                 </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-on-surface/70 mb-1">Message</label>
-                  <textarea id="message" rows={6} className="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40 resize-none" placeholder="Votre message..." />
-                </div>
-                <button type="submit" className="w-full card-green text-white py-3 rounded-full font-bold shadow-md hover:opacity-90 transition-all active:scale-95">
-                  Envoyer le message
-                </button>
               </form>
             </div>
           </div>
@@ -164,21 +157,33 @@ export default function InfosPage() {
               <CheckSquare className="w-5 h-5 text-primary" />
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Services</h2>
             </div>
-            <div className="grid grid-cols-1 gap-3">
-              {[
-                { title: 'Prières quotidiennes et prière mortuaire', desc: 'Salât al-janâza — accompagnement du défunt dans la prière.' },
-                { title: 'Prière de l\'Aïd', desc: 'Célébration de l\'Aïd el-Fitr et l\'Aïd el-Adha en communauté.' },
-                { title: 'Salle d\'ablutions', desc: 'Espace dédié aux ablutions avant la prière.' },
-                { title: 'Iftar Ramadan', desc: 'Rupture du jeûne partagée en communauté durant le mois de Ramadan.' },
-                { title: 'Espace pour femmes', desc: 'Salle réservée aux femmes pour la prière et les activités.' },
-                { title: 'Cours pour adultes et enfants', desc: 'Enseignement du Coran, tajwid, et éducation islamique.' },
-                { title: 'Petit parking avec accès handicapés', desc: 'Stationnement disponible avec accès aménagé pour les personnes à mobilité réduite.' },
-              ].map((service, i) => (
-                <div key={i} className="p-4 bg-surface-container-low rounded-2xl">
-                  <h4 className="text-sm font-bold text-primary mb-1">{service.title}</h4>
-                  <p className="text-on-surface/60 text-xs">{service.desc}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-3">
+                {[
+                  { title: 'Prières quotidiennes', desc: 'Les cinq prières quotidiennes dans un cadre serein et accueillant.' },
+                  { title: 'Prière mortuaire', desc: 'Salât al-janâza - accompagnement du défunt dans la prière.' },
+                  { title: 'Prière de l\'Aïd', desc: 'Célébration de l\'Aïd el-Fitr et l\'Aïd el-Adha en communauté.' },
+                  { title: 'Salle d\'ablutions', desc: 'Espace dédié aux ablutions avant la prière.' },
+                ].map((service, i) => (
+                  <div key={i} className="p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-colors cursor-pointer">
+                    <h4 className="text-sm font-bold text-primary mb-1">{service.title}</h4>
+                    <p className="text-on-surface/60 text-xs">{service.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-3">
+                {[
+                  { title: 'Cours pour adultes et enfants', desc: 'Enseignement du Coran, tajwid, et éducation islamique.' },
+                  { title: 'Iftar Ramadan', desc: 'Rupture du jeûne partagée en communauté durant le mois de Ramadan.' },
+                  { title: 'Espace pour femmes', desc: 'Salle réservée aux femmes pour la prière et les activités.' },
+                  { title: 'Petit parking avec accès PMR', desc: 'Stationnement disponible avec accès aménagé pour les personnes à mobilité réduite.' },
+                ].map((service, i) => (
+                  <div key={i} className="p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-colors cursor-pointer">
+                    <h4 className="text-sm font-bold text-primary mb-1">{service.title}</h4>
+                    <p className="text-on-surface/60 text-xs">{service.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

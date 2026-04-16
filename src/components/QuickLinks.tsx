@@ -51,7 +51,7 @@ export default function QuickLinks() {
 
         {/* Contact */}
         <Link
-          href="/contact"
+          href="/infos"
           className="flex items-center justify-between p-5 bg-surface-container-lowest rounded-3xl 
                      border border-outline-variant/15 hover:shadow-md transition-shadow group"
         >

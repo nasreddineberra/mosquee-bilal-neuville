@@ -136,8 +136,8 @@ export default function HeroSection() {
         </div>
 
         {/* ROW 3 - Soutenir les projets (1/3) */}
-        <a
-          href="#"
+        <Link
+          href="/don"
           className="group relative overflow-hidden card-green p-5 rounded-xl shadow-lg transition-transform active:scale-95 flex flex-col justify-start"
         >
           <div className="relative z-10">
@@ -164,7 +164,7 @@ export default function HeroSection() {
             </p>
           </div>
           <div className="absolute -right-3 -bottom-3 w-16 h-16 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
-        </a>
+        </Link>
 
         {/* ROW 4 - Cours + Islam (1/3, stacked) */}
         <div className="space-y-3">

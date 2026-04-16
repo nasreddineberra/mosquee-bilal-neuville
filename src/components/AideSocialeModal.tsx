@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { FloatInput, FloatSelect, FloatTextarea } from '@/components/FloatField';
 
 interface AideSocialeModalProps {
   open: boolean;
@@ -10,6 +11,9 @@ interface AideSocialeModalProps {
 
 export default function AideSocialeModal({ open, onClose }: AideSocialeModalProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ firstname: '', lastname: '', email: '', phone: '', type: '', situation: '' });
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const isValid = Object.values(form).every((v) => v.trim() !== '') && isEmailValid;
 
   useEffect(() => {
     if (open) {
@@ -24,17 +28,19 @@ export default function AideSocialeModal({ open, onClose }: AideSocialeModalProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValid) return;
     setSubmitted(true);
   };
 
   const handleClose = () => {
     setSubmitted(false);
+    setForm({ firstname: '', lastname: '', email: '', phone: '', type: '', situation: '' });
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop — no onClick to prevent closing */}
+      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
@@ -79,51 +85,43 @@ export default function AideSocialeModal({ open, onClose }: AideSocialeModalProp
               </p>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="aide-prenom" className="block text-sm font-medium text-on-surface/70 mb-1">Prénom</label>
-                  <input type="text" id="aide-prenom" required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre prénom" />
-                </div>
-                <div>
-                  <label htmlFor="aide-nom" className="block text-sm font-medium text-on-surface/70 mb-1">Nom</label>
-                  <input type="text" id="aide-nom" required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="Votre nom" />
-                </div>
+                <FloatInput id="aide-prenom" label="Prénom" value={form.firstname} onChange={(v) => setForm({ ...form, firstname: v })} required transform="capitalize" />
+                <FloatInput id="aide-nom" label="Nom" value={form.lastname} onChange={(v) => setForm({ ...form, lastname: v })} required transform="uppercase" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="aide-email" className="block text-sm font-medium text-on-surface/70 mb-1">Email</label>
-                  <input type="email" id="aide-email" required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="votre@email.com" />
-                </div>
-                <div>
-                  <label htmlFor="aide-tel" className="block text-sm font-medium text-on-surface/70 mb-1">Téléphone</label>
-                  <input type="tel" id="aide-tel" required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40" placeholder="06 XX XX XX XX" />
-                </div>
+                <FloatInput id="aide-email" label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} required transform="lowercase" error={form.email.length > 0 && !isEmailValid} />
+                <FloatInput id="aide-tel" label="Téléphone" type="tel" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required transform="phone" />
               </div>
 
-              <div>
-                <label htmlFor="aide-type" className="block text-sm font-medium text-on-surface/70 mb-1">Type d&apos;aide souhaitée</label>
-                <select id="aide-type" required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 text-on-surface">
-                  <option value="">— Sélectionnez —</option>
-                  <option value="alimentaire">Aide alimentaire</option>
-                  <option value="financiere">Aide financière ponctuelle</option>
-                  <option value="administrative">Accompagnement administratif</option>
-                  <option value="logement">Aide au logement</option>
-                  <option value="ecoute">Écoute et soutien moral</option>
-                  <option value="autre">Autre</option>
-                </select>
-              </div>
+              <FloatSelect
+                id="aide-type"
+                label="Type d'aide souhaitée"
+                value={form.type}
+                onChange={(v) => setForm({ ...form, type: v })}
+                required
+                options={[
+                  { value: 'alimentaire', label: 'Aide alimentaire' },
+                  { value: 'financiere', label: 'Aide financière ponctuelle' },
+                  { value: 'administrative', label: 'Accompagnement administratif' },
+                  { value: 'logement', label: 'Aide au logement' },
+                  { value: 'ecoute', label: 'Écoute et soutien moral' },
+                  { value: 'autre', label: 'Autre' },
+                ]}
+              />
 
-              <div>
-                <label htmlFor="aide-situation" className="block text-sm font-medium text-on-surface/70 mb-1">Décrivez votre situation</label>
-                <textarea id="aide-situation" rows={4} required className="w-full bg-surface-container-low border-none rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface/40 resize-none" placeholder="Décrivez brièvement votre situation afin que nous puissions mieux vous orienter..." />
-              </div>
+              <FloatTextarea id="aide-situation" label="Décrivez votre situation" rows={4} value={form.situation} onChange={(v) => setForm({ ...form, situation: v })} required />
 
-              <button
-                type="submit"
-                className="w-full card-green text-white py-3 rounded-full font-bold shadow-md hover:opacity-90 transition-all active:scale-95"
-              >
-                Envoyer la demande
-              </button>
+              <div className="flex items-center justify-between">
+                <span className="text-red-500 text-xs font-medium">* obligatoire</span>
+                <button
+                  type="submit"
+                  disabled={!isValid}
+                  className={`px-8 py-3 rounded-full font-bold shadow-md transition-all active:scale-95 ${isValid ? 'card-green text-white hover:opacity-90' : 'bg-on-surface/10 text-on-surface/30 cursor-not-allowed'}`}
+                >
+                  Envoyer la demande
+                </button>
+              </div>
 
               <p className="text-[10px] text-on-surface/40 text-center">
                 Vos informations restent strictement confidentielles.

@@ -285,31 +285,61 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ---
 
-### PHASE 2 : Front-office (À venir)
-- [ ] Sous-étape 2.1 : Page d'accueil - Header/Navigation
-- [ ] Sous-étape 2.2 : Page d'accueil - Hero Section
-- [ ] Sous-étape 2.3 : Page d'accueil - Widget Mawaqit
-- [ ] Sous-étape 2.4 : Page d'accueil - Section Actualités
-- [ ] Sous-étape 2.5 : Page d'accueil - Footer
-- [ ] Sous-étape 2.6 : Page Actualités
-- [ ] Sous-étape 2.7 : Page Activités
-- [ ] Sous-étape 2.8 : Page Documentation Islam
-- [ ] Sous-étape 2.9 : Page Infos pratiques
-- [ ] Sous-étape 2.10 : Page Contact
+### ✅ PHASE 2 : Front-office - MAQUETTE FINALISÉE
+**Date :** 15-16 avril 2026 (Sessions 7-8)
+**Statut :** ✅ Terminée
+
+Toutes les pages front-office sont créées avec un design cohérent light/dark :
+
+| Page | Route | Statut |
+|------|-------|--------|
+| Accueil | `/` | ✅ Finalisé |
+| Actualités | `/actualites` | ✅ Finalisé |
+| Activités | `/activites` | ✅ Finalisé |
+| Documentation Islam | `/documentation` | ✅ Finalisé |
+| Infos pratiques | `/infos` | ✅ Finalisé |
+| Dons | `/don` | ✅ Finalisé |
+| Certificat | `/certificat` | ✅ Finalisé |
+| Admin Login | `/admin` | ✅ Finalisé |
+
+#### Session 7 - 15 avril 2026
+1. ✅ Menu "Don" renommé en "Dons"
+2. ✅ 3e card actualité (Zakat al-Fitr) sur la page d'accueil
+3. ✅ Dernière ligne accueil restructurée : Cours+Islam | Certificat | Contact+Assurances
+4. ✅ Chevrons uniformes w-6/h-6 avec hover primary sur toutes les cards
+5. ✅ Page `/certificat` créée (4 sections + CTA)
+6. ✅ Hover Aide Sociale : bouton #F59E0B (light) / #0F172A (dark) via CSS
+7. ✅ Page Infos restructurée : Horaires+Contact col 1, Accès+Map fusionnés col 2-3
+8. ✅ "Lire l'article" ancré en bas des cards Actualités
+
+#### Session 8 - 16 avril 2026
+1. ✅ Page `/don` créée : Pourquoi donner + Plateformes + Projets + CTA card-green
+2. ✅ Composants FloatField centralisés : FloatInput, FloatTextarea, FloatSelect
+3. ✅ Transforms de saisie : capitalize, uppercase, lowercase, phone
+4. ✅ Formulaire Contact (page Infos) : FloatInput + validation + bouton grisé
+5. ✅ Formulaire Aide Sociale : migré vers FloatInput/FloatSelect/FloatTextarea
+6. ✅ Page Admin Login : suppression mode démo, ajout accès visiteur (modal)
+7. ✅ Mot de passe : icône Eye/EyeOff pour visibilité
+8. ✅ Card Services en 2 colonnes avec hover
+9. ✅ Photo mosquée dans card Accès (position absolute)
+10. ✅ Suppression page `/contact` (doublon avec `/infos`)
+11. ✅ Card "Soutenir" (accueil) pointe vers `/don`
+
+**Commits :** `8e6236c` (Session 7) - pushé sur GitHub
 
 ### PHASE 3 : Back-office / Admin (À venir)
-- [ ] Sous-étape 3.1 : Page de connexion admin
-- [ ] Sous-étape 3.2 : Dashboard admin
-- [ ] Sous-étape 3.3 : Gestion de contenu (CRUD articles)
-- [ ] Sous-étape 3.4 : Gestion des événements
-- [ ] Sous-étape 3.5 : Médiathèque
-- [ ] Sous-étape 3.6 : Paramètres
+- [ ] Sous-étape 3.1 : CRUD Actualités
+- [ ] Sous-étape 3.2 : CRUD Événements
+- [ ] Sous-étape 3.3 : Médiathèque
+- [ ] Sous-étape 3.4 : Paramètres / Rôles
+- [ ] Sous-étape 3.5 : Persistance des données (Supabase)
 
 ### PHASE 4 : Backend Supabase (Futur)
 - [ ] Configuration Supabase
-- [ ] Authentification
+- [ ] Authentification réelle
 - [ ] Base de données + RLS
 - [ ] API Routes Next.js
+- [ ] Formulaires connectés (Contact, Aide Sociale, Accès visiteur)
 
 ---
 

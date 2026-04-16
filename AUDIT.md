@@ -1,5 +1,5 @@
-# Audit du Projet — Mosquée Bilal
-**Date de dernière mise à jour :** 14 avril 2026 (Session 6)
+# Audit du Projet - Mosquée Bilal
+**Date de dernière mise à jour :** 16 avril 2026 (Session 8)
 **Branche :** main
 **Auditeur :** Claude Code (Opus 4.6)
 
@@ -7,13 +7,13 @@
 
 ## Résumé Exécutif
 
-Le projet est en **Phase 2 avancée**. La page d'accueil est finalisée. Les pages Actualités et Documentation Islam sont complètes. Il reste à créer la page Don, connecter le formulaire de contact, et démarrer l'intégration Supabase.
+Le projet est en **Phase 2 finalisée**. La maquette complète du site est terminée : toutes les pages front-office sont créées avec un design cohérent en light et dark mode. Les composants de formulaire sont centralisés et réutilisables. Il reste à connecter les formulaires, intégrer Supabase et renseigner les vraies données.
 
 | Domaine | Statut | Score |
 |---------|--------|-------|
 | Structure & Config | ✅ Solide | 9/10 |
-| Front-office (UI) | 🟡 Avancé | 8/10 |
-| Back-office (Admin) | 🟡 Partiel | 4/10 |
+| Front-office (UI) | ✅ Finalisé | 9/10 |
+| Back-office (Admin) | 🟡 Partiel | 5/10 |
 | Backend / Data | ❌ Simulé | 1/10 |
 | Accessibilité | 🟡 Partiel | 5/10 |
 | Performance | 🟡 À évaluer | -/10 |
@@ -22,169 +22,166 @@ Le projet est en **Phase 2 avancée**. La page d'accueil est finalisée. Les pag
 
 ## Journal des Sessions
 
-### Session 6 — 14 avril 2026
+### Session 8 - 16 avril 2026
 
-#### Page Documentation Islam — Réécriture complète des textes
+#### Page Dons (`/don`) - Création complète
+- [x] **Structure 2 colonnes** : Col 1 (Pourquoi donner + Plateformes de confiance), Col 2 (Nos projets)
+- [x] **Card CTA "Soutenir la mosquée"** en tête de col 2 : card-green + aide-sociale-cta + heart-pulse
+- [x] **3 projets** en grille 2 colonnes : Programmes éducatifs, Actions sociales, Événements communautaires
+- [x] **Plateformes** : badges HelloAsso et GoFundMe (sans lien, juste indicatifs)
+- [x] **Card Soutenir (accueil)** pointe désormais vers `/don` (Link au lieu de `<a href="#">`)
+
+#### Composants de formulaire centralisés (`FloatField.tsx`)
+- [x] **FloatInput** : champ avec label flottant, bordure card-border, prop `transform` et `error`
+- [x] **FloatTextarea** : textarea avec label flottant
+- [x] **FloatSelect** : select avec label flottant + chevron
+- [x] **Transforms disponibles** : `capitalize` (1re lettre majuscule par mot, lettres uniquement), `uppercase` (tout majuscules, lettres uniquement), `lowercase` (tout minuscules), `phone` (+ autorisé en début + chiffres uniquement), `none`
+- [x] **Validation email** : contour rouge si format non conforme (`error` prop)
+
+#### Page Infos - Refonte formulaire de contact
+- [x] **Tous les champs en FloatInput/FloatTextarea** avec transforms appliqués
+- [x] **Tous les champs obligatoires** avec astérisque rouge
+- [x] **Validation email** avec contour rouge si non conforme
+- [x] **Bouton grisé** tant que tous les champs ne sont pas remplis + email valide
+- [x] **Dernière ligne** : "* obligatoire" à gauche + bouton "Envoyer le message" à droite
+- [x] **Photo mosquée** dans card Accès avec `position: absolute` (ne modifie pas la hauteur)
+- [x] **Styles uniformisés** Horaires/Contact identiques au style Adresse
+- [x] **Card Services en 2 colonnes** avec hover cursor-pointer
+
+#### Page Activités - Refonte formulaire Aide Sociale
+- [x] **Tous les champs en FloatInput/FloatSelect/FloatTextarea**
+- [x] **Mêmes transforms et validations** que le formulaire de contact
+- [x] **Bouton grisé** + "* obligatoire" + bouton à droite
+- [x] **Reset du formulaire** à la fermeture du modal
+
+#### Page Admin Login - Refonte
+- [x] **Suppression card "Mode démo"**
+- [x] **Champs en FloatInput** : email (lowercase + validation rouge), mot de passe (avec icône oeil Eye/EyeOff)
+- [x] **Bouton grisé** si champs non valides
+- [x] **Bouton "Demander un accès visiteur"** ajouté
+- [x] **Modal accès visiteur** : formulaire FloatInput (Prénom, Nom, Email, Téléphone) + validation + message de confirmation
+
+#### Nettoyage
+- [x] **Suppression page `/contact`** (doublon avec `/infos`)
+- [x] **Correction lien QuickLinks** : `/contact` -> `/infos`
+
+---
+
+### Session 7 - 15 avril 2026
+
+#### Page Certificat (`/certificat`) - Création complète
+- [x] **4 sections** : Qu'est-ce que le certificat, À quoi sert-il, Comment l'obtenir, CTA Contact
+- [x] **Lien retour accueil** en haut de page
+- [x] **CTA** : card-green avec aide-sociale-cta, redirige vers `/infos#contact`
+
+#### Refonte page Infos
+- [x] **Nouvelle structure** : Col 1 (Horaires + Contact empilés), Col 2-3 (Accès + Map fusionnés)
+- [x] **Horaires simplifiés** : "Lundi - Dimanche" / "Prière du Vendredi"
+- [x] **Formulaire contact** : ajout `id="contact"` + `scroll-mt-24` pour ancrage
+
+#### Refonte accueil (HeroSection)
+- [x] **3e card actualité** ajoutée (Collecte Zakat al-Fitr)
+- [x] **Dernière ligne restructurée** : Cours+Islam | Certificat | Contact+Assurances
+- [x] **Chevrons uniformes** w-6/h-6 avec hover primary sur toutes les cards
+- [x] **Menu** : "Don" renommé en "Dons"
+- [x] **Hover Aide Sociale** : bouton #F59E0B (light) / #0F172A (dark) via CSS globals
+
+#### Page Actualités
+- [x] **"Lire l'article"** ancré en bas des cards (mt-auto pt-3)
+
+**Commit :** `8e6236c` - pushé sur GitHub
+
+---
+
+### Session 6 - 14 avril 2026
+
+#### Page Documentation Islam - Réécriture complète des textes
 - [x] **45 topics réécrits** sur 8 cards avec un ton ludique, empathique et pédagogique
-- [x] **Card 1** : Les fondements de l'Islam (6 topics) — Shahada, Salat, Zakat, Siyam, Hajj, Piliers de la foi
-- [x] **Card 2** : Le Coran (5 topics) — Qu'est-ce que le Coran, Révélation, Tajwid, Structure, Thèmes
-- [x] **Card 3** : La Sira (5 topics) — Naissance, Révélation, Hégire, Médine, L'adieu du Prophète
-- [x] **Card 4** : Les Hadiths (4 topics) — Qu'est-ce qu'un hadith, Grands recueils + 40 hadiths Nawawi, Hadith de Djibril (Gabriel)
-- [x] **Card 5** : La Prière (4 topics) — Conditions, Ablutions (étapes espacées), Étapes + rak'at par prière + Chaf' & Witr, Joumou'a
-- [x] **Card 6** : Le Jeûne (4 topics) — Piliers/conditions, Ramadan + Zakat al-Fitr, Laylat al-Qadr, Jeûnes hors Ramadan
-- [x] **Card 7** : Quelques Prophètes (12 topics détaillés) — Adam, Nouh, Ibrahim, Ismaïl, Ishaq, Yacoub, Youssouf, Moussa, Dawud, Sulayman, Younus, 'Issa
-- [x] **Card 8** : FAQ (5 topics) — Conversion, Halal, Apprendre à prier (Mawaqit), Islam en Occident (Darifton Prod), Apprendre l'arabe
+- [x] **Card 1** : Les fondements de l'Islam (6 topics)
+- [x] **Card 2** : Le Coran (5 topics)
+- [x] **Card 3** : La Sira (5 topics)
+- [x] **Card 4** : Les Hadiths (4 topics)
+- [x] **Card 5** : La Prière (4 topics)
+- [x] **Card 6** : Le Jeûne (4 topics)
+- [x] **Card 7** : Quelques Prophètes (12 topics détaillés)
+- [x] **Card 8** : FAQ (5 topics)
 
-#### Modifications complémentaires
-- [x] **Titre page** changé : "C'est quoi l'Islam ?" avec icône MessageSquareHeart
-- [x] **Sous-titre Card 4** : "Paroles, actes et approbations du Prophète ﷺ"
-- [x] **Nouvelles images** : Card La Sira (calligraphie Muhammad), Card La Prière (homme priant), Card Le Jeûne (lanterne), Card FAQ (bokeh doré)
-- [x] **Remplacement systématique** de tous les "—" par "-"
-- [x] **Formulaire contact** (page Infos) : header en card-green style AideSocialeModal
-
-**Commit :** `40346d9` — pushé sur GitHub
+**Commit :** `40346d9` - pushé sur GitHub
 
 ---
 
-### Session 5 — 13 avril 2026
+### Session 5 - 13 avril 2026
 
-#### Page Actualités — Refonte des cards grille
-- [x] **2 articles à la une** : layout 2 × 1/2, style `card-green`, photo 1/3 + texte 2/3
-- [x] **Hauteurs réduites** d'1/3 : `h-[120px]` (featured) / `h-[96px]` (grille)
-- [x] **Gap image résolu** : remplacement `<button>` par `<div>` + `cursor-pointer` + `background-image` CSS inline
-- [x] **ArticleModal** : ajout `imagePosition?: string` et `featured?: boolean` sur l'interface `Article`
+#### Page Actualités - Refonte des cards grille
+- [x] 2 articles à la une en layout card-green
+- [x] Bordure visible via `.card-border` (pseudo-élément ::after)
 
-#### Page Documentation Islam — Création complète
-- [x] **7 thèmes** : Fondements de l'Islam, Le Coran, La Sira, Les Hadiths, La Prière, Le Jeûne, FAQ
-- [x] **4 à 6 sujets par thème** avec contenus détaillés rédigés en français
-- [x] **Modale par sujet** — non fermable depuis l'extérieur (uniquement bouton ✕)
-- [x] **Parsing texte enrichi** : `**gras**` → `<strong>` via `parseContent()`
-- [x] **Style cohérent** avec les cards Actualités (`bg-surface-container-lowest shadow-sm rounded-2xl`)
-- [x] **Grille responsive** : 1 → 2 → 4 colonnes (`lg:grid-cols-4`)
-- [x] **Titre page** : "Documentation sur l'Islam" (icône + serif uppercase)
+#### Page Documentation Islam - Création complète
+- [x] 7 cards thématiques avec modales par sujet
 
-#### Correction globale — Bordure visible sur cards avec image
-- [x] **Classe `.card-border`** ajoutée dans `globals.css` : pseudo-élément `::after` superposé (`position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--color-card-border); pointer-events: none; z-index: 10`)
-- [x] Appliquée sur les cards grille Actualités et les cards Documentation
-- [x] Bordure visible en light (émeraude) et dark mode (ambre), par-dessus les images
-
-**Commit :** `ddfcca7` — pushé sur GitHub (`b55dcaa..ddfcca7`)
+**Commit :** `ddfcca7` - pushé sur GitHub
 
 ---
 
-### Session 4 — 12 avril 2026 (autre ordinateur)
-- [x] Thème dark/light cohérent sur l'ensemble du site
-- [x] Navigation SPA
-- [x] Formulaires mis à jour
-- [x] Commit `2c7fd51` — pushé sur GitHub
-
----
-
-### Session 3 — 12 avril 2026
-
-#### Corrections et améliorations HeroSection (page d'accueil)
-- [x] **ThemeProvider** : suppression du `return null` qui causait une page blanche au chargement
-- [x] **LayoutShell** : nouveau composant client qui isole Header/Footer du périmètre admin
-- [x] **Uniformisation des titres de cards** : toutes les cards ont désormais icône + uppercase + tracking-wider
-- [x] **Card "Dernières actualités"** : photos Unsplash réelles (gauche, hauteur max), date JJ/MM, titre, résumé
-- [x] **DailyReminder** : version compacte horizontale, titre uniformisé (icône crayon + uppercase)
-- [x] **Suppression QuickLinks et NewsSection** de la page d'accueil
-- [x] **Mawaqit widget** : `row-span-2`, hauteur `h-[560px]`, scrollbar supprimée (`scrolling="no"`)
-- [x] **Card "Soutenir les projets"** : cœur battant à gauche du titre (5s repos / 2s survol), oscillation couleur blanc→#F59E0B
-- [x] **Bordures des cards** : variable CSS `--color-card-border` (primary en light / #F59E0B en dark)
-- [x] **Espacement** : `gap-3`, `py-2` sur la section
-- [x] **Accès rapide** : chevron `›` en haut à droite des cards Actualités, Conférences, Cours
-- [x] **Card Contact** : renommée "Contact et infos pratiques", redirige vers `/infos`
-- [x] **Image hero** : images `mosquee-hero-light.png` et `mosquee-hero-dark.png` selon le thème actif
-- [x] **Badge "Que la paix soit sur vous"** : couleur texte fixée en `#A9824D` via inline style (CSS variable incompatible avec l'opacité Tailwind)
-- [x] **Footer** : suppression du `mt-12` (espace au-dessus)
-- [x] **iframe.d.ts** : déclaration TypeScript pour supprimer le hint `scrolling` deprecated
-
-#### Page "Contact et Infos pratiques" (`/infos`)
-- [x] Titre page → "Contact et Infos pratiques"
-- [x] Sous-titre → "Accès, horaires, contact, services et informations utiles."
-- [x] Formulaire de contact ajouté : Prénom + Nom, Email + Téléphone, Sujet, Message (6 lignes)
-- [x] Restructuration en 2 lignes :
-  - Ligne 1 (3 colonnes) : Horaires | Accès | Plan d'accès
-  - Ligne 2 (2 colonnes) : Formulaire de contact | Services
-- [x] 7 services mis à jour : Prières/Janaza, Prière de l'Aïd, Salle d'ablutions, Iftar Ramadan, Espace femmes, Cours adultes/enfants, Parking PMR
-- [x] Tous les titres de section uniformisés : icône + uppercase + tracking-wider
-
-#### Header
-- [x] "Infos pratiques" → "Don" (href `/don`)
-- [x] "Contact" redirige vers `/infos`
-
----
-
-### Sessions 1 & 2 — 12 avril 2026 (résumé)
-- [x] Mise en place infrastructure Next.js 16 + Tailwind CSS 3.4 + TypeScript
-- [x] Design system complet (tokens Light/Dark, polices Noto Serif + Inter)
+### Sessions 1 à 4 - 11-12 avril 2026 (résumé)
+- [x] Infrastructure Next.js 16 + Tailwind CSS 3.4 + TypeScript
+- [x] Design system complet (tokens Light/Dark)
 - [x] Header responsive + ThemeToggle + menu mobile
 - [x] Footer complet
-- [x] Bento grid page d'accueil (Hero + Mawaqit + Actualités + Hadith + CTA)
-- [x] Pages : `/actualites`, `/activites`, `/documentation`, `/infos`, `/contact`
+- [x] Bento grid page d'accueil
+- [x] Pages : `/actualites`, `/activites`, `/documentation`, `/infos`
 - [x] Admin : connexion, dashboard, CRUD Hadiths en mémoire
 - [x] LayoutShell pour isoler l'admin du layout public
-- [x] Proxy.ts (protection routes admin par cookie)
 
 ---
 
 ## Ce qui RESTE À FAIRE
 
-### CRITIQUE — Bloquant pour la mise en production
+### CRITIQUE - Bloquant pour la mise en production
 
-#### P0 — Vraie photo de la mosquée
-- Image hero actuellement : `1776010632-light-mode.png` / `1776010632-dark-mode.png`
-- Dimensions recommandées pour un affichage sans rognage : **1200 × 520 px** (ratio 2.3:1)
-- Ces images sont en place mais la photo de la vraie mosquée reste à fournir
-
-#### P0 — Numéro de téléphone réel
-- **Fichier :** `src/app/infos/page.tsx` — affiché `04 XX XX XX XX`
+#### P0 - Numéro de téléphone réel
+- **Fichier :** `src/app/infos/page.tsx` - affiché `04 XX XX XX XX`
 - **Action :** Remplacer par le vrai numéro
 
-#### P0 — Lien Don
-- **Fichier :** `src/components/HeroSection.tsx` — `href="#"`
-- La page `/don` dans le menu est également à créer
-- **Action :** Définir l'URL HelloAsso ou autre plateforme de don
+#### P0 - Liens plateformes de dons
+- **Fichier :** `src/app/don/page.tsx` - `href="#"` sur les projets et CTA
+- **Action :** Renseigner les URLs HelloAsso / GoFundMe réelles
 
-#### P0 — Formulaire Contact non connecté
-- **Fichier :** `src/app/infos/page.tsx` — `<form>` sans handler
+#### P0 - Formulaires non connectés
+- **Fichiers :** `src/app/infos/page.tsx`, `src/components/AideSocialeModal.tsx`, `src/app/admin/page.tsx`
 - **Action :** Intégrer Resend / EmailJS / Formspree ou Supabase Edge Function
 
-#### P0 — Authentification Admin simulée
+#### P0 - Authentification Admin simulée
 - **Fichier :** `src/context/AuthContext.tsx`
 - **Action :** Connecter Supabase Auth avant tout déploiement public
 
 ---
 
-### HAUTE PRIORITÉ — Phase 2
+### HAUTE PRIORITÉ - Phase 3
 
 #### Front-office
 
 | Item | Fichier | Description |
 |------|---------|-------------|
-| Page `/don` | À créer | Nouveau lien dans le menu — page de don à créer |
-| Coordonnées Maps réelles | `src/app/infos/page.tsx:82` | Coordonnées Google Maps approximatives (`4.834/45.832`) |
-| Images actualités réelles | `/actualites/page.tsx` | Toutes les images sont des placeholders Unsplash |
-| Liens documentation | `/documentation/page.tsx` | Tous les liens pointent vers `#` |
-| Page 404 | — | Aucune page d'erreur personnalisée |
-| Countdown prière dynamique | `HeroSection.tsx` | Prévu dans le tracking mais absent |
+| Coordonnées Maps réelles | `src/app/infos/page.tsx` | Coordonnées Google Maps approximatives |
+| Images actualités réelles | `/actualites/page.tsx` | Placeholders Unsplash |
+| Page 404 | - | Aucune page d'erreur personnalisée |
 
 #### Back-office Admin
 
 | Item | Fichier | Description |
 |------|---------|-------------|
-| CRUD Actualités | `/admin/dashboard/news/page.tsx` | Placeholder, non développé |
-| CRUD Événements | `/admin/dashboard/events/page.tsx` | Placeholder, non développé |
-| Médiathèque | `/admin/dashboard/media/page.tsx` | Probablement placeholder |
-| Paramètres / Rôles | `/admin/dashboard/settings/page.tsx` | Probablement placeholder |
-| Persistance Hadiths | `/admin/dashboard/hadiths/page.tsx` | CRUD en mémoire — données perdues au refresh |
+| CRUD Actualités | `/admin/dashboard/news/page.tsx` | Placeholder |
+| CRUD Événements | `/admin/dashboard/events/page.tsx` | Placeholder |
+| Médiathèque | `/admin/dashboard/media/page.tsx` | Placeholder |
+| Paramètres / Rôles | `/admin/dashboard/settings/page.tsx` | Placeholder |
+| Persistance Hadiths | `/admin/dashboard/hadiths/page.tsx` | CRUD en mémoire |
 
 ---
 
-### MOYENNE PRIORITÉ — Phase 3 & 4
+### MOYENNE PRIORITÉ - Phase 4
 
-#### Backend Supabase (Phase 3)
+#### Backend Supabase
 - [ ] Créer projet Supabase (PostgreSQL)
 - [ ] Tables : `articles`, `events`, `hadiths`, `media`, `users`
 - [ ] Row Level Security (RLS) activée
@@ -193,93 +190,78 @@ Le projet est en **Phase 2 avancée**. La page d'accueil est finalisée. Les pag
 - [ ] API Routes Next.js pour CRUD
 - [ ] Upload images via Supabase Storage
 
-#### Pages à créer
-- [ ] `/don` — Page de don (HelloAsso embed ou lien externe)
-- [ ] Pages détail article `/actualites/[slug]`
-- [ ] Pages détail catégorie documentation `/documentation/[category]`
-- [ ] Page Événements
-
 #### SEO & Performance
-- [ ] Metadata `<head>` pour chaque page (title, description, OG)
+- [ ] Metadata `<head>` pour chaque page
 - [ ] `sitemap.xml` dynamique
 - [ ] `robots.txt`
-- [ ] Audit Lighthouse (performance, a11y)
+- [ ] Audit Lighthouse
 
 ---
 
-### FAIBLE PRIORITÉ — Améliorations
+### FAIBLE PRIORITÉ - Améliorations
 
 - [ ] Animation skeleton pour le widget Mawaqit
-- [ ] Transition de thème plus fluide
-- [ ] Dark mode : vérifier tous les tokens sur chaque page
 - [ ] Mode "Ramadan" avec thème spécial
-- [ ] Tests unitaires (Jest + React Testing Library)
-- [ ] Tests E2E (Playwright)
+- [ ] Tests unitaires et E2E
 - [ ] Audit sécurité : XSS, CSP Headers
 
 ---
 
-## Anomalies Connues
+## Pages du Site - État Complet
 
-| Sévérité | Fichier | Problème |
-|----------|---------|---------|
-| 🔴 HIGH | `src/context/AuthContext.tsx` | Auth simulée — accepte tout identifiant |
-| 🟡 MED | `src/app/infos/page.tsx` | Coordonnées Google Maps approximatives |
-| 🟢 LOW | `src/app/documentation/page.tsx` | Contenus statiques — à terme brancher sur Supabase |
-| 🟡 MED | Toutes pages admin (sauf hadiths) | Données 100% statiques/fake |
-| 🟢 LOW | `src/components/HeroSection.tsx` | `scrolling="no"` sur iframe : hint TypeScript (inoffensif, géré par `iframe.d.ts`) |
-| 🟢 LOW | `tailwind.config.ts` + `globals.css` | CSS variables hex incompatibles avec l'opacité Tailwind (`/xx`) — contourné par inline style |
+| Page | Route | Statut | Notes |
+|------|-------|--------|-------|
+| Accueil | `/` | ✅ Finalisé | Bento grid, Mawaqit, actualités, hadith, CTA |
+| Actualités | `/actualites` | ✅ Finalisé | 2 à la une + grille, modale article |
+| Activités | `/activites` | ✅ Finalisé | Tajwid, Arabe, Sorties, Aide Sociale (modal) |
+| Documentation Islam | `/documentation` | ✅ Finalisé | 8 cards, 45 topics, modales |
+| Infos pratiques | `/infos` | ✅ Finalisé | Horaires, Contact, Accès+Map, Formulaire, Services |
+| Dons | `/don` | ✅ Finalisé | Pourquoi donner, Plateformes, Projets, CTA |
+| Certificat | `/certificat` | ✅ Finalisé | Définition, utilité, étapes, CTA contact |
+| Admin Login | `/admin` | ✅ Finalisé | Login + demande accès visiteur |
+| Admin Dashboard | `/admin/dashboard` | 🟡 Partiel | Stats placeholder, CRUD hadiths en mémoire |
+
+---
+
+## Composants Réutilisables
+
+| Composant | Fichier | Description |
+|-----------|---------|-------------|
+| FloatInput | `src/components/FloatField.tsx` | Input avec label flottant, transform, error |
+| FloatTextarea | `src/components/FloatField.tsx` | Textarea avec label flottant |
+| FloatSelect | `src/components/FloatField.tsx` | Select avec label flottant + chevron |
+| DailyReminder | `src/components/DailyReminder.tsx` | Hadith du jour |
+| AideSocialeModal | `src/components/AideSocialeModal.tsx` | Modal aide sociale |
+| ThemeProvider | `src/components/ThemeProvider.tsx` | Gestion thème light/dark |
 
 ---
 
 ## Notes Techniques Importantes
 
-### CSS Variables & Tailwind Opacity
-Les couleurs du design system sont définies en `var(--color-xxx)` avec des valeurs **hex** dans `globals.css`. Le modificateur d'opacité Tailwind (`bg-primary/20`) **ne fonctionne pas** avec ce format — Tailwind a besoin de canaux RGB séparés. Contournement : utiliser `style={{ backgroundColor: 'rgba(...)' }}` pour les cas d'opacité dynamique.
+### Composants FloatField - Transforms
+- `capitalize` : 1re lettre majuscule par mot, n'accepte que lettres/espaces/tirets
+- `uppercase` : tout majuscules, n'accepte que lettres/espaces/tirets
+- `lowercase` : tout minuscules
+- `phone` : `+` autorisé en début uniquement + chiffres
+- `none` : saisie libre
 
-### Image Hero & Thème
-- `public/images/mosquee-hero-light.png` → affiché en mode clair
-- `public/images/mosquee-hero-dark.png` → affiché en mode sombre
-- Dimensions idéales : **1200 × 520 px** (ratio 2.3:1 = ratio exact de la card `h-[360px]` à pleine largeur)
-- Le composant `HeroSection` utilise `useTheme()` pour switcher dynamiquement
+### CSS Variables & Tailwind Opacity
+Les couleurs sont en hex dans `globals.css`. Le modificateur d'opacité Tailwind (`bg-primary/20`) ne fonctionne pas avec ce format.
+
+### Hover Aide Sociale / Soutenir
+`.aide-sociale-cta` dans `globals.css` : light = #F59E0B, dark = #0F172A au hover du groupe parent.
 
 ### Animation Heartbeat
-- Définie dans `globals.css` : `@keyframes heartbeat` avec oscillation scale + color (blanc → #F59E0B)
-- Classes CSS : `.heart-pulse` (5s repos) / `.group:hover .heart-pulse` (2s survol)
+`.heart-pulse` dans `globals.css` : battement 3s repos / 1s hover, oscillation blanc -> #F59E0B.
 
 ### Structure Bento Grid (HeroSection)
 ```
 Row 1 : Hero image (col-span-2) | Mawaqit (row-span-2)
 Row 2 : Dernières actualités (col-span-2) | (Mawaqit continue)
 Row 3 : Hadith du jour (col-span-2) | Soutenir les projets
-Row 4 : Conférences | Cours & Activités | Contact+Assurances (stacked)
+Row 4 : Cours+Islam (stacked) | Certificat | Contact+Assurances (stacked)
 ```
 
 ---
 
-## Plan d'Action Recommandé — Prochaine Session
-
-### Sprint Prioritaire
-1. **Créer la page `/don`** — lien dans le menu, page à définir avec le client
-2. **Renseigner les vraies coordonnées** (téléphone, Google Maps réel)
-3. **Connecter le formulaire de contact** (EmailJS ou Formspree en attendant Supabase)
-4. **Fournir la vraie photo de la mosquée** (1200×520px, light + dark si besoin)
-5. **Commencer Supabase** : créer le projet, brancher l'auth admin
-
----
-
-## Fichiers Clés
-
-| Fichier | Rôle | Priorité |
-|---------|------|----------|
-| [src/components/HeroSection.tsx](src/components/HeroSection.tsx) | Page d'accueil — bento grid | Quasi finalisé |
-| [src/components/DailyReminder.tsx](src/components/DailyReminder.tsx) | Hadith du jour | À brancher sur Supabase |
-| [src/app/infos/page.tsx](src/app/infos/page.tsx) | Contact & Infos | Formulaire à connecter |
-| [src/context/AuthContext.tsx](src/context/AuthContext.tsx) | Auth — à remplacer | P0 avant prod |
-| [src/app/admin/dashboard/news/page.tsx](src/app/admin/dashboard/news/page.tsx) | CRUD à développer | Sprint 3 |
-| [src/app/globals.css](src/app/globals.css) | Tokens design + animations | Vigilance |
-| [tailwind.config.ts](tailwind.config.ts) | Design system | Ne pas casser |
-
----
-
-*Dernière mise à jour : 14 avril 2026 — Session 6*
+*Dernière mise à jour : 16 avril 2026 - Session 8*
