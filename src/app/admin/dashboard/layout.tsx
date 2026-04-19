@@ -1,164 +1,201 @@
 'use client';
 
-import React from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/lib/supabase/client';
+import {
+  LayoutDashboard, FileText, MessageSquare, ChevronDown, ChevronRight,
+  BookOpen, HeartHandshake, Users, UserCheck, LogOut, ExternalLink,
+} from 'lucide-react';
 
-const navItems = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
-  { label: 'Hadiths', href: '/admin/dashboard/hadiths', icon: 'menu_book' },
-  { label: 'Actualités', href: '/admin/dashboard/news', icon: 'newspaper' },
-  { label: 'Événements', href: '/admin/dashboard/events', icon: 'event' },
-  { label: 'Médiathèque', href: '/admin/dashboard/media', icon: 'photo_library' },
-  { label: 'Paramètres', href: '/admin/dashboard/settings', icon: 'settings' },
+type Profile = { nom: string | null; prenom: string | null; role: string };
+
+const menu = [
+  {
+    type: 'link' as const,
+    label: 'Dashboard',
+    href: '/admin/dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    type: 'section' as const,
+    label: 'Édition',
+    key: 'edition',
+    items: [
+      { label: 'Articles', href: '/admin/dashboard/articles', icon: FileText },
+      { label: 'Communication', href: '/admin/dashboard/communication', icon: MessageSquare },
+    ],
+  },
+  {
+    type: 'section' as const,
+    label: 'Administration',
+    key: 'administration',
+    adminOnly: true,
+    items: [
+      { label: 'Activités', href: '/admin/dashboard/activites', icon: BookOpen },
+      { label: 'Dons', href: '/admin/dashboard/dons', icon: HeartHandshake },
+      { label: 'Gestion des utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users },
+      { label: 'Gestion des visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck },
+    ],
+  },
 ];
 
-const iconPaths: Record<string, React.ReactElement> = {
-  dashboard: (
-    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-  ),
-  menu_book: (
-    <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z" />
-  ),
-  newspaper: (
-    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12H6v-2h7v2zm4-4H6V8h11v2z" />
-  ),
-  event: (
-    <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
-  ),
-  photo_library: (
-    <path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z" />
-  ),
-  settings: (
-    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-  ),
-};
-
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { logout } = useAuth();
-  const router = useRouter();
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    edition: pathname.includes('/articles') || pathname.includes('/communication'),
+    administration: pathname.includes('/activites') || pathname.includes('/dons') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
+  });
 
-  const handleLogout = () => {
-    logout();
-    router.push('/admin');
+  useEffect(() => {
+    document.title = 'Administration - Mosquée Bilal';
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const supabase = createClient();
+    supabase.from('profiles').select('nom, prenom, role').eq('id', user.id).single()
+      .then(({ data }) => { if (data) setProfile(data); });
+  }, [user]);
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const isActive = (href: string) => pathname === href;
+
+  const isAdmin = profile?.role === 'administrateur';
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav h-20 px-8">
-        <div className="max-w-[1600px] mx-auto h-full flex items-center justify-between">
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center overflow-hidden">
-              <Image
-                src="/logo.png"
-                alt="Mosquée Bilal"
-                width={40}
-                height={40}
-                className="object-cover logo-invert"
-              />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold font-serif text-primary leading-tight">
-                Mosquée Bilal
-              </h1>
-              <p className="text-[10px] tracking-widest uppercase text-on-surface/40 font-bold">
-                Administration
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background flex">
 
-          {/* Nav Links */}
-          <div className="hidden lg:flex items-center gap-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || (item.href !== '/admin/dashboard' && pathname?.startsWith(item.href));
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all font-medium
-                    ${
-                      isActive
-                        ? 'text-primary font-bold bg-primary/10 border border-primary/20'
-                        : 'text-on-surface/60 hover:text-primary hover:bg-primary/5'
-                    }`}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    {iconPaths[item.icon]}
-                  </svg>
-                  {item.label}
-                </a>
-              );
-            })}
-          </div>
+      {/* Sidebar */}
+      <aside className="fixed top-0 left-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant/10 flex flex-col z-50">
 
-          {/* Profile */}
-          <div className="flex items-center gap-4">
-            <button
-              className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface/60 hover:bg-primary/10 transition-all"
-              aria-label="Notifications"
-            >
-              <svg
-                className="w-5 h-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-            </button>
-            <div className="flex items-center gap-3 pl-2 border-l border-outline-variant/20">
-              <div className="text-right hidden md:block">
-                <p className="text-xs font-bold text-on-surface leading-none">Admin</p>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-tighter">
-                  Administrateur
-                </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface/60 
-                           hover:bg-error/10 hover:text-error transition-all"
-                aria-label="Déconnexion"
-              >
-                <svg
-                  className="w-5 h-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-              </button>
-            </div>
+        {/* Brand */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-outline-variant/10">
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
+            <Image src="/logo.png" alt="Mosquée Bilal" width={36} height={36} className="object-cover logo-invert" />
+          </div>
+          <div>
+            <p className="font-serif font-bold text-primary text-sm leading-none">Mosquée Bilal</p>
+            <p className="text-[10px] text-on-surface/40 uppercase tracking-widest mt-0.5">Administration</p>
           </div>
         </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="pt-28 pb-12 px-8 max-w-[1600px] mx-auto min-h-screen">{children}</main>
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+
+          {menu.map((item) => {
+            if (item.type === 'link') {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-primary text-on-primary'
+                      : 'text-on-surface/65 hover:bg-surface-container hover:text-primary'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            }
+
+            if (item.type === 'section') {
+              if (item.adminOnly && !isAdmin) return null;
+              const isOpen = openSections[item.key];
+              const hasActiveChild = item.items.some((i) => isActive(i.href));
+
+              return (
+                <div key={item.key}>
+                  <button
+                    onClick={() => toggleSection(item.key)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-colors ${
+                      hasActiveChild
+                        ? 'text-primary'
+                        : 'text-on-surface/40 hover:text-on-surface/65'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {isOpen
+                      ? <ChevronDown className="w-3.5 h-3.5" />
+                      : <ChevronRight className="w-3.5 h-3.5" />
+                    }
+                  </button>
+
+                  {isOpen && (
+                    <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-outline-variant/20 pl-3">
+                      {item.items.map((sub) => {
+                        const Icon = sub.icon;
+                        return (
+                          <Link
+                            key={sub.href}
+                            href={sub.href}
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors ${
+                              isActive(sub.href)
+                                ? 'bg-primary/10 text-primary font-semibold'
+                                : 'text-on-surface/60 hover:bg-surface-container hover:text-primary'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4 flex-shrink-0" />
+                            {sub.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            return null;
+          })}
+        </nav>
+
+        {/* Footer sidebar */}
+        <div className="px-3 py-4 border-t border-outline-variant/10 space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-on-surface/50 hover:text-primary hover:bg-surface-container transition-colors"
+          >
+            <ExternalLink className="w-4 h-4 flex-shrink-0" />
+            Retour au site
+          </Link>
+
+          {/* User info + logout */}
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-surface-container mt-1">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-on-surface truncate">
+                {profile ? `${profile.prenom ?? ''} ${profile.nom ?? ''}`.trim() || user?.email : user?.email}
+              </p>
+              <p className="text-[10px] text-primary uppercase tracking-wider font-bold">
+                {profile?.role ?? '—'}
+              </p>
+            </div>
+            <button
+              onClick={logout}
+              className="w-8 h-8 flex items-center justify-center rounded-full text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors flex-shrink-0 ml-2"
+              aria-label="Déconnexion"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="ml-64 flex-1 min-h-screen p-8">
+        {children}
+      </main>
     </div>
   );
 }

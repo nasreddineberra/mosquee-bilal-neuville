@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react';
 
-type Transform = 'capitalize' | 'uppercase' | 'lowercase' | 'phone' | 'none';
+type Transform = 'capitalize' | 'uppercase' | 'upperall' | 'lowercase' | 'phone' | 'sentence' | 'none';
 
 function applyTransform(value: string, transform: Transform): string {
   switch (transform) {
@@ -12,6 +12,10 @@ function applyTransform(value: string, transform: Transform): string {
       return value.replace(/[^a-zA-ZÀ-ÿ\s-]/g, '').toUpperCase();
     case 'lowercase':
       return value.toLowerCase();
+    case 'upperall':
+      return value.toUpperCase();
+    case 'sentence':
+      return value.replace(/(^|[.!?]\s+)(\S)/g, (_, sep, char) => sep + char.toUpperCase());
     case 'phone':
       return value.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
     default:
@@ -61,6 +65,7 @@ interface FloatTextareaProps {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  transform?: Transform;
 }
 
 interface FloatSelectProps {
@@ -97,14 +102,14 @@ export function FloatSelect({ id, label, value, onChange, required = false, opti
   );
 }
 
-export function FloatTextarea({ id, label, rows = 6, value, onChange, required = false }: FloatTextareaProps) {
+export function FloatTextarea({ id, label, rows = 6, value, onChange, required = false, transform = 'none' }: FloatTextareaProps) {
   return (
     <div className="relative">
       <textarea
         id={id}
         rows={rows}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(applyTransform(e.target.value, transform))}
         placeholder=" "
         className="peer w-full bg-surface-container-low border border-[var(--color-card-border)] rounded-xl pt-6 pb-2 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
       />

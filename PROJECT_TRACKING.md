@@ -347,19 +347,104 @@ Toutes les pages front-office sont créées avec un design cohérent light/dark 
 12. ✅ Page `/confidentialite` créée : données collectées, finalité, conservation, partage, cookies, droits RGPD, contact
 13. ✅ Liens Footer mis à jour : Mentions légales + Confidentialité pointent vers les nouvelles pages
 
-### PHASE 3 : Back-office / Admin (À venir)
-- [ ] Sous-étape 3.1 : CRUD Actualités
-- [ ] Sous-étape 3.2 : CRUD Événements
-- [ ] Sous-étape 3.3 : Médiathèque
-- [ ] Sous-étape 3.4 : Paramètres / Rôles
-- [ ] Sous-étape 3.5 : Persistance des données (Supabase)
+### PHASE 3 : Back-office sécurisé — Architecture validée (Session 10)
+**Date :** 19 avril 2026
+**Statut :** En cours de conception
 
-### PHASE 4 : Backend Supabase (Futur)
-- [ ] Configuration Supabase
-- [ ] Authentification réelle
-- [ ] Base de données + RLS
-- [ ] API Routes Next.js
-- [ ] Formulaires connectés (Contact, Aide Sociale, Accès visiteur)
+---
+
+#### Architecture Supabase — Tables
+
+| Table | Description |
+|-------|-------------|
+| `profiles` | Extension auth.users — id, email, role (enum), nom, prenom |
+| `articles` | Contenu actualités — titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position |
+| `messages` | Communication admin ↔ visiteurs — expediteur_id, destinataire_id (null=broadcast), sujet, contenu, lu |
+| `activites_cours_tajwid` | Cours Mosquée + Tajwid — titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
+| `activites_ecole_arabe` | École Arabe — structure identique à activites_cours_tajwid |
+| `activites_sorties` | Sorties — titre, description, date_sortie, lieu, places_max, tarif, actif |
+| `dons` | Campagnes de dons — titre, texte, lien_externe (URL plateforme), a_la_une, actif |
+| `demandes_acces` | Demandes visiteurs — email, nom, prenom, message, statut (en_attente/validee/refusee), traite_par, traite_at |
+
+**Images articles :** Supabase Storage bucket `articles` — 1 image par catégorie :
+- `articles/vie-mosquee.jpg`
+- `articles/evenements.jpg`
+- `articles/cours.jpg`
+- `articles/communaute.jpg`
+
+**RLS :**
+- `articles` : lecture publique si `actif = true` ; écriture → administrateur ou éditeur
+- `profiles` : lecture → son propre profil + admins ; écriture → admins uniquement
+- `messages` : lecture → expéditeur ou destinataire (ou admins)
+- Activités / Dons : lecture publique si `actif = true` ; écriture → administrateur uniquement
+
+---
+
+#### Authentification — Flow complet
+
+```
+Étape 1 : Email seul
+  → inconnu → "Adresse email non reconnue."
+              (formulaire demande d'accès accessible par ailleurs)
+  → connu   → Étape 2
+
+Étape 2 : Mot de passe
+  → incorrect → message d'erreur
+  → correct   → Étape 3
+
+Étape 3a (1ère connexion - MFA non configuré)
+  → Affichage QR code Google Authenticator à scanner
+  → Champ code 6 chiffres pour confirmer l'enrôlement
+  → Accès interface
+
+Étape 3b (connexions suivantes - MFA configuré)
+  → Champ code Google Authenticator (6 chiffres)
+  → Accès interface
+```
+
+**APIs Supabase MFA TOTP :**
+- `supabase.auth.mfa.enroll({ factorType: 'totp' })` → QR code SVG + secret
+- `supabase.auth.mfa.challenge({ factorId })` + `verify({ factorId, challengeId, code })`
+- Activation requise : Supabase Dashboard → Authentication → MFA
+
+---
+
+#### Menu Admin — Structure
+
+```
+1. Édition                         (administrateur + éditeur)
+   1.1 Articles
+   1.2 Communication
+
+2. Administration                  (administrateur uniquement)
+   2.1 Activités
+       2.1.1 Cours Mosquée + Tajwid
+       2.1.2 École Arabe
+       2.1.3 Sorties
+   2.2 Dons
+   2.3 Gestion des utilisateurs    (éditeurs + administrateurs)
+   2.4 Gestion des visiteurs       (demandes d'accès + visiteurs actifs)
+```
+
+**Middleware Next.js** sur `/admin/*` :
+- Non authentifié → redirect `/login`
+- Rôle `visiteur` → redirect `/` (accès refusé)
+- Routes `2.Administration/*` → `administrateur` uniquement
+
+---
+
+#### Ordre d'implémentation
+
+- [x] 3.1 Config Supabase — tables SQL + RLS + bucket Storage
+- [x] 3.2 Auth / Login — page `/login` email-first + 2FA Google Authenticator
+- [x] 3.3 Middleware — protection routes `/admin/*`
+- [x] 3.4 Refonte layout admin — sidebar avec menu hiérarchique (Dashboard, Édition, Administration)
+- [x] 3.5 Admin — Articles (CRUD + liaison page `/actualites`)
+- [ ] 3.5 Admin — Gestion utilisateurs (validation demandes + rôles)
+- [ ] 3.6 Admin — Communication (messagerie visiteurs)
+- [ ] 3.7 Admin — Activités (Cours+Tajwid, École Arabe, Sorties)
+- [ ] 3.8 Admin — Dons (CRUD + lien externe)
+- [ ] 3.9 Edge Function — cron expiration articles (`actif = false` si `date_expiration < today`)
 
 ---
 

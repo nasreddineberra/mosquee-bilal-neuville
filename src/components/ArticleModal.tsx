@@ -4,7 +4,7 @@ import { useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 export interface Article {
-  id: number;
+  id: string;
   title: string;
   category: string;
   date: string;
@@ -67,7 +67,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
         </button>
 
         {/* Image */}
-        <div className="relative w-full h-[300px]">
+        <div className="relative w-full h-[160px]">
           <Image
             src={article.image}
             alt={article.title}

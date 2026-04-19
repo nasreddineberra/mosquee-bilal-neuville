@@ -1,86 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Newspaper, Building, CalendarArrowUp, BookOpenCheck, Users, ChevronRight, type LucideIcon } from 'lucide-react';
 import ArticleModal, { Article } from '@/components/ArticleModal';
+import { createClient } from '@/lib/supabase/client';
 
-const articles: Article[] = [
-  {
-    id: 1,
-    featured: true,
-    category: 'Vie de la mosquée',
-    date: '12 avril 2026',
-    title: 'Grande soirée de fraternité pour célébrer le renouveau de la mosquée',
-    summary:
-      'Rejoignez-nous pour une soirée exceptionnelle d\'échange et de partage autour d\'un dîner communautaire ouvert à tous.',
-    content:
-      'La Mosquée Bilal de Neuville-sur-Saône vous invite à une grande soirée de fraternité, ouverte à toutes et à tous, le samedi 19 avril à partir de 19h.\n\nCet événement spécial marque une étape importante dans la vie de notre communauté. Au programme : un dîner partagé, des interventions inspirantes et un moment de convivialité pour renforcer les liens entre les fidèles et les habitants du quartier.\n\nNous souhaitons que cette soirée soit l\'occasion de mieux nous connaître, d\'échanger sur nos projets communs et de partager un moment chaleureux ensemble. Les familles sont les bienvenues, et un espace sera prévu pour les enfants.\n\nPour des raisons d\'organisation, merci de confirmer votre présence avant le 16 avril auprès du secrétariat de la mosquée ou via le formulaire de contact du site.',
-    image:
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    featured: true,
-    category: 'Cours',
-    date: '08 avril 2026',
-    title: 'Inscriptions ouvertes — Cours de Tajwid',
-    summary:
-      'Nouveau semestre de cours de Tajwid pour enfants et adultes. Inscriptions ouvertes dès maintenant.',
-    content:
-      'Les inscriptions pour le nouveau semestre de cours de Tajwid sont désormais ouvertes à la Mosquée Bilal.\n\nDeux niveaux sont proposés : débutant et intermédiaire. Les cours se tiennent chaque samedi matin de 10h à 12h pour les adultes, et chaque mercredi de 14h à 16h pour les enfants.\n\nLes places étant limitées, nous vous encourageons à vous inscrire rapidement. Pour toute information complémentaire, n\'hésitez pas à nous contacter.',
-    image:
-      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    category: 'Événements',
-    date: '05 avril 2026',
-    title: 'Conférence : L\'éthique du voisinage en Islam',
-    summary:
-      'Une conférence ouverte à tous sur les valeurs de bon voisinage et de solidarité dans la tradition islamique.',
-    content:
-      'La Mosquée Bilal organise une conférence sur le thème « L\'éthique du voisinage en Islam », animée par l\'imam de la mosquée.\n\nCette conférence abordera les principes fondamentaux du bon voisinage tels qu\'enseignés par le Prophète (paix et salut sur lui), et leur application concrète dans notre vie quotidienne.\n\nL\'événement aura lieu le vendredi 11 avril après la prière du Maghreb. L\'entrée est libre et ouverte à tous.',
-    image:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 4,
-    category: 'Communauté',
-    date: '01 avril 2026',
-    title: 'Collecte alimentaire — Solidarité de printemps',
-    summary:
-      'Participez à notre collecte alimentaire au profit des familles dans le besoin du quartier.',
-    content:
-      'Dans le cadre de notre engagement solidaire, la Mosquée Bilal lance une grande collecte alimentaire du 1er au 15 avril.\n\nVous pouvez déposer vos dons (denrées non périssables, produits d\'hygiène) à l\'accueil de la mosquée tous les jours entre 9h et 19h.\n\nLes paniers seront distribués aux familles identifiées en partenariat avec les associations locales. Chaque geste compte — merci pour votre générosité.',
-    image:
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 5,
-    category: 'Vie de la mosquée',
-    date: '28 mars 2026',
-    title: 'Horaires de prière — Passage à l\'heure d\'été',
-    summary:
-      'Les horaires de prière sont mis à jour suite au changement d\'heure. Consultez le widget Mawaqit.',
-    content:
-      'Suite au passage à l\'heure d\'été, les horaires de prière à la Mosquée Bilal ont été ajustés.\n\nNous vous invitons à consulter le widget Mawaqit sur notre page d\'accueil pour connaître les horaires actualisés. Les horaires de Joumou\'a restent inchangés : premier sermon à 13h00.\n\nPour toute question, n\'hésitez pas à contacter le secrétariat.',
-    image:
-      'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 6,
-    category: 'Cours',
-    date: '22 mars 2026',
-    title: 'Atelier langue arabe pour débutants',
-    summary:
-      'Un nouvel atelier d\'initiation à la langue arabe est proposé chaque dimanche matin.',
-    content:
-      'La Mosquée Bilal propose un nouvel atelier d\'initiation à la langue arabe, destiné aux adultes débutants.\n\nLes séances auront lieu chaque dimanche matin de 10h à 11h30, à partir du 5 avril. L\'objectif est d\'acquérir les bases de la lecture et de l\'écriture arabe.\n\nAucun prérequis n\'est nécessaire. Les inscriptions sont ouvertes auprès du secrétariat.',
-    image:
-      'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&auto=format&fit=crop&q=80',
-  },
-];
+const CATEGORY_IMAGES: Record<string, string> = {
+  'Vie de la mosquée': '/images/mosquee-bilal-thumbnail.jpg',
+  'Événements':        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
+  'Cours':             'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&auto=format&fit=crop&q=80',
+  'Communauté':        'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800&auto=format&fit=crop&q=80',
+};
 
 const categories = ['Tous', 'Vie de la mosquée', 'Événements', 'Cours', 'Communauté'];
 
@@ -92,8 +23,33 @@ const categoryIcons: Record<string, LucideIcon> = {
 };
 
 export default function ActualitesPage() {
+  const supabase = createClient();
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('Tous');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('articles')
+      .select('id,titre,summary,contenu,category,a_la_une,date_parution')
+      .eq('actif', true)
+      .order('a_la_une', { ascending: false })
+      .order('date_parution', { ascending: false })
+      .then(({ data }) => {
+        if (data) setArticles(data.map((a) => ({
+          id: a.id,
+          title: a.titre,
+          summary: a.summary,
+          content: a.contenu,
+          category: a.category,
+          date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+          image: CATEGORY_IMAGES[a.category] ?? '',
+          featured: a.a_la_une,
+        })));
+        setLoading(false);
+      });
+  }, []);
 
   const featuredArticles = articles.filter((a) => a.featured);
   const otherArticles = articles.filter((a) => !a.featured);
@@ -141,8 +97,10 @@ export default function ActualitesPage() {
             ))}
           </div>
 
+          {loading && <p className="text-center text-on-surface/40 text-sm py-16">Chargement...</p>}
+
           {/* Row 1 — 2 articles à la une, chacun 1/2 */}
-          {showFeatured && (
+          {!loading && showFeatured && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               {featuredArticles.map((fa) => (
                 <button
@@ -192,7 +150,7 @@ export default function ActualitesPage() {
           )}
 
           {/* Remaining Articles Grid — 4 columns */}
-          {filteredArticles.length > 0 ? (
+          {!loading && filteredArticles.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {filteredArticles.map((article) => (
                 <div
@@ -232,7 +190,8 @@ export default function ActualitesPage() {
                 </div>
               ))}
             </div>
-          ) : (
+          )}
+          {!loading && filteredArticles.length === 0 && !(showFeatured && featuredArticles.some((a) => activeCategory === 'Tous' || a.category === activeCategory)) && (
             <div className="text-center py-16">
               <p className="text-on-surface/40 text-sm">
                 Aucun article dans cette catégorie pour le moment.

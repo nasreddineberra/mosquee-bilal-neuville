@@ -2,41 +2,52 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, ArrowBigRight, MessageSquareHeart } from 'lucide-react';
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
+import { createClient } from '@/lib/supabase/client';
+import ArticleModal, { Article } from './ArticleModal';
 
-const actualites = [
-  {
-    id: 1,
-    date: '12/04',
-    title: 'Soirée de fraternité',
-    summary: 'Rejoignez-nous pour une soirée d\'échange et de partage autour d\'un dîner communautaire.',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    date: '08/04',
-    title: 'Cours de Tajwid',
-    summary: 'Inscriptions ouvertes pour le nouveau semestre, pour enfants et adultes.',
-    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    date: '01/04',
-    title: 'Collecte Zakat al-Fitr',
-    summary: 'Des urnes sont disponibles à la mosquée pour vos dons de Zakat al-Fitr avant la fin du Ramadan.',
-    image: 'https://images.unsplash.com/photo-1590250998460-ebbc33182ce7?w=300&auto=format&fit=crop&q=80',
-  },
-];
+const CATEGORY_IMAGES: Record<string, string> = {
+  'Vie de la mosquée': '/images/mosquee-bilal-thumbnail.jpg',
+  'Événements':        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+  'Cours':             'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&auto=format&fit=crop&q=80',
+  'Communauté':        'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=300&auto=format&fit=crop&q=80',
+};
 
 export default function HeroSection() {
   const { theme } = useTheme();
+  const [actualites, setActualites] = useState<Article[]>([]);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('articles')
+      .select('id,titre,summary,contenu,category,a_la_une,date_parution')
+      .eq('actif', true)
+      .order('date_parution', { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        if (data) setActualites(data.map((a) => ({
+          id: a.id,
+          title: a.titre,
+          summary: a.summary,
+          content: a.contenu,
+          category: a.category,
+          date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+          image: CATEGORY_IMAGES[a.category] ?? '',
+          featured: a.a_la_une,
+        })));
+      });
+  }, []);
   const heroSrc = theme === 'dark'
     ? '/images/mosquee-hero-dark.png'
     : '/images/mosquee-hero-light.png';
 
   return (
+    <>
     <section className="max-w-7xl mx-auto px-4 py-2">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* ROW 1 - Hero Image (2/3) */}
@@ -100,10 +111,10 @@ export default function HeroSection() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {actualites.map((actu) => (
-              <Link
+              <button
                 key={actu.id}
-                href="/actualites"
-                className="flex rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden"
+                onClick={() => setSelectedArticle(actu)}
+                className="flex rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden text-left"
               >
                 <div className="relative w-24 flex-shrink-0">
                   <Image
@@ -125,7 +136,7 @@ export default function HeroSection() {
                     {actu.summary}
                   </p>
                 </div>
-              </Link>
+              </button>
             ))}
           </div>
         </div>
@@ -252,5 +263,7 @@ export default function HeroSection() {
         </div>
       </div>
     </section>
+    <ArticleModal article={selectedArticle} onClose={() => setSelectedArticle(null)} />
+    </>
   );
 }

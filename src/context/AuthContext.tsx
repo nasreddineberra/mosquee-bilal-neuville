@@ -1,41 +1,44 @@
 'use client';
 
-import { useState, createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
+  user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
+  user: null,
   isAuthenticated: false,
-  login: () => false,
-  logout: () => {},
+  logout: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
 
-  const login = (email: string, _password: string) => {
-    // Connexion simulée - accept n'importe quel email/mot de passe
-    if (email && _password) {
-      setIsAuthenticated(true);
-      document.cookie = 'admin-session=1; path=/; max-age=86400; SameSite=Strict';
-      return true;
-    }
-    return false;
-  };
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    document.cookie = 'admin-session=; path=/; max-age=0';
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/admin';
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, logout }}>
       {children}
     </AuthContext.Provider>
   );
