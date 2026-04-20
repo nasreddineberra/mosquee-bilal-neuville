@@ -93,7 +93,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
 
           <div className="prose prose-sm max-w-none text-on-surface/70 leading-relaxed space-y-4">
             {article.content.split('\n\n').map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
+              <p key={i} className="whitespace-pre-line">{paragraph}</p>
             ))}
           </div>
         </div>

@@ -7,14 +7,8 @@ import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Awar
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
+import { getArticleImage } from '@/lib/images';
 import ArticleModal, { Article } from './ArticleModal';
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Vie de la mosquée': '/images/mosquee-bilal-thumbnail.jpg',
-  'Événements':        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-  'Cours':             'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&auto=format&fit=crop&q=80',
-  'Communauté':        'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=300&auto=format&fit=crop&q=80',
-};
 
 export default function HeroSection() {
   const { theme } = useTheme();
@@ -25,21 +19,26 @@ export default function HeroSection() {
     const supabase = createClient();
     supabase
       .from('articles')
-      .select('id,titre,summary,contenu,category,a_la_une,date_parution')
+      .select('id,titre,summary,contenu,category,a_la_une,date_parution,images(url)')
       .eq('actif', true)
+      .order('a_la_une', { ascending: false })
+      .order('position', { ascending: true })
       .order('date_parution', { ascending: false })
       .limit(3)
       .then(({ data }) => {
-        if (data) setActualites(data.map((a) => ({
-          id: a.id,
-          title: a.titre,
-          summary: a.summary,
-          content: a.contenu,
-          category: a.category,
-          date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-          image: CATEGORY_IMAGES[a.category] ?? '',
-          featured: a.a_la_une,
-        })));
+        if (data) setActualites(data.map((a) => {
+          const img = Array.isArray(a.images) ? a.images[0] : a.images;
+          return {
+            id: a.id,
+            title: a.titre,
+            summary: a.summary,
+            content: a.contenu,
+            category: a.category,
+            date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+            image: getArticleImage({ image_url: img?.url, category: a.category }),
+            featured: a.a_la_une,
+          };
+        }));
       });
   }, []);
   const heroSrc = theme === 'dark'
@@ -97,8 +96,8 @@ export default function HeroSection() {
         </div>
 
         {/* ROW 2 - Dernières Actualités (2/3) */}
-        <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-4 shadow-sm flex flex-col lg:h-[188px] overflow-hidden">
+          <div className="flex items-center justify-between mb-3 flex-shrink-0">
             <div className="flex items-center gap-2">
               <Newspaper className="w-5 h-5 text-primary" />
               <h3 className="text-sm font-bold text-primary uppercase tracking-wider">
@@ -109,30 +108,37 @@ export default function HeroSection() {
               <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 flex-1 min-h-0">
             {actualites.map((actu) => (
               <button
                 key={actu.id}
                 onClick={() => setSelectedArticle(actu)}
-                className="flex rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden text-left"
+                className="flex flex-col rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden text-left w-full h-full"
               >
-                <div className="relative w-24 flex-shrink-0">
+                <div className="relative w-full h-1/4 flex-shrink-0">
                   <Image
                     src={actu.image}
                     alt={actu.title}
                     fill
                     className="object-cover"
-                    sizes="96px"
+                    sizes="(max-width: 1024px) 100vw, 200px"
                   />
                 </div>
-                <div className="flex flex-col justify-center gap-1 min-w-0 p-3">
-                  <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest">
-                    {actu.date}
-                  </span>
-                  <p className="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors leading-tight">
-                    {actu.title}
-                  </p>
-                  <p className="text-xs text-on-surface/50 line-clamp-2 leading-relaxed">
+                <div className="flex flex-col justify-between min-w-0 p-2.5 flex-1">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                      <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest truncate">
+                        {actu.category}
+                      </span>
+                      <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest">
+                        {actu.date}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-tight line-clamp-3">
+                      {actu.title}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-on-surface/50 line-clamp-2 leading-snug">
                     {actu.summary}
                   </p>
                 </div>

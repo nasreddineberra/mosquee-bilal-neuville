@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     document.title = 'Administration - Mosquée Bilal';
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (!user) return;

@@ -1,19 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { FileText, Plus, Pencil, Trash2, Star, Eye, EyeOff, X, ScanEye } from 'lucide-react';
+import { FileText, Plus, Pencil, Trash2, Star, Eye, EyeOff, X, ScanEye, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import { FloatInput, FloatTextarea, FloatSelect } from '@/components/FloatField';
 import { createClient } from '@/lib/supabase/client';
 import ArticleModal, { Article } from '@/components/ArticleModal';
+import ImagePicker, { LibraryImage } from '@/components/ImagePicker';
+import { getArticleImage } from '@/lib/images';
 
 const CATEGORIES = ['Vie de la mosquée', 'Événements', 'Cours', 'Communauté'];
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  'Vie de la mosquée': '/images/mosquee-bilal-thumbnail.jpg',
-  'Événements':        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-  'Cours':             'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&auto=format&fit=crop&q=80',
-  'Communauté':        'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=400&auto=format&fit=crop&q=80',
-};
 
 type AdminArticle = {
   id: string;
@@ -26,6 +21,8 @@ type AdminArticle = {
   date_parution: string;
   date_expiration: string | null;
   position: number;
+  image_id: string | null;
+  image_url: string | null;
 };
 
 type FormState = Omit<AdminArticle, 'id' | 'position'>;
@@ -35,6 +32,8 @@ const emptyForm: FormState = {
   actif: true, a_la_une: false,
   date_parution: new Date().toISOString().split('T')[0],
   date_expiration: '',
+  image_id: null,
+  image_url: null,
 };
 
 function formatDate(d: string | null) {
@@ -75,16 +74,23 @@ export default function ArticlesAdminPage() {
   const [preview, setPreview] = useState<Article | null>(null);
   const [filterCat, setFilterCat] = useState('Tous');
   const [error, setError] = useState('');
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from('articles')
-      .select('id,titre,summary,contenu,category,actif,a_la_une,date_parution,date_expiration,position')
+      .select('id,titre,summary,contenu,category,actif,a_la_une,date_parution,date_expiration,position,image_id,images(url)')
       .order('a_la_une', { ascending: false })
       .order('actif', { ascending: false })
+      .order('position', { ascending: true })
       .order('date_parution', { ascending: false });
-    setArticles(data ?? []);
+    type Row = Omit<AdminArticle, 'image_url'> & { images: { url: string } | { url: string }[] | null };
+    const mapped: AdminArticle[] = (data ?? []).map((r: Row) => {
+      const img = Array.isArray(r.images) ? r.images[0] : r.images;
+      return { ...r, image_url: img?.url ?? null };
+    });
+    setArticles(mapped);
     setLoading(false);
   }, [supabase]);
 
@@ -97,7 +103,12 @@ export default function ArticlesAdminPage() {
   const openCreate = () => { setEditingId(null); setForm(emptyForm); setError(''); setModalOpen(true); };
   const openEdit = (a: AdminArticle) => {
     setEditingId(a.id);
-    setForm({ titre: a.titre, summary: a.summary, contenu: a.contenu, category: a.category, actif: a.actif, a_la_une: a.a_la_une, date_parution: a.date_parution, date_expiration: a.date_expiration ?? '' });
+    setForm({
+      titre: a.titre, summary: a.summary, contenu: a.contenu, category: a.category,
+      actif: a.actif, a_la_une: a.a_la_une,
+      date_parution: a.date_parution, date_expiration: a.date_expiration ?? '',
+      image_id: a.image_id, image_url: a.image_url,
+    });
     setError('');
     setModalOpen(true);
   };
@@ -123,6 +134,7 @@ export default function ArticlesAdminPage() {
       a_la_une: form.a_la_une,
       date_parution: form.date_parution,
       date_expiration: form.date_expiration || null,
+      image_id: form.image_id,
     };
     if (editingId) {
       await supabase.from('articles').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', editingId);
@@ -149,6 +161,19 @@ export default function ArticlesAdminPage() {
     if (!deleteId) return;
     await supabase.from('articles').delete().eq('id', deleteId);
     setDeleteId(null);
+    fetchArticles();
+  };
+
+  const handleMove = async (a: AdminArticle, direction: 'up' | 'down') => {
+    const group = articles.filter((x) => x.actif && x.a_la_une === a.a_la_une);
+    const idx = group.findIndex((x) => x.id === a.id);
+    const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (neighborIdx < 0 || neighborIdx >= group.length) return;
+    const reordered = [...group];
+    [reordered[idx], reordered[neighborIdx]] = [reordered[neighborIdx], reordered[idx]];
+    await Promise.all(
+      reordered.map((item, i) => supabase.from('articles').update({ position: i }).eq('id', item.id))
+    );
     fetchArticles();
   };
 
@@ -205,10 +230,42 @@ export default function ArticlesAdminPage() {
           <div className="divide-y divide-outline-variant/10">
             {filtered.map((a) => (
               <div key={a.id} className={`flex items-center gap-4 px-5 py-4 transition-colors ${a.a_la_une ? 'card-green' : 'hover:bg-surface-container/50'}`}>
-                {/* Image catégorie */}
+                {/* Reorder (actifs uniquement) */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  {(() => {
+                    if (!a.actif) return <div className="w-7 h-14" />;
+                    const group = articles.filter((x) => x.actif && x.a_la_une === a.a_la_une);
+                    const idx = group.findIndex((x) => x.id === a.id);
+                    const canUp = idx > 0;
+                    const canDown = idx < group.length - 1;
+                    const iconCls = a.a_la_une ? 'text-white/60 hover:bg-white/20 hover:text-white' : 'text-on-surface/40 hover:bg-primary/10 hover:text-primary';
+                    const disabledCls = a.a_la_une ? 'text-white/20 cursor-not-allowed' : 'text-on-surface/15 cursor-not-allowed';
+                    return (
+                      <>
+                        <button
+                          onClick={() => canUp && handleMove(a, 'up')}
+                          disabled={!canUp}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${canUp ? iconCls : disabledCls}`}
+                          aria-label="Monter"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => canDown && handleMove(a, 'down')}
+                          disabled={!canDown}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${canDown ? iconCls : disabledCls}`}
+                          aria-label="Descendre"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+                {/* Image (custom ou catégorie) */}
                 <div
                   className="w-12 h-12 rounded-xl flex-shrink-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${CATEGORY_IMAGES[a.category] ?? ''})` }}
+                  style={{ backgroundImage: `url(${getArticleImage({ image_url: a.image_url, category: a.category })})` }}
                 />
                 {/* Infos */}
                 <div className="flex-1 min-w-0">
@@ -279,16 +336,38 @@ export default function ArticlesAdminPage() {
                 <FloatInput id="art-expiration" label="Date d'expiration (optionnel)" type="date" value={form.date_expiration ?? ''} onChange={(v) => setForm({ ...form, date_expiration: v })} />
               </div>
 
-              {/* Image aperçu */}
-              {form.category && (
-                <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
-                  <div className="w-16 h-16 rounded-xl bg-cover bg-center flex-shrink-0" style={{ backgroundImage: `url(${CATEGORY_IMAGES[form.category]})` }} />
-                  <div>
-                    <p className="text-xs font-bold text-on-surface/60 uppercase tracking-wider mb-0.5">Image associée</p>
-                    <p className="text-xs text-on-surface/50">Catégorie : {form.category}</p>
-                  </div>
+              {/* Image associée */}
+              <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
+                <div
+                  className="w-16 h-16 rounded-xl bg-cover bg-center flex-shrink-0 border border-[var(--color-card-border)]"
+                  style={{ backgroundImage: `url(${getArticleImage({ image_url: form.image_url, category: form.category || 'Vie de la mosquée' })})` }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-on-surface/60 uppercase tracking-wider mb-0.5">Image associée</p>
+                  <p className="text-xs text-on-surface/50 truncate">
+                    {form.image_id ? 'Image personnalisée' : form.category ? `Image par défaut - ${form.category}` : 'Aucune catégorie sélectionnée'}
+                  </p>
                 </div>
-              )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setPickerOpen(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-primary text-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Choisir
+                  </button>
+                  {form.image_id && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, image_id: null, image_url: null })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-on-surface/60 hover:bg-surface-container transition-colors"
+                    >
+                      Retirer
+                    </button>
+                  )}
+                </div>
+              </div>
 
               {/* Toggles */}
               <div className="flex items-center gap-6 pt-2">
@@ -319,7 +398,7 @@ export default function ArticlesAdminPage() {
                     content: form.contenu,
                     category: form.category,
                     date: new Date(form.date_parution).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    image: CATEGORY_IMAGES[form.category] ?? '',
+                    image: getArticleImage({ image_url: form.image_url, category: form.category }),
                     featured: form.a_la_une,
                   })}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border transition-colors ${isFormValid ? 'border-primary text-primary hover:bg-primary/5' : 'border-on-surface/20 text-on-surface/30 cursor-not-allowed'}`}
@@ -347,6 +426,17 @@ export default function ArticlesAdminPage() {
 
       {/* Aperçu public */}
       <ArticleModal article={preview} onClose={() => setPreview(null)} />
+
+      {/* Sélecteur d'images */}
+      <ImagePicker
+        open={pickerOpen}
+        selectedId={form.image_id}
+        onSelect={(img: LibraryImage) => {
+          setForm({ ...form, image_id: img.id, image_url: img.url });
+          setPickerOpen(false);
+        }}
+        onClose={() => setPickerOpen(false)}
+      />
 
       {/* Modal confirmation suppression */}
       {deleteId && (

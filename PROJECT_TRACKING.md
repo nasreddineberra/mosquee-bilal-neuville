@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 20 avril 2026
+**Dernière mise à jour :** 20 avril 2026 (Session 11)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -104,7 +104,8 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Table | Colonnes principales |
 |-------|---------------------|
 | `profiles` | id (= auth.users.id), email, role (enum: administrateur/editeur/visiteur), nom, prenom |
-| `articles` | id, titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position |
+| `articles` | id, titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position, image_id (FK images) |
+| `images` | id, url, created_at, created_by (FK auth.users) |
 | `messages` | id, expediteur_id, destinataire_id, sujet, contenu, lu |
 | `activites_cours_tajwid` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
 | `activites_ecole_arabe` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
@@ -114,13 +115,15 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ### RLS (Row Level Security)
 - `articles` : lecture publique si `actif = true` ; ecriture par administrateur ou editeur
+- `images` : lecture publique ; insert/delete admin uniquement
 - `profiles` : chaque utilisateur voit son profil ; admins voient tout. Fonction `is_admin()` SECURITY DEFINER pour eviter la recursivite
 - `messages` : lecture par expediteur, destinataire ou admins
 - `activites_*` / `dons` : lecture publique si `actif = true` ; ecriture par administrateur
 
 ### Storage
-- Bucket `articles` : 1 image par categorie (vie-mosquee, evenements, cours, communaute)
-- Images gestion cote frontend via constante `CATEGORY_IMAGES` (pas de colonne DB)
+- Bucket `articles` : public, policies RLS (upload/delete admin uniquement)
+- Bibliotheque d'images reutilisables : table `images` + upload via modale admin
+- Fallback par categorie : constante `CATEGORY_IMAGES` dans `src/lib/images.ts` si pas d'image custom
 
 ### Trigger
 - `on_auth_user_created` → `handle_new_user()` SECURITY DEFINER : cree automatiquement un enregistrement dans `profiles` a la creation d'un utilisateur Supabase
@@ -262,6 +265,37 @@ Administration                   (administrateur uniquement)
 2. Transform `sentence` : majuscule au debut de chaque phrase
 3. `FloatTextarea` : accept maintenant la prop `transform`
 
+### Session 11 - 20 avril 2026 - Bibliotheque d'images + UX articles
+
+**Bibliotheque d'images reutilisables :**
+1. Table `images` creee (id, url, created_at, created_by) + RLS (lecture publique, insert/delete admin)
+2. Colonne `image_id` (FK `images`) ajoutee sur `articles`
+3. `src/lib/images.ts` : helper `getArticleImage` (image custom ou fallback categorie) + `optimizeImage` (canvas client-side, redimension max 1200px, WebP qualite 85%, max 1 Mo)
+4. Composant `src/components/ImagePicker.tsx` : modale grille thumbnails, upload avec optimisation, suppression depuis bibliotheque
+5. Integration modale admin article : bouton "Choisir une image" + "Retirer" + apercu
+6. `next.config.mjs` : hostname `ugbkbsorcrmnhfplprkb.supabase.co` ajoute aux remotePatterns
+7. Policies Storage bucket `articles` : public en lecture, upload/delete admin via `is_admin()`
+
+**Reordonnancement articles (admin) :**
+1. Chevrons Up/Down en debut de ligne sur `/admin/dashboard/articles`
+2. Actifs uniquement (inactifs non reordonnables)
+3. 2 groupes separes : "a la une" et "autres actifs" (les a la une restent toujours en haut)
+4. `handleMove` : ecrit `position = 0,1,2...` sur tout le groupe concerne (batch Promise.all)
+5. Tri `a_la_une DESC, actif DESC, position ASC, date_parution DESC` applique sur admin, `/actualites` et `HeroSection`
+
+**Refonte card "Dernieres actualites" (accueil) :**
+1. Hauteur contrainte a 188px (= 560 Mawaqit - 360 Hero - 12 gap) en desktop
+2. Image passee en haut de sub-card (h-1/4), texte sur 3/4 en dessous
+3. Header sub-card : categorie a gauche + date a droite (meme couleur `text-tertiary`)
+4. Titre en `line-clamp-3`, resume en `line-clamp-2`
+5. Tri `a_la_une DESC` ajoute sur la requete HeroSection (respect de l'ordre admin)
+
+**Autres corrections :**
+1. `ArticleModal` : `whitespace-pre-line` sur les paragraphes pour preserver les sauts de ligne simples
+2. Favicon : `src/app/icon.png` (convention Next.js App Router, genere automatiquement les balises)
+3. Titre onglet admin : `useEffect` deps `[] → [pathname]` pour re-appliquer a chaque navigation
+4. SQL seed fourni a l'utilisateur : 5 articles demo (nouveau site, pre-inscriptions ecole, stationnement, conferences dimanche, fete fin d'annee)
+
 ---
 
 ## Ordre d'implementation Phase 3
@@ -282,10 +316,13 @@ Administration                   (administrateur uniquement)
 ## Notes et Decisions
 
 - **Tailwind CSS :** v3.4 (downgrade depuis v4, incompatible avec chemin contenant `#`)
-- **Images articles :** 1 image par categorie (constante `CATEGORY_IMAGES` frontend), pas de colonne DB
+- **Images articles :** bibliotheque reutilisable (table `images`) + fallback par categorie (`CATEGORY_IMAGES` dans `src/lib/images.ts`)
+- **Optimisation images :** client-side avant upload (canvas, WebP 85%, max 1200px, max 1 Mo)
+- **Ratio recommande uploads :** 16:9 (1200x675) - sujet centre pour survivre aux recadrages
 - **Tirets :** Toujours tiret standard (-), jamais tiret cadratin
 - **Commits :** En fin de journee uniquement
 - **Sous-etapes :** Chaque sous-etape validee par l'utilisateur avant developpement
+- **Turbopack :** bloque par politique WDAC d'entreprise (evenement 3033, signature non "Enterprise") - fallback webpack si necessaire
 
 ## Commandes utiles
 

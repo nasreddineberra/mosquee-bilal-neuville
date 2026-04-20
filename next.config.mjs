@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'mawaqit.net',
       },
+      {
+        protocol: 'https',
+        hostname: 'ugbkbsorcrmnhfplprkb.supabase.co',
+      },
     ],
   },
 };
