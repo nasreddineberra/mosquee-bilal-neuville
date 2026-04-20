@@ -7,7 +7,7 @@ import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Awar
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
-import { getArticleImage } from '@/lib/images';
+import { getArticleImage, fetchCategoryDefaults } from '@/lib/images';
 import ArticleModal, { Article } from './ArticleModal';
 
 export default function HeroSection() {
@@ -17,29 +17,31 @@ export default function HeroSection() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase
-      .from('articles')
-      .select('id,titre,summary,contenu,category,a_la_une,date_parution,images(url)')
-      .eq('actif', true)
-      .order('a_la_une', { ascending: false })
-      .order('position', { ascending: true })
-      .order('date_parution', { ascending: false })
-      .limit(3)
-      .then(({ data }) => {
-        if (data) setActualites(data.map((a) => {
-          const img = Array.isArray(a.images) ? a.images[0] : a.images;
-          return {
-            id: a.id,
-            title: a.titre,
-            summary: a.summary,
-            content: a.contenu,
-            category: a.category,
-            date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-            image: getArticleImage({ image_url: img?.url, category: a.category }),
-            featured: a.a_la_une,
-          };
-        }));
-      });
+    Promise.all([
+      fetchCategoryDefaults(supabase),
+      supabase
+        .from('articles')
+        .select('id,titre,summary,contenu,category,a_la_une,date_parution,images(url)')
+        .eq('actif', true)
+        .order('a_la_une', { ascending: false })
+        .order('position', { ascending: true })
+        .order('date_parution', { ascending: false })
+        .limit(3),
+    ]).then(([defaults, { data }]) => {
+      if (data) setActualites(data.map((a) => {
+        const img = Array.isArray(a.images) ? a.images[0] : a.images;
+        return {
+          id: a.id,
+          title: a.titre,
+          summary: a.summary,
+          content: a.contenu,
+          category: a.category,
+          date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+          image: getArticleImage({ image_url: img?.url, category: a.category, categoryDefaults: defaults }),
+          featured: a.a_la_une,
+        };
+      }));
+    });
   }, []);
   const heroSrc = theme === 'dark'
     ? '/images/mosquee-hero-dark.png'
@@ -113,28 +115,28 @@ export default function HeroSection() {
               <button
                 key={actu.id}
                 onClick={() => setSelectedArticle(actu)}
-                className="flex flex-col rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden text-left w-full h-full"
+                className="flex flex-col rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group overflow-hidden text-left w-full h-full border border-[var(--color-card-border)]"
               >
-                <div className="relative w-full h-1/4 flex-shrink-0">
+                <div className="relative w-full h-1/3 flex-shrink-0">
                   <Image
                     src={actu.image}
                     alt={actu.title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 200px"
+                    sizes="200px"
                   />
                 </div>
-                <div className="flex flex-col justify-between min-w-0 p-2.5 flex-1">
+                <div className="flex flex-col justify-between min-w-0 px-2.5 pt-0.5 pb-2.5 flex-1">
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <div className="flex items-center justify-between gap-1 mb-0.5">
                       <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest truncate">
                         {actu.category}
                       </span>
-                      <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-tertiary uppercase tracking-widest flex-shrink-0">
                         {actu.date}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-tight line-clamp-3">
+                    <p className="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-tight line-clamp-2">
                       {actu.title}
                     </p>
                   </div>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Newspaper, Building, CalendarArrowUp, BookOpenCheck, Users, ChevronRight, type LucideIcon } from 'lucide-react';
 import ArticleModal, { Article } from '@/components/ArticleModal';
 import { createClient } from '@/lib/supabase/client';
-import { getArticleImage } from '@/lib/images';
+import { getArticleImage, fetchCategoryDefaults } from '@/lib/images';
 
 const categories = ['Tous', 'Vie de la mosquée', 'Événements', 'Cours', 'Communauté'];
 
@@ -22,44 +22,45 @@ export default function ActualitesPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('Tous');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [categoryDefaults, setCategoryDefaults] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    supabase
-      .from('articles')
-      .select('id,titre,summary,contenu,category,a_la_une,date_parution,images(url)')
-      .eq('actif', true)
-      .order('a_la_une', { ascending: false })
-      .order('position', { ascending: true })
-      .order('date_parution', { ascending: false })
-      .then(({ data }) => {
-        if (data) setArticles(data.map((a) => {
-          const img = Array.isArray(a.images) ? a.images[0] : a.images;
-          return {
-            id: a.id,
-            title: a.titre,
-            summary: a.summary,
-            content: a.contenu,
-            category: a.category,
-            date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-            image: getArticleImage({ image_url: img?.url, category: a.category }),
-            featured: a.a_la_une,
-          };
-        }));
-        setLoading(false);
-      });
+    Promise.all([
+      fetchCategoryDefaults(supabase),
+      supabase
+        .from('articles')
+        .select('id,titre,summary,contenu,category,a_la_une,date_parution,images(url)')
+        .eq('actif', true)
+        .order('a_la_une', { ascending: false })
+        .order('position', { ascending: true })
+        .order('date_parution', { ascending: false }),
+    ]).then(([defaults, { data }]) => {
+      setCategoryDefaults(defaults);
+      if (data) setArticles(data.map((a) => {
+        const img = Array.isArray(a.images) ? a.images[0] : a.images;
+        return {
+          id: a.id,
+          title: a.titre,
+          summary: a.summary,
+          content: a.contenu,
+          category: a.category,
+          date: new Date(a.date_parution).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+          image: getArticleImage({ image_url: img?.url, category: a.category, categoryDefaults: defaults }),
+          featured: a.a_la_une,
+        };
+      }));
+      setLoading(false);
+    });
   }, []);
 
-  const featuredArticles = articles.filter((a) => a.featured);
-  const otherArticles = articles.filter((a) => !a.featured);
+  const featuredArticles = articles.filter((a) => a.featured &&
+    (activeCategory === 'Tous' || a.category === activeCategory));
+  const otherArticles = articles.filter((a) => !a.featured &&
+    (activeCategory === 'Tous' || a.category === activeCategory));
 
-  const filteredArticles =
-    activeCategory === 'Tous'
-      ? otherArticles
-      : otherArticles.filter((a) => a.category === activeCategory);
+  const filteredArticles = otherArticles;
 
-  const showFeatured =
-    activeCategory === 'Tous' ||
-    featuredArticles.some((a) => a.category === activeCategory);
+  const showFeatured = featuredArticles.length > 0;
 
   return (
     <>
@@ -189,7 +190,7 @@ export default function ActualitesPage() {
               ))}
             </div>
           )}
-          {!loading && filteredArticles.length === 0 && !(showFeatured && featuredArticles.some((a) => activeCategory === 'Tous' || a.category === activeCategory)) && (
+          {!loading && filteredArticles.length === 0 && !showFeatured && (
             <div className="text-center py-16">
               <p className="text-on-surface/40 text-sm">
                 Aucun article dans cette catégorie pour le moment.

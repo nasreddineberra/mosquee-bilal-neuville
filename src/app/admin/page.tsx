@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Eye, EyeOff, X, ShieldCheck, QrCode } from 'lucide-react';
 import { FloatInput } from '@/components/FloatField';
@@ -12,6 +12,8 @@ type Step = 'email' | 'password' | 'mfa-enroll' | 'mfa-verify';
 export default function AdminLoginPage() {
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => { document.title = 'Administration - Mosquée Bilal'; }, []);
 
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');

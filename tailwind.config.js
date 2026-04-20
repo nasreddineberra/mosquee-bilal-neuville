@@ -47,8 +47,8 @@ module.exports = {
         'on-error-container': 'var(--color-on-error-container)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
-        serif: ['var(--font-noto-serif)', 'serif'],
+        sans: ['Inter', 'sans-serif'],
+        serif: ['Noto Serif', 'serif'],
       },
       borderRadius: {
         DEFAULT: '0.25rem',

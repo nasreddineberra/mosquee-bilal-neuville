@@ -32,9 +32,10 @@ interface FloatInputProps {
   required?: boolean;
   transform?: Transform;
   error?: boolean;
+  maxLength?: number;
 }
 
-export function FloatInput({ id, label, type = 'text', value, onChange, required = false, transform = 'none', error = false }: FloatInputProps) {
+export function FloatInput({ id, label, type = 'text', value, onChange, required = false, transform = 'none', error = false, maxLength }: FloatInputProps) {
   const borderClass = error
     ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
     : 'border-[var(--color-card-border)] focus:border-primary focus:ring-primary/20';
@@ -46,6 +47,7 @@ export function FloatInput({ id, label, type = 'text', value, onChange, required
         value={value}
         onChange={(e) => onChange(applyTransform(e.target.value, transform))}
         placeholder=" "
+        maxLength={maxLength}
         className={`peer w-full bg-surface-container-low border rounded-xl pt-6 pb-2 px-4 text-sm focus:ring-2 ${borderClass}`}
       />
       <label

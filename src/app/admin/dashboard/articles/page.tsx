@@ -6,7 +6,7 @@ import { FloatInput, FloatTextarea, FloatSelect } from '@/components/FloatField'
 import { createClient } from '@/lib/supabase/client';
 import ArticleModal, { Article } from '@/components/ArticleModal';
 import ImagePicker, { LibraryImage } from '@/components/ImagePicker';
-import { getArticleImage } from '@/lib/images';
+import { getArticleImage, fetchCategoryDefaults } from '@/lib/images';
 
 const CATEGORIES = ['Vie de la mosquée', 'Événements', 'Cours', 'Communauté'];
 
@@ -75,6 +75,7 @@ export default function ArticlesAdminPage() {
   const [filterCat, setFilterCat] = useState('Tous');
   const [error, setError] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [categoryDefaults, setCategoryDefaults] = useState<Record<string, string>>({});
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -94,7 +95,10 @@ export default function ArticlesAdminPage() {
     setLoading(false);
   }, [supabase]);
 
-  useEffect(() => { fetchArticles(); }, [fetchArticles]);
+  useEffect(() => {
+    fetchArticles();
+    fetchCategoryDefaults(supabase).then(setCategoryDefaults);
+  }, [fetchArticles]);
 
   const uneCount = articles.filter((a) => a.a_la_une && a.id !== editingId).length;
 
@@ -265,7 +269,7 @@ export default function ArticlesAdminPage() {
                 {/* Image (custom ou catégorie) */}
                 <div
                   className="w-12 h-12 rounded-xl flex-shrink-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${getArticleImage({ image_url: a.image_url, category: a.category })})` }}
+                  style={{ backgroundImage: `url(${getArticleImage({ image_url: a.image_url, category: a.category, categoryDefaults })})` }}
                 />
                 {/* Infos */}
                 <div className="flex-1 min-w-0">
@@ -321,7 +325,7 @@ export default function ArticlesAdminPage() {
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <FloatInput id="art-titre" label="Titre" value={form.titre} onChange={(v) => setForm({ ...form, titre: v })} required transform="upperall" />
-              <FloatTextarea id="art-summary" label="Résumé (affiché sur la carte)" rows={2} value={form.summary} onChange={(v) => setForm({ ...form, summary: v })} required transform="sentence" />
+              <FloatInput id="art-summary" label="Résumé (affiché sur la carte, 70 car. max)" maxLength={70} value={form.summary} onChange={(v) => setForm({ ...form, summary: v })} required transform="sentence" />
               <FloatTextarea id="art-contenu" label="Contenu complet" rows={6} value={form.contenu} onChange={(v) => setForm({ ...form, contenu: v })} required />
               <FloatSelect
                 id="art-category"
@@ -340,7 +344,7 @@ export default function ArticlesAdminPage() {
               <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
                 <div
                   className="w-16 h-16 rounded-xl bg-cover bg-center flex-shrink-0 border border-[var(--color-card-border)]"
-                  style={{ backgroundImage: `url(${getArticleImage({ image_url: form.image_url, category: form.category || 'Vie de la mosquée' })})` }}
+                  style={{ backgroundImage: `url(${getArticleImage({ image_url: form.image_url, category: form.category || '', categoryDefaults })})` }}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-on-surface/60 uppercase tracking-wider mb-0.5">Image associée</p>
@@ -434,8 +438,12 @@ export default function ArticlesAdminPage() {
         onSelect={(img: LibraryImage) => {
           setForm({ ...form, image_id: img.id, image_url: img.url });
           setPickerOpen(false);
+          fetchCategoryDefaults(supabase).then(setCategoryDefaults);
         }}
-        onClose={() => setPickerOpen(false)}
+        onClose={() => {
+          setPickerOpen(false);
+          fetchCategoryDefaults(supabase).then(setCategoryDefaults);
+        }}
       />
 
       {/* Modal confirmation suppression */}

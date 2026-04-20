@@ -1,22 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Serif } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import LayoutShell from "@/components/LayoutShell";
 import { AuthProvider } from "@/context/AuthContext";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const notoSerif = Noto_Serif({
-  subsets: ["latin"],
-  variable: "--font-noto-serif",
-  weight: ["400", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Mosquée Bilal - Neuville-sur-Saône",
@@ -31,6 +17,10 @@ export default function RootLayout({
   return (
     <html lang="fr" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark')}else{document.documentElement.setAttribute('data-theme','light')}}catch(e){}})()`,
@@ -38,7 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${notoSerif.variable} font-sans`}
+        className="font-sans"
         suppressHydrationWarning
       >
         <ThemeProvider>
