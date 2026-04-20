@@ -1,12 +1,13 @@
-# 🕌 Mosquée Bilal - Fichier de Suivi du Projet
+# Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Statut :** En cours
-**Architecture :** Next.js 16 + React 19 + Tailwind CSS 3 + TypeScript
+**Dernière mise à jour :** 20 avril 2026
+**Statut :** Phase 3 en cours (back-office)
+**Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
 ---
 
-## 📋 Vue d'ensemble du Projet
+## Vue d'ensemble du Projet
 
 ### Vision
 Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mosquée Bilal. Le site sert de pont entre l'association et la communauté, tout en facilitant la gestion interne.
@@ -15,455 +16,284 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 - **Informer :** Horaires de prière, actualités, événements
 - **Éduquer :** Documentation sur l'Islam
 - **Gérer :** Interface d'administration robuste (CMS maison)
-- **Sécuriser :** Architecture compatible Supabase (Auth + RLS)
-
-### Architecture du Site (Sitemap)
-![alt text](image.png)
-#### Front-office (Public)
-| Page | Description |
-|------|-------------|
-| Accueil | Hero section, Widget Mawaqit, Dernières actus, CTA Dons/Activités |
-| Actualités / Événements | Liste filtrable des news et agenda |
-| Activités communautaires | Cours, sorties, services sociaux |
-| Documentation sur l'Islam | Articles pédagogiques, FAQ |
-| Infos pratiques | Accès, horaires, services (obsèques, assurances) |
-| Dons | Plateformes de collecte, projets, CTA |
-| Certificat de conversion | Définition, utilité, étapes, CTA contact |
-| Mentions légales | Éditeur, hébergement, propriété intellectuelle, crédits |
-| Confidentialité | RGPD, données collectées, droits, cookies |
-
-#### Back-office (Admin)
-| Page | Description |
-|------|-------------|
-| Connexion | Interface sécurisée (Supabase Auth) |
-| Dashboard | Statistiques rapides, notifications de messages |
-| Gestion de contenu | Liste/Édition des articles, événements, pages |
-| Médiathèque | Gestion des images et documents |
-| Paramètres | Rôles (Admin, Éditeur, Lecteur), Profil |
+- **Sécuriser :** Architecture Supabase (Auth + RLS + TOTP 2FA)
 
 ---
 
-## 🎨 Design System
+## Sitemap
+
+### Front-office (Public)
+| Page | Route | Statut |
+|------|-------|--------|
+| Accueil | `/` | Finalisé |
+| Actualités | `/actualites` | Finalisé |
+| Activités | `/activites` | Finalisé |
+| Documentation Islam | `/documentation` | Finalisé |
+| Infos pratiques + Contact | `/infos` | Finalisé |
+| Dons | `/don` | Finalisé |
+| Certificat de conversion | `/certificat` | Finalisé |
+| Mentions légales | `/mentions-legales` | Finalisé |
+| Confidentialité (RGPD) | `/confidentialite` | Finalisé |
+
+### Back-office (Admin)
+| Page | Route | Statut |
+|------|-------|--------|
+| Connexion (email + mdp + 2FA) | `/admin` | Finalisé |
+| Dashboard | `/admin/dashboard` | Finalisé |
+| Articles (CRUD) | `/admin/dashboard/articles` | Finalisé |
+| Communication | `/admin/dashboard/communication` | A faire |
+| Activités | `/admin/dashboard/activites` | A faire |
+| Dons | `/admin/dashboard/dons` | A faire |
+| Gestion utilisateurs | `/admin/dashboard/utilisateurs` | A faire |
+| Gestion visiteurs | `/admin/dashboard/visiteurs` | A faire |
+
+---
+
+## Design System
 
 ### Light Mode - "The Living Sanctuary" (Sakinah UI)
 | Token | Couleur | Hex |
 |-------|---------|-----|
-| Primary | Émeraude profond | `#064E3B` |
+| Primary | Emeraude profond | `#064E3B` |
 | On Primary | Blanc | `#FFFFFF` |
-| Primary Container | Émeraude foncé | `#064E3B` |
-| Primary Fixed | Menthe clair | `#B0F0D6` |
-| Primary Fixed Dim | Menthe dim | `#95D3BA` |
 | Secondary | Neutre chaud | `#5E5E5C` |
-| Secondary Container | Sable clair | `#E1DFDC` |
 | Tertiary | Or mat | `#B45309` |
-| Tertiary Container | Brun | `#733100` |
-| Tertiary Fixed | Pêche | `#FFDBCA` |
-| Tertiary Fixed Dim | Abricot | `#FFB68E` |
-| Background | Blanc bleuté | `#F9F9FF` |
-| Surface | Blanc bleuté | `#F9F9FF` |
+| Background | Blanc bleute | `#F9F9FF` |
 | Surface Container Lowest | Blanc pur | `#FFFFFF` |
-| Surface Container Low | Bleu très clair | `#F0F3FF` |
-| Surface Container | Bleu clair | `#E7EEFF` |
-| Surface Container High | Bleu dim | `#DEE8FF` |
-| Surface Container Highest | Bleu dim+ | `#D8E3FB` |
 | On Surface | Gris ardoise | `#111C2D` |
-| On Surface Variant | Vert gris | `#404944` |
-| Outline | Gris vert | `#707974` |
-| Outline Variant | Gris bleuté | `#BFC9C3` |
 
-### Dark Mode - "The Celestial Sanctuary" (Saphir & Ambre)
+### Dark Mode - "The Celestial Sanctuary" (Saphir et Ambre)
 | Token | Couleur | Hex |
 |-------|---------|-----|
 | Primary | Bleu argent | `#BEC6E0` |
 | Primary Container | Midnight | `#0F172A` |
-| Tertiary (Ambre) | Ambre doré | `#FFB95F` |
+| Tertiary (Ambre) | Ambre dore | `#FFB95F` |
 | Background | Midnight profond | `#0B1326` |
-| Surface | Midnight | `#0F172A` |
-| Surface Container Low | Bleu nuit | `#131B2E` |
-| Surface Container High | Ardoise foncé | `#222A3D` |
-| Surface Container Highest | Ardoise | `#2D3449` |
-| Surface Bright | Ardoise clair | `#31394D` |
-| Surface Variant | Ardoise transparent | `rgba(30,41,59,0.5)` |
 | On Surface | Blanc cassis | `#F8FAFC` |
-| On Surface Variant | Ardoise moyen | `#94A3B8` |
-| Outline | Ardoise foncé | `#475569` |
-| Outline Variant | Gris foncé | `#45464D` |
 
 ### Typographie
-- **Titres (Spiritual/Editorial) :** Noto Serif
-- **Corps (Fonctionnel) :** Inter (light mode) / Manrope (dark mode)
+- **Titres :** Noto Serif
+- **Corps :** Inter (light) / Manrope (dark)
 
-### Principes de Design
-- **"No-Line Rule" :** Pas de bordures 1px solid pour sectionner. Utiliser les changements de couleur de surface.
-- **Glassmorphism :** Surface à 60-80% opacité + backdrop-blur 12-20px
-- **Élévation tonale :** Hiérarchie par les surfaces empilées, pas par les ombres
-- **Ghost Border :** Outline variant à 15-20% opacité si bordure nécessaire
-- **Grille asymétrique :** Marges asymétriques, éléments qui débordent
+### Classes CSS custom
+- `.card-green` : gradient primary → primary-container (fond vert pour cards "a la une" et CTA)
+- `.card-green-link` + `.card-green-btn` : hover outline ambre + bouton fleche
+- `.card-border` : pseudo-element ::after pour bordure visible par-dessus images
+- `.logo-invert` : logo en negatif en dark mode
+- `.btn-admin-link` : bouton "Acces reserve" header avec effet ambre au hover
 
 ---
 
-## � Spécifications Techniques
+## Specifications Techniques
 
-| Élément | Technologie |
+| Element | Technologie |
 |---------|-------------|
 | Framework | Next.js 16 (App Router) |
 | UI Library | React 19 |
-| Styling | Tailwind CSS 4 |
+| Styling | Tailwind CSS 3.4 |
 | Langage | TypeScript |
-| Backend (futur) | Supabase (PostgreSQL + Auth + RLS) |
-| Intégrations | Iframe Mawaqit (horaires de prière) |
-| Accessibilité | Contrastes élevés, navigation clavier, mobile-first |
+| Backend | Supabase (PostgreSQL + Auth + RLS + Storage) |
+| Auth | Supabase Auth + TOTP MFA (Google Authenticator) |
+| Widget priere | Iframe Mawaqit (mawaqit.net) |
 
 ---
 
-## 🔍 Journal des Actions Détaillé
+## Base de Données Supabase
 
-### PHASE 1 : Initialisation du Projet
+### Tables
+| Table | Colonnes principales |
+|-------|---------------------|
+| `profiles` | id (= auth.users.id), email, role (enum: administrateur/editeur/visiteur), nom, prenom |
+| `articles` | id, titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position |
+| `messages` | id, expediteur_id, destinataire_id, sujet, contenu, lu |
+| `activites_cours_tajwid` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
+| `activites_ecole_arabe` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
+| `activites_sorties` | id, titre, description, date_sortie, lieu, places_max, tarif, actif |
+| `dons` | id, titre, texte, lien_externe, a_la_une, actif |
+| `demandes_acces` | id, email, nom, prenom, message, statut (enum), traite_par, traite_at |
 
-#### ✅ Sous-étape 1.1 : Nettoyage et configuration de base
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
+### RLS (Row Level Security)
+- `articles` : lecture publique si `actif = true` ; ecriture par administrateur ou editeur
+- `profiles` : chaque utilisateur voit son profil ; admins voient tout. Fonction `is_admin()` SECURITY DEFINER pour eviter la recursivite
+- `messages` : lecture par expediteur, destinataire ou admins
+- `activites_*` / `dons` : lecture publique si `actif = true` ; ecriture par administrateur
 
-**Actions menées :**
-1. ✅ Suppression de tous les fichiers du projet précédent (`src/`, `.next/`, `middleware.ts.disabled`)
-2. ✅ Arrêt des processus Node.js en cours
-3. ✅ Installation de `@tailwindcss/postcss` (dépendance requise pour Tailwind CSS v4)
-4. ✅ Mise à jour de `postcss.config.js` : remplacement de `tailwindcss` par `@tailwindcss/postcss`
-5. ✅ Mise à jour de `src/app/globals.css` : remplacement de `@tailwind` par `@import "tailwindcss"` (syntaxe v4)
+### Storage
+- Bucket `articles` : 1 image par categorie (vie-mosquee, evenements, cours, communaute)
+- Images gestion cote frontend via constante `CATEGORY_IMAGES` (pas de colonne DB)
 
-#### ✅ Sous-étape 1.3 : Créer les composants UI de base (Header, Footer, ThemeToggle)
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Création de `ThemeToggle.tsx` — Bouton toggle clair/sombre avec icônes soleil/lune
-2. ✅ Création de `Header.tsx` — Navigation responsive avec logo, liens, recherche, bouton connexion, menu mobile
-3. ✅ Création de `Footer.tsx` — Navigation, infos, liens légaux, copyright
-4. ✅ Intégration du Header et Footer dans `layout.tsx`
-5. ✅ Copie du logo dans `/public/logo.png`
-6. ✅ Correction du bug Tailwind v4 → downgrade vers Tailwind CSS v3.4 (compatible chemin avec `#`)
-7. ✅ Configuration `tailwind.config.js` avec tous les tokens de couleur CSS custom
-8. ✅ Serveur fonctionnel — HTTP 200 sur http://localhost:3000
-
-#### ✅ Sous-étape 1.7 : Page Admin - Connexion + Dashboard
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Création de `AuthContext.tsx` — Contexte d'authentification simulée
-2. ✅ Intégration de `AuthProvider` dans `layout.tsx`
-3. ✅ Création de `/admin` — Page de connexion avec formulaire (email + mot de passe)
-4. ✅ Mode démo : n'importe quel email/mot de passe fonctionne
-5. ✅ Création de `/admin/dashboard` — Dashboard complet avec :
-   - Stats : 148 articles, 7 événements, 2 481 abonnés
-   - Tableau de contenu récent avec statuts (Publié/Brouillon)
-   - Rappels admin avec checkboxes
-6. ✅ Layout admin avec navigation : Dashboard, Hadiths, Actualités, Événements, Médiathèque, Paramètres
-7. ✅ Profil utilisateur + bouton déconnexion
-8. ✅ Sous-pages : `/hadiths`, `/news`, `/events`, `/media`, `/settings` (placeholders)
-9. ✅ Toutes les pages admin répondent en HTTP 200
-
-#### ✅ Corrections UI et contenu (session 2)
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Logo agrandi à 64px (header) puis 128px (admin login)
-2. ✅ Menu non opaque (`bg-background` au lieu de `glass-nav`)
-3. ✅ Slogan "Foi, fraternité, proximité" masqué sous lg (`lg:block hidden`)
-4. ✅ Logo taille fixe avec `flex-shrink-0`
-5. ✅ Champs recherche supprimé du header (desktop + mobile)
-6. ✅ Logo négatif en dark mode via classe CSS `.logo-invert`
-7. ✅ Page Infos pratiques : transport avec lignes bus colorées (TCL), parking
-8. ✅ Page Infos pratiques : 3 cards alignées (Horaires, Accès, Plan d'accès)
-9. ✅ Google Maps intégré dans card Plan d'accès, lien externe supprimé
-10. ✅ Icône localisation MawaqitWidget → lien vers /infos
-11. ✅ Hadith n°8 retiré (pas Bukhari/Muslim), type `Hadith` créé
-12. ✅ Page admin Hadiths (`/admin/dashboard/hadiths`) avec CRUD
-13. ✅ Commit et push vers GitHub
-
-**Prochaines étapes :**
-- [ ] Phase 2 : Connexion Supabase réelle + Base de données
-- [ ] Phase 3 : CRUD Actualités/Événements avec Supabase
-- [ ] Phase 4 : Médiathèque upload + Rôles utilisateurs
-
-#### ✅ Sous-étape 1.6 : Créer les pages de navigation
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Création de `/actualites` — Grille de 6 cartes d'actualités placeholder
-2. ✅ Création de `/activites` — 4 activités : Tajwid, Arabe, Sorties, Aide Sociale
-3. ✅ Création de `/documentation` — 6 catégories : 5 Piliers, Coran, Sira, Hadith, Prière, FAQ
-4. ✅ Création de `/infos` — Horaires d'ouverture, Accès, Services (Obsèques, Conseil, Salle)
-5. ✅ Création de `/contact` — Formulaire + coordonnées + placeholder carte
-6. ✅ Toutes les pages répondent en HTTP 200
-
-#### ✅ Sous-étape 1.5 : Page d'accueil - Widget Mawaqit + Section Actualités
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Création de `MawaqitWidget.tsx` — Iframe responsive des horaires de prière (mawaqit.net)
-2. ✅ Création de `NewsSection.tsx` — 3 cartes d'actualités avec images, badges catégorie, dates, titres
-3. ✅ Création de `QuickLinks.tsx` — Liens rapides Cours & Activités, Contact
-4. ✅ Intégration dans `page.tsx` : Hero → Mawaqit → QuickLinks → Actualités
-
-#### ✅ Sous-étape 1.4 : Page d'accueil - Hero Section
-**Date :** 11 avril 2026
-**Statut :** ✅ Terminée
-
-**Actions menées :**
-1. ✅ Création de `HeroSection.tsx` — Bento grid avec image hero + carte prochaine prière
-2. ✅ Titre : "Mosquée Bilal" / Sous-titre : "Neuville-sur-Saône"
-3. ✅ Countdown dynamique vers la prochaine prière (mise à jour toutes les minutes)
-4. ✅ Quick Stats : Annonces, Conférence, Communauté, CTA Don
-5. ✅ Design fidèle au template Stitch (arrondi 2.5rem, glassmorphism, gradients)
-6. ✅ Mise à jour de `page.tsx` pour intégrer le Hero
+### Trigger
+- `on_auth_user_created` → `handle_new_user()` SECURITY DEFINER : cree automatiquement un enregistrement dans `profiles` a la creation d'un utilisateur Supabase
 
 ---
 
-### ✅ Session 5 — Page Documentation + refonte Actualités
-**Date :** 13 avril 2026
-**Statut :** ✅ Terminée
-
-#### Page Actualités — Refonte des cards grille
-**Actions menées :**
-1. ✅ 2 articles "à la une" en ligne (chacun 1/2 largeur), style `card-green`, layout 3 colonnes (photo 1/3 + texte 2/3)
-2. ✅ Hauteurs réduites d'1/3 sur toutes les cards (h-[120px] featured, h-[96px] grille)
-3. ✅ Cards grille : remplacement `<button>` par `<div>` + `cursor-pointer` (résolution du gap image)
-4. ✅ Image via `background-image` CSS inline (résolution définitive du gap entre card et image)
-5. ✅ `ArticleModal.tsx` : ajout champ `imagePosition?: string` et `featured?: boolean` sur interface `Article`
-
-#### Page Documentation Islam — Création complète
-**Actions menées :**
-1. ✅ 7 cards thématiques : Fondements de l'Islam, Le Coran, La Sira, Les Hadiths, La Prière, Le Jeûne, FAQ
-2. ✅ Chaque card : image banner h-24 + icône + titre + liste de sujets cliquables
-3. ✅ 4 à 6 sujets par card avec contenus détaillés en français
-4. ✅ Modale par sujet — **non fermable depuis l'extérieur** (uniquement via bouton ✕)
-5. ✅ Rendu du texte enrichi : `**gras**` parsé en `<strong>`
-6. ✅ Style identique aux cards Actualités (`bg-surface-container-lowest shadow-sm rounded-2xl`)
-7. ✅ Grille responsive : 1 → 2 → 4 colonnes
-8. ✅ En-tête page identique aux autres pages (icône + h1 serif uppercase + sous-titre)
-9. ✅ Titre : "Documentation sur l'Islam"
-
-#### Correction globale — Bordure visible sur les cards avec image
-**Actions menées :**
-1. ✅ Ajout classe CSS `.card-border` dans `globals.css` : pseudo-élément `::after` superposé (`position: absolute; inset: 0; border: 1px solid var(--color-card-border); pointer-events: none; z-index: 10`)
-2. ✅ Classe appliquée sur les cards grille Actualités et les cards Documentation
-3. ✅ Bordure visible en light mode (émeraude) et dark mode (ambre), même par-dessus les images
-
-**Commit :** `ddfcca7` — pushé sur GitHub
-
----
-
-### ✅ Session 6 — Réécriture complète page Documentation Islam
-**Date :** 14 avril 2026
-**Statut :** ✅ Terminée
-
-#### Réécriture des textes — Ton ludique, empathique et pédagogique
-**Actions menées :**
-1. ✅ Réécriture complète des 45 topics sur 8 cards avec un ton accessible et détaillé
-2. ✅ Card 1 : Les fondements de l'Islam (6 topics) — Shahada, Salat, Zakat, Siyam, Hajj, Piliers de la foi
-3. ✅ Card 2 : Le Coran (5 topics) — Qu'est-ce que le Coran, Révélation, Tajwid, Structure, Thèmes
-4. ✅ Card 3 : La Sira (5 topics) — Naissance, Révélation, Hégire, Médine, L'adieu du Prophète
-5. ✅ Card 4 : Les Hadiths (4 topics) — Qu'est-ce qu'un hadith, Grands recueils, 40 hadiths Nawawi, Hadith de Djibril
-6. ✅ Card 5 : La Prière (4 topics) — Conditions, Ablutions, Étapes, Joumou'a
-7. ✅ Card 6 : Le Jeûne (4 topics) — Piliers/conditions, Ramadan, Laylat al-Qadr, Jeûnes hors Ramadan
-8. ✅ Card 7 : Quelques Prophètes (12 topics détaillés) — Adam, Nouh, Ibrahim, Ismaïl, Ishaq, Yacoub, Youssouf, Moussa, Dawud, Sulayman, Younus, 'Issa
-9. ✅ Card 8 : FAQ (5 topics) — Conversion, Halal, Apprendre à prier, Islam en Occident, Apprendre l'arabe
-
-#### Modifications complémentaires
-**Actions menées :**
-1. ✅ Titre page changé : "C'est quoi l'Islam ?" avec icône MessageSquareHeart
-2. ✅ Sous-titre Card 4 : "Paroles, actes et approbations du Prophète ﷺ"
-3. ✅ Nouvelles images : Card La Sira (calligraphie Muhammad), Card La Prière, Card Le Jeûne (lanterne), Card FAQ (bokeh doré)
-4. ✅ Remplacement de tous les "—" par "-" dans les titres et contenus
-5. ✅ Ajout Chaf' & Witr dans les rak'at de la prière de l'Isha
-6. ✅ Zakat al-Fitr déplacée dans le topic Ramadan
-7. ✅ Ablutions : étapes séparées par des sauts de ligne pour meilleure lisibilité
-8. ✅ Formulaire contact (page Infos) : header en card-green style AideSocialeModal
-
-**Commit :** `40346d9` — pushé sur GitHub
-
----
-
-### ✅ PHASE 2 : Front-office - MAQUETTE FINALISÉE
-**Date :** 15-16 avril 2026 (Sessions 7-8)
-**Statut :** ✅ Terminée
-
-Toutes les pages front-office sont créées avec un design cohérent light/dark :
-
-| Page | Route | Statut |
-|------|-------|--------|
-| Accueil | `/` | ✅ Finalisé |
-| Actualités | `/actualites` | ✅ Finalisé |
-| Activités | `/activites` | ✅ Finalisé |
-| Documentation Islam | `/documentation` | ✅ Finalisé |
-| Infos pratiques | `/infos` | ✅ Finalisé |
-| Dons | `/don` | ✅ Finalisé |
-| Certificat | `/certificat` | ✅ Finalisé |
-| Mentions légales | `/mentions-legales` | ✅ Finalisé |
-| Confidentialité | `/confidentialite` | ✅ Finalisé |
-| Admin Login | `/admin` | ✅ Finalisé |
-
-#### Session 7 - 15 avril 2026
-1. ✅ Menu "Don" renommé en "Dons"
-2. ✅ 3e card actualité (Zakat al-Fitr) sur la page d'accueil
-3. ✅ Dernière ligne accueil restructurée : Cours+Islam | Certificat | Contact+Assurances
-4. ✅ Chevrons uniformes w-6/h-6 avec hover primary sur toutes les cards
-5. ✅ Page `/certificat` créée (4 sections + CTA)
-6. ✅ Hover Aide Sociale : bouton #F59E0B (light) / #0F172A (dark) via CSS
-7. ✅ Page Infos restructurée : Horaires+Contact col 1, Accès+Map fusionnés col 2-3
-8. ✅ "Lire l'article" ancré en bas des cards Actualités
-
-#### Session 8 - 16 avril 2026
-1. ✅ Page `/don` créée : Pourquoi donner + Plateformes + Projets + CTA card-green
-2. ✅ Composants FloatField centralisés : FloatInput, FloatTextarea, FloatSelect
-3. ✅ Transforms de saisie : capitalize, uppercase, lowercase, phone
-4. ✅ Formulaire Contact (page Infos) : FloatInput + validation + bouton grisé
-5. ✅ Formulaire Aide Sociale : migré vers FloatInput/FloatSelect/FloatTextarea
-6. ✅ Page Admin Login : suppression mode démo, ajout accès visiteur (modal)
-7. ✅ Mot de passe : icône Eye/EyeOff pour visibilité
-8. ✅ Card Services en 2 colonnes avec hover
-9. ✅ Photo mosquée dans card Accès (position absolute)
-10. ✅ Suppression page `/contact` (doublon avec `/infos`)
-11. ✅ Card "Soutenir" (accueil) pointe vers `/don`
-
-**Commits :** `8e6236c` (Session 7) - pushé sur GitHub
-
-#### Session 9 - 16 avril 2026
-1. ✅ Effet hover card-green centralisé : `.card-green-link` + `.card-green-btn` (outline ambre + bouton fleche ArrowBigRight)
-2. ✅ Effet appliqué sur toutes les cards cliquables : Accueil (Soutenir), Dons (CTA), Activités (Aide Sociale), Certificat (CTA)
-3. ✅ Boutons texte supprimés sur cards card-green (seul le bouton fleche au hover)
-4. ✅ Card Aide Sociale réduite au contenu (`self-start`)
-5. ✅ Bouton "Accès réservé" (header) : effet contour ambre au hover (`btn-admin-link`)
-6. ✅ Icônes mises à jour : C'est quoi l'Islam (MessageSquareHeart), Langue Arabe (NotebookPen), Fondements (Star), Prophètes (UserStar), Dons (HeartHandshake), Pourquoi donner (HandHeart), Nos projets (Goal), Aide Sociale (Handshake)
-7. ✅ Correction Next.js 16 : `<Script>` remplacé par `<script dangerouslySetInnerHTML>` dans `<head>` (layout.tsx)
-8. ✅ Numéro de téléphone réel : 04 78 49 85 22 (page Infos + Footer)
-9. ✅ Adresse : 10 Avenue Auguste Wissel, 69250 Neuville-sur-Saône
-10. ✅ Footer : "© 2026 Association ACM - Mosquée Bilal. Tous droits réservés."
-11. ✅ Page `/mentions-legales` créée : éditeur, hébergement, propriété intellectuelle, responsabilité, crédits
-12. ✅ Page `/confidentialite` créée : données collectées, finalité, conservation, partage, cookies, droits RGPD, contact
-13. ✅ Liens Footer mis à jour : Mentions légales + Confidentialité pointent vers les nouvelles pages
-
-### PHASE 3 : Back-office sécurisé — Architecture validée (Session 10)
-**Date :** 19 avril 2026
-**Statut :** En cours de conception
-
----
-
-#### Architecture Supabase — Tables
-
-| Table | Description |
-|-------|-------------|
-| `profiles` | Extension auth.users — id, email, role (enum), nom, prenom |
-| `articles` | Contenu actualités — titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position |
-| `messages` | Communication admin ↔ visiteurs — expediteur_id, destinataire_id (null=broadcast), sujet, contenu, lu |
-| `activites_cours_tajwid` | Cours Mosquée + Tajwid — titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
-| `activites_ecole_arabe` | École Arabe — structure identique à activites_cours_tajwid |
-| `activites_sorties` | Sorties — titre, description, date_sortie, lieu, places_max, tarif, actif |
-| `dons` | Campagnes de dons — titre, texte, lien_externe (URL plateforme), a_la_une, actif |
-| `demandes_acces` | Demandes visiteurs — email, nom, prenom, message, statut (en_attente/validee/refusee), traite_par, traite_at |
-
-**Images articles :** Supabase Storage bucket `articles` — 1 image par catégorie :
-- `articles/vie-mosquee.jpg`
-- `articles/evenements.jpg`
-- `articles/cours.jpg`
-- `articles/communaute.jpg`
-
-**RLS :**
-- `articles` : lecture publique si `actif = true` ; écriture → administrateur ou éditeur
-- `profiles` : lecture → son propre profil + admins ; écriture → admins uniquement
-- `messages` : lecture → expéditeur ou destinataire (ou admins)
-- Activités / Dons : lecture publique si `actif = true` ; écriture → administrateur uniquement
-
----
-
-#### Authentification — Flow complet
+## Authentification - Flow
 
 ```
-Étape 1 : Email seul
+Etape 1 : Email
   → inconnu → "Adresse email non reconnue."
-              (formulaire demande d'accès accessible par ailleurs)
-  → connu   → Étape 2
+  → connu   → Etape 2
 
-Étape 2 : Mot de passe
+Etape 2 : Mot de passe
   → incorrect → message d'erreur
-  → correct   → Étape 3
+  → correct   → Etape 3
 
-Étape 3a (1ère connexion - MFA non configuré)
-  → Affichage QR code Google Authenticator à scanner
-  → Champ code 6 chiffres pour confirmer l'enrôlement
-  → Accès interface
+Etape 3a (1ere connexion - MFA non configure)
+  → Affichage QR code Google Authenticator a scanner
+  → Champ code 6 chiffres pour confirmer l'enrolement
+  → Acces dashboard
 
-Étape 3b (connexions suivantes - MFA configuré)
-  → Champ code Google Authenticator (6 chiffres)
-  → Accès interface
+Etape 3b (connexions suivantes - MFA configure)
+  → Champ code 6 chiffres Google Authenticator
+  → Acces dashboard
 ```
 
-**APIs Supabase MFA TOTP :**
-- `supabase.auth.mfa.enroll({ factorType: 'totp' })` → QR code SVG + secret
-- `supabase.auth.mfa.challenge({ factorId })` + `verify({ factorId, challengeId, code })`
-- Activation requise : Supabase Dashboard → Authentication → MFA
+APIs Supabase MFA TOTP :
+- `mfa.enroll({ factorType: 'totp' })` → QR code SVG + secret
+- `mfa.listFactors()` → detecte si 2FA deja configure
+- `mfa.challenge({ factorId })` + `mfa.verify({ factorId, challengeId, code })`
 
 ---
 
-#### Menu Admin — Structure
+## Menu Administration
 
 ```
-1. Édition                         (administrateur + éditeur)
-   1.1 Articles
-   1.2 Communication
-
-2. Administration                  (administrateur uniquement)
-   2.1 Activités
-       2.1.1 Cours Mosquée + Tajwid
-       2.1.2 École Arabe
-       2.1.3 Sorties
-   2.2 Dons
-   2.3 Gestion des utilisateurs    (éditeurs + administrateurs)
-   2.4 Gestion des visiteurs       (demandes d'accès + visiteurs actifs)
+Dashboard
+Edition                          (administrateur + editeur)
+  Articles
+  Communication
+Administration                   (administrateur uniquement)
+  Activites
+  Dons
+  Gestion des utilisateurs
+  Gestion des visiteurs
 ```
 
-**Middleware Next.js** sur `/admin/*` :
-- Non authentifié → redirect `/login`
-- Rôle `visiteur` → redirect `/` (accès refusé)
-- Routes `2.Administration/*` → `administrateur` uniquement
+---
+
+## Journal des Sessions
+
+### Session 1 - 11 avril 2026 - Initialisation
+1. Nettoyage projet precedent, configuration Tailwind CSS 3.4 (downgrade depuis v4)
+2. Composants de base : Header, Footer, ThemeToggle, ThemeProvider
+3. Tokens de couleur CSS dans `tailwind.config.js`
+4. Pages de navigation initiales : `/actualites`, `/activites`, `/documentation`, `/infos`
+5. Widget Mawaqit (iframe), HeroSection bento grid
+6. Dashboard admin initial (mode demo) avec faux CRUD hadiths
+
+### Session 2 - 11 avril 2026 - Corrections UI
+1. Logo 64px (header) et 128px (admin login), `.logo-invert` dark mode
+2. Header : suppression champ recherche, slogan masque sous lg
+3. Page Infos : transport TCL avec lignes bus colorees, Google Maps integre
+4. Icone localisation MawaqitWidget → lien `/infos`
+5. Formulaire contact (page Infos) : style card-green
+
+### Sessions 3-4 - 13-14 avril 2026 - Actualites et Documentation
+1. Page Actualites : 2 articles "a la une" en 1/2 largeur (card-green), grille 4 colonnes
+2. Classe `.card-border` pour bordure visible par-dessus images
+3. Page Documentation Islam : 8 cards, 45 topics avec contenus detailles en francais
+4. Rendu texte enrichi : `**gras**` parse en `<strong>`
+5. Réécriture complète des textes avec ton accessible et pedagogique
+6. Titre page : "C'est quoi l'Islam ?"
+
+### Sessions 5-6 - 15-16 avril 2026 - Front-office complet
+**Session 7 :**
+1. Page `/certificat` creee (4 sections + CTA card-green)
+2. Page accueil restructuree : Cours+Islam | Certificat | Contact+Assurances
+3. Chevrons uniformes w-6/h-6 avec hover primary sur toutes les cards
+4. 3e card actualite sur la page d'accueil
+
+**Session 8 :**
+1. Page `/don` creee : Pourquoi donner + Plateformes + Projets + CTA
+2. Composants FloatField centralises : FloatInput, FloatTextarea, FloatSelect
+3. Transforms de saisie : capitalize, uppercase, lowercase, phone
+4. Formulaires Contact et Aide Sociale migres vers FloatField
+5. Page Admin Login : suppression mode demo, ajout modal demande d'acces visiteur
+
+**Session 9 :**
+1. Effet hover card-green : `.card-green-link` + `.card-green-btn` (outline ambre + fleche)
+2. Bouton "Acces reserve" (header) : `.btn-admin-link` avec effet ambre
+3. Icones mises a jour (lucide-react) sur toutes les pages
+4. Numeros reels : tel 04 78 49 85 22, adresse 10 Avenue Auguste Wissel 69250 Neuville-sur-Saone
+5. Pages `/mentions-legales` et `/confidentialite` creees
+6. Footer : copyright "© 2026 Association ACM - Mosquee Bilal"
+
+### Session 10 - 19-20 avril 2026 - Back-office complet (Phase 3 debut)
+
+**Infrastructure Supabase :**
+1. `.env.local` : credentials Supabase (non commite)
+2. `src/lib/supabase/client.ts` : client navigateur (`createBrowserClient`)
+3. `src/lib/supabase/server.ts` : client serveur + client admin (service role)
+4. `supabase/schema.sql` : 8 tables, enums, RLS, trigger `on_auth_user_created`
+5. Bucket Storage `articles` cree
+6. Correction RLS : fonction `is_admin()` SECURITY DEFINER pour eviter recursivite
+7. Trigger reecrit avec `ON CONFLICT DO NOTHING` + `EXCEPTION WHEN OTHERS THEN RETURN NEW`
+
+**Authentification :**
+1. `src/app/api/auth/check-email/route.ts` : verifie si email existe en DB
+2. `src/app/api/auth/callback/route.ts` : echange code Supabase contre session
+3. `src/app/admin/page.tsx` : login 4 etapes (email → mdp → enrol QR → verification TOTP)
+4. `middleware.ts` : protection `/admin/*`, redirect selon role
+5. `src/context/AuthContext.tsx` : remplace mock par Supabase Auth reel
+
+**Layout Admin :**
+1. `src/app/admin/dashboard/layout.tsx` : sidebar fixe w-64, menu hierarchique avec sections pliables
+2. Flag `adminOnly` sur section Administration
+3. Profil utilisateur (nom + role) en bas de sidebar
+4. Titre onglet : "Administration - Mosquee Bilal"
+
+**CRUD Articles :**
+1. `src/app/admin/dashboard/articles/page.tsx` : liste, creation, edition, suppression
+2. Composant `Toggle` avec prop `light` pour visibilite sur fond card-green
+3. Limite 2 articles "a la une" simultanement (uneCount exclu l'article en edition)
+4. Lignes "a la une" stylisees en card-green avec icones et texte blancs
+5. Bouton Apercu (ScanEye) : ouvre ArticleModal avec les donnees du formulaire en cours
+6. Transforms : titre en MAJUSCULES, resume avec majuscule debut de phrase
+7. Suppression avec modal de confirmation
+
+**Liaisons public :**
+1. `src/app/actualites/page.tsx` : donnees depuis Supabase (remplace tableau statique)
+2. Correction : message "Aucun article" masque si des articles "a la une" sont presents
+3. `src/components/HeroSection.tsx` : 3 derniers articles actifs depuis Supabase, modale article
+4. `src/components/ArticleModal.tsx` : id change de `number` en `string` (UUID), hauteur image reduite
+
+**Composants FloatField (ajouts) :**
+1. Transform `upperall` : tout en majuscules sans filtrage des caracteres
+2. Transform `sentence` : majuscule au debut de chaque phrase
+3. `FloatTextarea` : accept maintenant la prop `transform`
 
 ---
 
-#### Ordre d'implémentation
+## Ordre d'implementation Phase 3
 
-- [x] 3.1 Config Supabase — tables SQL + RLS + bucket Storage
-- [x] 3.2 Auth / Login — page `/login` email-first + 2FA Google Authenticator
-- [x] 3.3 Middleware — protection routes `/admin/*`
-- [x] 3.4 Refonte layout admin — sidebar avec menu hiérarchique (Dashboard, Édition, Administration)
-- [x] 3.5 Admin — Articles (CRUD + liaison page `/actualites`)
-- [ ] 3.5 Admin — Gestion utilisateurs (validation demandes + rôles)
-- [ ] 3.6 Admin — Communication (messagerie visiteurs)
-- [ ] 3.7 Admin — Activités (Cours+Tajwid, École Arabe, Sorties)
-- [ ] 3.8 Admin — Dons (CRUD + lien externe)
-- [ ] 3.9 Edge Function — cron expiration articles (`actif = false` si `date_expiration < today`)
-
----
-
-## � Notes et Décisions
-
-- **Thème par défaut :** Light mode (Sakinah UI). Le choix de l'utilisateur est sauvegardé pour ses prochaines visites.
-- **Palette Light Mode :** Dossier `sakinah_ui_light_mode/DESIGN.md`
-- **Palette Dark Mode :** Dossier `saphir_ambre_dark_mode/DESIGN.md`
-- **Template de référence :** Dossier `stitch_mosquee_bilal_neuville/`
-- **Logo :** `images/logos/New-Bilal-Logo.png`
+- [x] 3.1 Config Supabase - tables SQL + RLS + bucket Storage
+- [x] 3.2 Auth / Login - email-first + 2FA Google Authenticator (TOTP)
+- [x] 3.3 Middleware - protection routes `/admin/*`
+- [x] 3.4 Layout admin - sidebar menu hierarchique (Dashboard, Edition, Administration)
+- [x] 3.5 Admin Articles - CRUD complet + liaison page `/actualites`
+- [ ] 3.6 Admin Utilisateurs - validation demandes d'acces + gestion roles
+- [ ] 3.7 Admin Communication - messagerie visiteurs
+- [ ] 3.8 Admin Activites - Cours+Tajwid, Ecole Arabe, Sorties
+- [ ] 3.9 Admin Dons - CRUD + lien externe
+- [ ] 3.10 Edge Function - cron expiration articles (actif = false si date_expiration < today)
 
 ---
 
-## 🚀 Commandes utiles
+## Notes et Decisions
+
+- **Tailwind CSS :** v3.4 (downgrade depuis v4, incompatible avec chemin contenant `#`)
+- **Images articles :** 1 image par categorie (constante `CATEGORY_IMAGES` frontend), pas de colonne DB
+- **Tirets :** Toujours tiret standard (-), jamais tiret cadratin
+- **Commits :** En fin de journee uniquement
+- **Sous-etapes :** Chaque sous-etape validee par l'utilisateur avant developpement
+
+## Commandes utiles
 
 ```bash
-npm run dev      # Lancer le serveur de développement
-npm run build    # Construire pour la production
+npm run dev      # Serveur de developpement
+npm run build    # Build production
 npm run start    # Lancer en production
 ```
 
 **URL locale :** http://localhost:3000
+**Supabase project :** https://ugbkbsorcrmnhfplprkb.supabase.co
