@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 20 avril 2026 (Session 11)
+**Dernière mise à jour :** 21 avril 2026 (Session 12)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -295,6 +295,25 @@ Administration                   (administrateur uniquement)
 2. Favicon : `src/app/icon.png` (convention Next.js App Router, genere automatiquement les balises)
 3. Titre onglet admin : `useEffect` deps `[] → [pathname]` pour re-appliquer a chaque navigation
 4. SQL seed fourni a l'utilisateur : 5 articles demo (nouveau site, pre-inscriptions ecole, stationnement, conferences dimanche, fete fin d'annee)
+
+### Session 12 - 21 avril 2026 - Corrections UX articles et filtres
+
+**Filtres page /actualites :**
+1. Correction : filtre categorie s'applique desormais aussi aux articles "a la une" (avant seuls les articles normaux etaient filtres)
+2. Simplification logique : `featuredArticles` et `otherArticles` filtres en meme temps selon `activeCategory`
+3. Condition message "aucun article" simplifiee (`!showFeatured && filteredArticles.length === 0`)
+
+**Formulaire admin articles :**
+1. Champ resume : FloatTextarea remplace par FloatInput (1 ligne, pas de retour chariot possible)
+2. Limite 70 caracteres sur le resume (`maxLength={70}`, label mis a jour)
+3. `FloatField.tsx` : ajout prop `maxLength` sur `FloatInput`
+
+**Titre onglet admin :**
+1. `useEffect` ajout sur `/admin/page.tsx` (login) - titre defini des la page de connexion
+2. Couverture complete : `/admin` (login) + tout `/admin/dashboard/*`
+
+**ImagePicker :**
+1. Images bibliotheque : hauteur reduite de `aspect-video` a `h-20` (80px fixe)
 
 ---
 
