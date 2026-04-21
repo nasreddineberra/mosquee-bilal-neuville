@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
   const [showVisiteur, setShowVisiteur] = useState(false);
   const [visiteurSubmitted, setVisiteurSubmitted] = useState(false);
-  const [visiteurForm, setVisiteurForm] = useState({ firstname: '', lastname: '', email: '', phone: '' });
+  const [visiteurForm, setVisiteurForm] = useState({ firstname: '', lastname: '', email: '', phone: '', address: '' });
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isVisiteurEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(visiteurForm.email);
@@ -148,6 +148,8 @@ export default function AdminLoginPage() {
       email: visiteurForm.email.toLowerCase().trim(),
       nom: visiteurForm.lastname.trim(),
       prenom: visiteurForm.firstname.trim(),
+      telephone: visiteurForm.phone.trim() || null,
+      adresse: visiteurForm.address.trim() || null,
     });
     setVisiteurSubmitted(true);
   };
@@ -155,7 +157,7 @@ export default function AdminLoginPage() {
   const handleVisiteurClose = () => {
     setShowVisiteur(false);
     setVisiteurSubmitted(false);
-    setVisiteurForm({ firstname: '', lastname: '', email: '', phone: '' });
+    setVisiteurForm({ firstname: '', lastname: '', email: '', phone: '', address: '' });
   };
 
   return (
@@ -337,6 +339,7 @@ export default function AdminLoginPage() {
                   </div>
                   <FloatInput id="visiteur-email" label="Email" type="email" value={visiteurForm.email} onChange={(v) => setVisiteurForm({ ...visiteurForm, email: v })} required transform="lowercase" error={visiteurForm.email.length > 0 && !isVisiteurEmailValid} />
                   <FloatInput id="visiteur-tel" label="Téléphone" type="tel" value={visiteurForm.phone} onChange={(v) => setVisiteurForm({ ...visiteurForm, phone: v })} transform="phone" />
+                  <FloatInput id="visiteur-adresse" label="Adresse" value={visiteurForm.address} onChange={(v) => setVisiteurForm({ ...visiteurForm, address: v })} />
                   <div className="flex items-center justify-between pt-2">
                     <span className="text-red-500 text-xs font-medium">* obligatoire</span>
                     <button

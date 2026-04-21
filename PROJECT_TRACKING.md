@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 21 avril 2026 (Session 12)
+**Dernière mise à jour :** 21 avril 2026 (Session 13)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -42,10 +42,12 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Dashboard | `/admin/dashboard` | Finalisé |
 | Articles (CRUD) | `/admin/dashboard/articles` | Finalisé |
 | Communication | `/admin/dashboard/communication` | A faire |
-| Activités | `/admin/dashboard/activites` | A faire |
+| Activités | `/admin/dashboard/activites` | Finalisé |
+| Inscriptions | `/admin/dashboard/inscriptions` | Finalisé |
 | Dons | `/admin/dashboard/dons` | A faire |
-| Gestion utilisateurs | `/admin/dashboard/utilisateurs` | A faire |
-| Gestion visiteurs | `/admin/dashboard/visiteurs` | A faire |
+| Gestion utilisateurs | `/admin/dashboard/utilisateurs` | Finalisé |
+| Gestion visiteurs | `/admin/dashboard/visiteurs` | Finalisé |
+| Définir mot de passe (invite) | `/auth/set-password` | Finalisé |
 
 ---
 
@@ -111,7 +113,8 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | `activites_ecole_arabe` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
 | `activites_sorties` | id, titre, description, date_sortie, lieu, places_max, tarif, actif |
 | `dons` | id, titre, texte, lien_externe, a_la_une, actif |
-| `demandes_acces` | id, email, nom, prenom, message, statut (enum), traite_par, traite_at |
+| `demandes_acces` | id, email, nom, prenom, telephone, adresse, message, statut (enum), traite_par, traite_at |
+| `inscriptions` | id, activite_type (enum), activite_id, user_id, nom, prenom, email, telephone, adresse, enfants (jsonb), nb_participants, message, statut (enum) |
 
 ### RLS (Row Level Security)
 - `articles` : lecture publique si `actif = true` ; ecriture par administrateur ou editeur
@@ -315,6 +318,65 @@ Administration                   (administrateur uniquement)
 **ImagePicker :**
 1. Images bibliotheque : hauteur reduite de `aspect-video` a `h-20` (80px fixe)
 
+### Session 13 - 21 avril 2026 - Inscription publique + back-office complet
+
+**Migrations SQL (idempotentes) :**
+1. `2026-04-21_demandes_acces_contact.sql` : ajout `telephone`, `adresse` sur `demandes_acces`
+2. `2026-04-21_profiles_inscription.sql` : colonnes profil etendues (telephone, adresse)
+3. `2026-04-21_activites_admin.sql` : colonnes admin sur tables activites
+4. `2026-04-21_inscriptions_contexte.sql` : `user_id` (FK auth.users), `enfants` (jsonb), `nb_participants`, `adresse` + index. `ADD COLUMN IF NOT EXISTS` partout pour ré-exécution sûre
+
+**Modale demande d'acces visiteur (page /admin) :**
+1. Ajout champs telephone et adresse (optionnels) au formulaire de demande
+2. Insertion `demandes_acces` avec les nouveaux champs
+
+**Workflow validation demandes (admin) :**
+1. `src/app/admin/dashboard/visiteurs/page.tsx` : filtres en_attente / validee / refusee, modale de confirmation avant valider/refuser, bouton "Renvoyer le mail" sur filtre validee
+2. `src/app/api/admin/validate-demande/route.ts` : verifie role admin, appelle `admin.auth.admin.inviteUserByEmail` avec `redirectTo` vers `/api/auth/callback?next=/auth/set-password`, met a jour le profil (prenom/nom/telephone/adresse), passe la demande en `validee`
+3. `src/app/api/admin/refuse-demande/route.ts` : passe la demande en `refusee` avec traite_par + traite_at
+4. `src/app/api/admin/resend-invite/route.ts` : pour demandes deja validees, utilise `admin.auth.resetPasswordForEmail` (invite echoue si user deja present)
+
+**Page `/auth/set-password` :**
+1. Cree car le mail invite Supabase redirige l'utilisateur sans lui permettre de definir son mdp
+2. Requiert une session active (getUser), champs mdp + confirmation avec show/hide, min 8 caracteres, match requis
+3. `supabase.auth.updateUser({ password })` puis redirection vers `/` apres 2s
+
+**Email template invite-user :**
+1. `supabase/email-templates/invite-user.html` : meme style que confirm-new-email (theme vert #064E3B)
+2. CTA "Activer mon compte" vers `{{ .ConfirmationURL }}`
+3. Templates notify-old-email.html et confirm-new-email.html egalement presents
+
+**3 modales d'inscription publique (page /activites) :**
+1. `src/components/InscriptionCoursMosqueeModal.tsx` : profil readonly via useAuth + message optionnel. `activite_type: 'cours_mosquee'`, 1 user peut s'inscrire a plusieurs cours
+2. `src/components/InscriptionEcoleArabeModal.tsx` : liste dynamique d'enfants (prenom capitalize, nom uppercase, date_naissance, niveau optionnel) avec Plus/Trash2. Stockage `enfants` (jsonb). Label CTA : "Preinscrire"
+3. `src/components/InscriptionSortieModal.tsx` : compteur Minus/Plus (min 1), affichage prix total = tarif * nbParticipants
+4. Toutes les modales : non-fermables (pas de click backdrop), bouton X uniquement, X masque pendant submit
+
+**Integration page /activites :**
+1. `InscriptionCell` accepte `onClick` et `label`, branche handlers sur chaque table
+2. Ecole Arabe utilise label "Preinscrire"
+3. 3 modales rendues en fin de page
+
+**Admin Inscriptions (`/admin/dashboard/inscriptions`) :**
+1. Filtres : type (all/cours_mosquee/ecole_arabe/sorties), statut (all/en_attente/validee/refusee/annulee), activite (dropdown dynamique)
+2. Resolution des titres d'activites : fetch des 3 tables pour id→titre map
+3. Lignes expansibles (`Fragment key` pour eviter warning React) : affiche message + liste enfants (date_naissance/niveau)
+4. Mise a jour statut inline via supabase.from('inscriptions').update
+
+**Admin Utilisateurs (`/admin/dashboard/utilisateurs`) :**
+1. Liste profiles avec filtre role (all/administrateur/editeur/visiteur)
+2. Badges role : administrateur=primary, editeur=tertiary, visiteur=primary/10
+3. Select pour changer le role (disabled pour soi-meme, badge "Vous")
+4. `src/app/api/admin/update-user-role/route.ts` : valide role, empeche auto-modification
+
+**Admin Activites (`/admin/dashboard/activites`) :**
+1. CRUD complet sur les 3 tables activites (Cours+Tajwid, Ecole Arabe, Sorties)
+2. Entree de menu `Inscriptions` (icone ClipboardList) ajoutee au sidebar admin
+
+**Composant ProfileModal :**
+1. `src/components/ProfileModal.tsx` : modale profil utilisateur pour voir/editer ses coordonnees
+2. Non-fermable par backdrop : uniquement via croix (choix produit utilisateur)
+
 ---
 
 ## Ordre d'implementation Phase 3
@@ -324,11 +386,13 @@ Administration                   (administrateur uniquement)
 - [x] 3.3 Middleware - protection routes `/admin/*`
 - [x] 3.4 Layout admin - sidebar menu hierarchique (Dashboard, Edition, Administration)
 - [x] 3.5 Admin Articles - CRUD complet + liaison page `/actualites`
-- [ ] 3.6 Admin Utilisateurs - validation demandes d'acces + gestion roles
-- [ ] 3.7 Admin Communication - messagerie visiteurs
-- [ ] 3.8 Admin Activites - Cours+Tajwid, Ecole Arabe, Sorties
-- [ ] 3.9 Admin Dons - CRUD + lien externe
-- [ ] 3.10 Edge Function - cron expiration articles (actif = false si date_expiration < today)
+- [x] 3.6 Admin Utilisateurs - gestion roles + validation demandes d'acces visiteurs
+- [x] 3.7 Inscription publique - 3 modales (Cours Mosquee, Ecole Arabe, Sorties) + back-office Inscriptions
+- [x] 3.8 Admin Activites - CRUD Cours+Tajwid, Ecole Arabe, Sorties
+- [x] 3.9 Auth flow invitation - mail invite custom + page `/auth/set-password` + resend
+- [ ] 3.10 Admin Communication - messagerie visiteurs
+- [ ] 3.11 Admin Dons - CRUD + lien externe
+- [ ] 3.12 Edge Function - cron expiration articles (actif = false si date_expiration < today)
 
 ---
 

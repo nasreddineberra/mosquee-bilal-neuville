@@ -402,7 +402,7 @@ export default function ArticlesAdminPage() {
                     content: form.contenu,
                     category: form.category,
                     date: new Date(form.date_parution).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    image: getArticleImage({ image_url: form.image_url, category: form.category }),
+                    image: getArticleImage({ image_url: form.image_url, category: form.category, categoryDefaults }),
                     featured: form.a_la_une,
                   })}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold border transition-colors ${isFormValid ? 'border-primary text-primary hover:bg-primary/5' : 'border-on-surface/20 text-on-surface/30 cursor-not-allowed'}`}

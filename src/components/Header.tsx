@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { LogOut, User as UserIcon, ChevronDown } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import ProfileModal from './ProfileModal';
+import { createClient } from '@/lib/supabase/client';
 
 const navLinks = [
   { label: 'Accueil', href: '/' },
@@ -14,8 +17,44 @@ const navLinks = [
   { label: 'Contact', href: '/infos' },
 ];
 
+type Profile = { prenom: string | null; nom: string | null; role: string };
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const loadProfile = async (userId: string | undefined) => {
+      if (!userId) { setProfile(null); return; }
+      const { data } = await supabase.from('profiles').select('prenom, nom, role').eq('id', userId).single();
+      if (data) setProfile(data as Profile);
+    };
+    supabase.auth.getSession().then(({ data }) => loadProfile(data.session?.user.id));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => loadProfile(session?.user.id));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [menuOpen]);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setMenuOpen(false);
+    window.location.href = '/';
+  };
+
+  const displayName = profile ? [profile.prenom, profile.nom].filter(Boolean).join(' ') || 'Utilisateur' : '';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background">
@@ -60,14 +99,60 @@ export default function Header() {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Connexion Button */}
-          <Link
-            href="/admin"
-            className="btn-admin-link bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-bold text-center
-                       shadow-md transition-all active:scale-95 whitespace-nowrap"
-          >
-            Accès réservé
-          </Link>
+          {/* Connexion / Profil */}
+          {profile ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="btn-admin-link bg-primary text-on-primary pl-3 pr-4 py-2 rounded-full text-sm font-bold text-center shadow-md transition-all active:scale-95 whitespace-nowrap flex items-center gap-2"
+              >
+                <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                  <UserIcon className="w-4 h-4" />
+                </span>
+                <span className="hidden sm:inline max-w-[10rem] truncate">{displayName}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/20 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-outline-variant/10">
+                    <p className="text-sm font-bold text-on-surface truncate">{displayName}</p>
+                    <p className="text-xs text-on-surface/50 capitalize">{profile.role}</p>
+                  </div>
+                  <button
+                    onClick={() => { setMenuOpen(false); setProfileOpen(true); }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                  >
+                    <UserIcon className="w-4 h-4" />
+                    Mon profil
+                  </button>
+                  {profile.role === 'administrateur' || profile.role === 'editeur' ? (
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4" />
+                      Administration
+                    </Link>
+                  ) : null}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors border-t border-outline-variant/10"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/admin"
+              className="btn-admin-link bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-bold text-center shadow-md transition-all active:scale-95 whitespace-nowrap"
+            >
+              Accès réservé
+            </Link>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -109,6 +194,8 @@ export default function Header() {
           </nav>
         </div>
       )}
+
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </header>
   );
 }

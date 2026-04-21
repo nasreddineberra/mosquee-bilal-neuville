@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, FileText, MessageSquare, ChevronDown, ChevronRight,
-  BookOpen, HeartHandshake, Users, UserCheck, LogOut, ExternalLink,
+  BookOpen, HeartHandshake, Users, UserCheck, ClipboardList, LogOut, ExternalLink,
 } from 'lucide-react';
 
 type Profile = { nom: string | null; prenom: string | null; role: string };
@@ -36,6 +36,7 @@ const menu = [
     adminOnly: true,
     items: [
       { label: 'Activités', href: '/admin/dashboard/activites', icon: BookOpen },
+      { label: 'Inscriptions', href: '/admin/dashboard/inscriptions', icon: ClipboardList },
       { label: 'Dons', href: '/admin/dashboard/dons', icon: HeartHandshake },
       { label: 'Gestion des utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users },
       { label: 'Gestion des visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck },
@@ -49,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [profile, setProfile] = useState<Profile | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     edition: pathname.includes('/articles') || pathname.includes('/communication'),
-    administration: pathname.includes('/activites') || pathname.includes('/dons') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
+    administration: pathname.includes('/activites') || pathname.includes('/inscriptions') || pathname.includes('/dons') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
   });
 
   useEffect(() => {
