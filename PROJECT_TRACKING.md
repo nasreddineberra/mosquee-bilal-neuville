@@ -404,6 +404,15 @@ Administration                   (administrateur uniquement)
 5. Chaque onglet a son propre state (loading, error, search) - chargement a la demande (useEffect conditionnel)
 6. En-tete tableaux `card-green text-white/70` sur les deux onglets
 
+**Script de rapport PDF (Playwright) :**
+1. `scripts/generate-report.js` : script Node.js autonome qui capture automatiquement toutes les pages (publiques + back-office) et génère un PDF A4 professionnel
+2. Phase 1 (navigateur visible) : 7 pages publiques capturées automatiquement, pause pour connexion manuelle 2FA, puis 7 pages back-office capturées automatiquement
+3. Phase 2 (Chromium headless) : rendu HTML du rapport + export PDF via `page.pdf()`
+4. Rapport 18 pages : couverture, sommaire, contexte/objectifs, tour front-office avec captures, tour back-office avec captures, architecture technique, sécurité/RGPD, état d'avancement
+5. Destination : `Rapport-Mosquee-Bilal.pdf` à la racine du projet
+6. Dépendance : `@playwright/test` (dev) + `npx playwright install chromium`
+7. Lancement : `node scripts/generate-report.js` (serveur dev requis sur localhost:3000)
+
 **Corrections UX sidebar + champ recherche :**
 1. `layout.tsx` : labels sidebar raccourcis "Gestion des utilisateurs" -> "Utilisateurs" et "Gestion des visiteurs" -> "Visiteurs" (evitait le retour a la ligne dans le w-64)
 2. `FloatField.tsx` : prop `compact` ajoutee sur `FloatInput` - rendu simple input `py-1.5 px-3 text-xs` avec placeholder statique, sans label flottant - adapte aux barres d'outils de tableau
