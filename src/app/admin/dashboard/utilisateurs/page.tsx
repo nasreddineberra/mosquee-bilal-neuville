@@ -137,7 +137,7 @@ export default function UtilisateursAdminPage() {
         <div className="px-8 py-6 flex items-center justify-between gap-4 border-b border-outline-variant/10">
           <h3 className="text-lg font-bold text-on-surface">Comptes</h3>
           <div className="w-56">
-            <FloatInput id="search-utilisateurs" label="Rechercher…" value={search} onChange={setSearch} />
+            <FloatInput id="search-utilisateurs" label="Rechercher…" value={search} onChange={setSearch} compact />
           </div>
         </div>
 

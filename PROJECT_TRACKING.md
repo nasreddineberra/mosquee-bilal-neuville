@@ -404,6 +404,11 @@ Administration                   (administrateur uniquement)
 5. Chaque onglet a son propre state (loading, error, search) - chargement a la demande (useEffect conditionnel)
 6. En-tete tableaux `card-green text-white/70` sur les deux onglets
 
+**Corrections UX sidebar + champ recherche :**
+1. `layout.tsx` : labels sidebar raccourcis "Gestion des utilisateurs" -> "Utilisateurs" et "Gestion des visiteurs" -> "Visiteurs" (evitait le retour a la ligne dans le w-64)
+2. `FloatField.tsx` : prop `compact` ajoutee sur `FloatInput` - rendu simple input `py-1.5 px-3 text-xs` avec placeholder statique, sans label flottant - adapte aux barres d'outils de tableau
+3. Prop `compact` appliquee sur les 3 champs recherche : utilisateurs, onglet demandes visiteurs, onglet comptes visiteurs
+
 ---
 
 ### Session 14 - 22 avril 2026 - Fix auth flow + changement mot de passe profil

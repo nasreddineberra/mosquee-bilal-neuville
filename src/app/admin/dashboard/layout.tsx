@@ -38,8 +38,8 @@ const menu = [
       { label: 'Activités', href: '/admin/dashboard/activites', icon: BookOpen },
       { label: 'Inscriptions', href: '/admin/dashboard/inscriptions', icon: ClipboardList },
       { label: 'Dons', href: '/admin/dashboard/dons', icon: HeartHandshake },
-      { label: 'Gestion des utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users },
-      { label: 'Gestion des visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck },
+      { label: 'Utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users },
+      { label: 'Visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck },
     ],
   },
 ];

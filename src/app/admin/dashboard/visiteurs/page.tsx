@@ -185,7 +185,7 @@ export default function VisiteursAdminPage() {
           <div className="px-8 py-6 flex items-center justify-between gap-4 border-b border-outline-variant/10">
             <h3 className="text-lg font-bold text-on-surface">Demandes</h3>
             <div className="w-56">
-              <FloatInput id="search-demandes" label="Rechercher…" value={searchDemandes} onChange={setSearchDemandes} />
+              <FloatInput id="search-demandes" label="Rechercher…" value={searchDemandes} onChange={setSearchDemandes} compact />
             </div>
             <div className="flex gap-2">
               {demandeFilters.map((f) => (
@@ -274,7 +274,7 @@ export default function VisiteursAdminPage() {
           <div className="px-8 py-6 flex items-center justify-between gap-4 border-b border-outline-variant/10">
             <h3 className="text-lg font-bold text-on-surface">Comptes visiteurs</h3>
             <div className="w-56">
-              <FloatInput id="search-visiteurs" label="Rechercher…" value={searchVisiteurs} onChange={setSearchVisiteurs} />
+              <FloatInput id="search-visiteurs" label="Rechercher…" value={searchVisiteurs} onChange={setSearchVisiteurs} compact />
             </div>
           </div>
 

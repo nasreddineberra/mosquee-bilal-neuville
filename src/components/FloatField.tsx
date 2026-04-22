@@ -33,9 +33,23 @@ interface FloatInputProps {
   transform?: Transform;
   error?: boolean;
   maxLength?: number;
+  compact?: boolean;
 }
 
-export function FloatInput({ id, label, type = 'text', value, onChange, required = false, transform = 'none', error = false, maxLength }: FloatInputProps) {
+export function FloatInput({ id, label, type = 'text', value, onChange, required = false, transform = 'none', error = false, maxLength, compact = false }: FloatInputProps) {
+  if (compact) {
+    return (
+      <input
+        type={type}
+        id={id}
+        value={value}
+        onChange={(e) => onChange(applyTransform(e.target.value, transform))}
+        placeholder={label}
+        maxLength={maxLength}
+        className="w-full bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none"
+      />
+    );
+  }
   const borderClass = error
     ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
     : 'border-[var(--color-card-border)] focus:border-primary focus:ring-primary/20';
