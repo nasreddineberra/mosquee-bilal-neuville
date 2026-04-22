@@ -43,12 +43,15 @@ export async function POST(request: Request) {
     const origin = new URL(request.url).origin;
     const redirectTo = `${origin}/auth/set-password`;
 
-    const { error: resendErr } = await admin.auth.resetPasswordForEmail(demande.email, {
-      redirectTo,
-    });
+    // Tenter d'abord un renvoi d'invitation (utilisateur non encore confirmé)
+    const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(demande.email, { redirectTo });
 
-    if (resendErr) {
-      return NextResponse.json({ error: resendErr.message || 'Erreur lors du renvoi.' }, { status: 500 });
+    if (inviteErr) {
+      // Utilisateur déjà confirmé : envoyer un reset de mot de passe
+      const { error: resetErr } = await admin.auth.resetPasswordForEmail(demande.email, { redirectTo });
+      if (resetErr) {
+        return NextResponse.json({ error: resetErr.message || 'Erreur lors du renvoi.' }, { status: 500 });
+      }
     }
 
     return NextResponse.json({ success: true });

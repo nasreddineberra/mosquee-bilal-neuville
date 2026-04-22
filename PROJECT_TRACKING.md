@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 22 avril 2026 (Session 14)
+**Dernière mise à jour :** 22 avril 2026 (Session 15)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -376,6 +376,35 @@ Administration                   (administrateur uniquement)
 **Composant ProfileModal :**
 1. `src/components/ProfileModal.tsx` : modale profil utilisateur pour voir/editer ses coordonnees
 2. Non-fermable par backdrop : uniquement via croix (choix produit utilisateur)
+
+### Session 15 - 22 avril 2026 - Refonte utilisateurs + visiteurs admin
+
+**Fix resend-invite :**
+1. `src/app/api/admin/resend-invite/route.ts` : essaie `inviteUserByEmail` en premier (mail d'activation compte), si echoue (user deja confirme) bascule sur `resetPasswordForEmail` - comportement correct au lieu d'envoyer uniquement un reset password
+
+**Nouvelles routes API admin :**
+1. `src/app/api/admin/invite-user/route.ts` : cree un compte admin/editeur via `inviteUserByEmail`, puis `profiles.update({ role })`. Valide role strictement (administrateur ou editeur). Interdit aux non-administrateurs
+2. `src/app/api/admin/delete-user/route.ts` : supprime un compte via `admin.auth.admin.deleteUser(userId)`. Empeche l'auto-suppression. Reserve aux administrateurs
+
+**Refonte `/admin/dashboard/utilisateurs` :**
+1. Affiche uniquement administrateurs + editeurs (`.in('role', ['administrateur', 'editeur'])`)
+2. Bouton "Ajouter" -> modale avec FloatInput email + FloatSelect role (editeur/administrateur)
+3. Invitation envoyee par email via `invite-user` API, profil role mis a jour apres creation
+4. Dropdown role inline (administrateur <-> editeur) via `update-user-role` API
+5. Bouton suppression par ligne (masque pour l'utilisateur connecte) avec modale confirmation
+6. FloatInput recherche (w-56) filtre sur nom/prenom/email
+7. En-tete tableau `card-green text-white/70`, conteneur `rounded-xl border border-[var(--color-card-border)]`
+8. Hauteur lignes tableau : `py-1.5` sur toutes les cellules (contenu uniquement)
+
+**Refonte `/admin/dashboard/visiteurs` :**
+1. Deux onglets : "Demandes d'acces" (existant) et "Comptes visiteurs" (nouveau)
+2. Onglet Demandes : toute la logique anterieure preservee (en_attente/validee/refusee, valider/refuser/resend)
+3. Onglet Comptes visiteurs : liste `profiles` avec `role=visiteur`, lecture seule, pas de changement de role
+4. Suppression compte visiteur (RGPD) via `delete-user` API avec message explicite : "Conformement a la politique de confidentialite (RGPD), toutes les donnees personnelles associees a ce compte seront definitivement supprimees."
+5. Chaque onglet a son propre state (loading, error, search) - chargement a la demande (useEffect conditionnel)
+6. En-tete tableaux `card-green text-white/70` sur les deux onglets
+
+---
 
 ### Session 14 - 22 avril 2026 - Fix auth flow + changement mot de passe profil
 
