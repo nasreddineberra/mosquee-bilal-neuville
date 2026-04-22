@@ -23,7 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    supabase.auth.getUser()
+      .then(({ data }) => setUser(data.user ?? null))
+      .catch(() => { /* lock steal bénin : onAuthStateChange prendra le relais */ });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);

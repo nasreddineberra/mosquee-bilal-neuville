@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 21 avril 2026 (Session 13)
+**Dernière mise à jour :** 22 avril 2026 (Session 14)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -377,6 +377,53 @@ Administration                   (administrateur uniquement)
 1. `src/components/ProfileModal.tsx` : modale profil utilisateur pour voir/editer ses coordonnees
 2. Non-fermable par backdrop : uniquement via croix (choix produit utilisateur)
 
+### Session 14 - 22 avril 2026 - Fix auth flow + changement mot de passe profil
+
+**Singleton client Supabase browser :**
+1. `src/lib/supabase/client.ts` : stockage de l'instance sur `globalThis.__supabaseBrowserClient` pour un seul client partage par tout le front
+2. Cause : chaque `createClient()` creait un client avec son propre lock `navigator.locks` auth, d'ou `Lock was released because another request stole it` au moment de `updateUser` ou `setSession`
+3. Server-side : comportement inchange (nouvelle instance a chaque appel)
+
+**detectSessionInUrl desactive :**
+1. `detectSessionInUrl: false` pose sur le client browser
+2. Cause : la detection automatique (defaut true) lancait `exchangeCodeForSession` au mount du client en parallele du `AuthProvider.getUser()`, avec conflit de lock et `Uncaught in promise` non-catchables
+3. Consequence : les tokens de l'URL sont desormais geres manuellement sur `/auth/set-password` (voir plus bas)
+
+**Changement de mot de passe depuis le profil :**
+1. `src/components/ProfileModal.tsx` : nouvelle section "Mot de passe" (icone KeyRound), meme pattern UI que section Email
+2. Bouton "Modifier" → `supabase.auth.resetPasswordForEmail(email, { redirectTo: '/auth/set-password' })`
+3. Toast de confirmation : "Un email de reinitialisation a ete envoye a <email>"
+
+**Template email `reset-password.html` :**
+1. `supabase/email-templates/reset-password.html` : meme style que `invite-user.html` (theme vert #064E3B)
+2. CTA "Definir mon nouveau mot de passe"
+3. Encart avec les regles explicites (8 caracteres min, 1 majuscule, 1 minuscule, 1 chiffre, 1 caractere special)
+
+**Page `/auth/set-password` - validation renforcee + gestion flow :**
+1. Validation mdp : `length >= 8 && upper && lower && digit && special` (regex `/[A-Z]/`, `/[a-z]/`, `/[0-9]/`, `/[^A-Za-z0-9]/`)
+2. Checklist visuelle dynamique : 5 regles avec icone Check, opacite dependante de l'etat (pastilles vertes au fur et a mesure de la saisie)
+3. Init au mount : lit `url.searchParams.get('code')` (flow PKCE) → `exchangeCodeForSession`, sinon `url.hash` (flow implicit) → `setSession({ access_token, refresh_token })`
+4. Nettoyage de l'URL apres traitement (`window.history.replaceState`)
+5. Try/catch global autour de l'init pour absorber les warnings de lock benins
+
+**AuthContext - catch defensif :**
+1. `.catch(() => {})` sur `supabase.auth.getUser()` initial dans `AuthProvider`
+2. Raison : si un autre composant vole le lock pendant l'init (ex: `setSession` de set-password), l'erreur etait remontee comme Runtime Error par Next.js. `onAuthStateChange` prend le relais de toute facon
+
+**Callback `/api/auth/callback` - plus utilise pour nos mails :**
+1. Route conservee et amelioree (gere `?code=` et `?token_hash=&type=`) pour robustesse futur
+2. Mais plus utilisee par les `redirectTo` de `validate-demande`, `resend-invite` ni `ProfileModal.handlePasswordReset` : ils pointent tous directement sur `/auth/set-password`
+3. Cause : Supabase envoie souvent les tokens en hash fragment (`#access_token=...`) qui n'est pas transmis au serveur → `missing_params` sur le callback. En redirigeant directement sur une page client, le hash est lu
+
+**Page `/auth/error` :**
+1. `src/app/auth/error/page.tsx` : page d'erreur generique affichee par le callback si `exchangeCodeForSession` / `verifyOtp` echoue
+2. Affiche la raison depuis `?reason=...` (icone AlertTriangle + CTA retour accueil)
+3. Utilise `Suspense` car `useSearchParams` est requis dans un client component
+
+**Notes Supabase manuelles (PROJECT_TRACKING.md) :**
+1. Section "Configuration Supabase manuelle" ajoutee en bas du fichier
+2. Liste : Redirect URLs autorisees (obligatoire pour les mails), email templates a uploader, Site URL
+
 ---
 
 ## Ordre d'implementation Phase 3
@@ -417,3 +464,29 @@ npm run start    # Lancer en production
 
 **URL locale :** http://localhost:3000
 **Supabase project :** https://ugbkbsorcrmnhfplprkb.supabase.co
+
+---
+
+## Configuration Supabase manuelle (a ne pas oublier)
+
+Ces reglages sont hors-code et doivent etre appliques dans le dashboard Supabase pour que l'app fonctionne correctement.
+
+### Redirect URLs autorisees
+`Authentication > URL Configuration > Redirect URLs`
+- `http://localhost:3000/auth/set-password` (dev)
+- `http://localhost:3000/**` (dev, pattern large)
+- `<URL prod>/auth/set-password` (a ajouter au deploiement prod)
+
+Sans ces URLs autorisees, Supabase refuse de rediriger apres les mails d'invite / reset password et l'utilisateur tombe sur "missing_params".
+
+### Email templates a uploader
+`Authentication > Email Templates` - copier le contenu de `supabase/email-templates/` :
+- `invite-user.html` -> Invite user
+- `confirm-new-email.html` -> Confirm email change (nouvelle adresse)
+- `notify-old-email.html` -> Change email address (ancienne adresse, notification)
+- `reset-password.html` -> Reset password
+
+### Site URL
+`Authentication > URL Configuration > Site URL`
+- Dev : `http://localhost:3000`
+- Prod : `<URL prod>` (a mettre a jour au deploiement)

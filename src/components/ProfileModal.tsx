@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, User, Mail } from 'lucide-react';
+import { X, User, Mail, KeyRound } from 'lucide-react';
 import { FloatInput } from '@/components/FloatField';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -29,6 +29,9 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
   const [emailSending, setEmailSending] = useState(false);
   const [emailSent, setEmailSent] = useState<string | null>(null);
   const [emailError, setEmailError] = useState('');
+  const [pwdSending, setPwdSending] = useState(false);
+  const [pwdSent, setPwdSent] = useState<string | null>(null);
+  const [pwdError, setPwdError] = useState('');
 
   const isNewEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && newEmail.toLowerCase() !== form.email.toLowerCase();
 
@@ -54,6 +57,22 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
     setEmailError('');
   };
 
+  const handlePasswordReset = async () => {
+    if (!form.email) return;
+    setPwdSending(true);
+    setPwdError('');
+    setPwdSent(null);
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/set-password`;
+    const { error: err } = await supabase.auth.resetPasswordForEmail(form.email, { redirectTo });
+    setPwdSending(false);
+    if (err) {
+      setPwdError(err.message || 'Erreur lors de l\'envoi du mail.');
+      return;
+    }
+    setPwdSent(form.email);
+  };
+
   useEffect(() => {
     if (!open) return;
     if (!userId) { setLoading(true); return; }
@@ -63,6 +82,8 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
       setLoading(true);
       setError('');
       setSaved(false);
+      setPwdSent(null);
+      setPwdError('');
       try {
         const { data, error: fetchErr } = await supabase
           .from('profiles')
@@ -197,6 +218,33 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
                       </button>
                     </div>
                   </div>
+                )}
+              </div>
+              <div className="pb-2 border-b border-outline-variant/10">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <KeyRound className="w-3.5 h-3.5 text-on-surface/60 flex-shrink-0" />
+                    <span className="text-xs text-on-surface/60 truncate">Mot de passe</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePasswordReset}
+                    disabled={pwdSending || !form.email}
+                    className="text-xs text-primary hover:underline flex-shrink-0 disabled:opacity-50 disabled:no-underline"
+                  >
+                    {pwdSending ? 'Envoi…' : 'Modifier'}
+                  </button>
+                </div>
+                {pwdSent && (
+                  <div className="mt-2 bg-primary/10 border border-primary/20 rounded-xl p-2.5 flex items-start gap-2">
+                    <Mail className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-primary leading-relaxed">
+                      Un email de réinitialisation a été envoyé à <strong>{pwdSent}</strong>. Cliquez sur le lien reçu pour définir votre nouveau mot de passe.
+                    </p>
+                  </div>
+                )}
+                {pwdError && (
+                  <p className="text-error text-xs mt-2">{pwdError}</p>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-3">

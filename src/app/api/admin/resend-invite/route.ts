@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     const origin = new URL(request.url).origin;
-    const redirectTo = `${origin}/api/auth/callback?next=/auth/set-password`;
+    const redirectTo = `${origin}/auth/set-password`;
 
     const { error: resendErr } = await admin.auth.resetPasswordForEmail(demande.email, {
       redirectTo,

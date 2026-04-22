@@ -24,16 +24,44 @@ export default function SetPasswordPage() {
   useEffect(() => {
     document.title = 'Définir votre mot de passe - Mosquée Bilal';
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setEmail(user.email ?? '');
-        setAuthorized(true);
+      try {
+        if (typeof window === 'undefined') return;
+
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+        const hashParams = url.hash ? new URLSearchParams(url.hash.substring(1)) : null;
+        const accessToken = hashParams?.get('access_token');
+        const refreshToken = hashParams?.get('refresh_token');
+
+        if (code) {
+          await supabase.auth.exchangeCodeForSession(code);
+          window.history.replaceState(null, '', url.pathname);
+        } else if (accessToken && refreshToken) {
+          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+          window.history.replaceState(null, '', url.pathname);
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setEmail(user.email ?? '');
+          setAuthorized(true);
+        }
+      } catch (e) {
+        console.warn('[set-password] init warning:', e);
+      } finally {
+        setChecking(false);
       }
-      setChecking(false);
     })();
   }, [supabase]);
 
-  const isPasswordValid = password.length >= 8;
+  const rules = {
+    length: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    digit: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+  const isPasswordValid = rules.length && rules.upper && rules.lower && rules.digit && rules.special;
   const passwordsMatch = password.length > 0 && password === confirm;
   const canSubmit = isPasswordValid && passwordsMatch && !submitting;
 
@@ -106,7 +134,20 @@ export default function SetPasswordPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-on-surface/50 -mt-3">Minimum 8 caractères.</p>
+              <ul className="text-xs -mt-3 space-y-1">
+                {[
+                  { ok: rules.length, label: '8 caractères minimum' },
+                  { ok: rules.upper, label: 'une majuscule' },
+                  { ok: rules.lower, label: 'une minuscule' },
+                  { ok: rules.digit, label: 'un chiffre' },
+                  { ok: rules.special, label: 'un caractère spécial' },
+                ].map((r) => (
+                  <li key={r.label} className={`flex items-center gap-2 ${r.ok ? 'text-primary' : 'text-on-surface/50'}`}>
+                    <Check className={`w-3 h-3 flex-shrink-0 ${r.ok ? 'opacity-100' : 'opacity-30'}`} />
+                    {r.label}
+                  </li>
+                ))}
+              </ul>
 
               <div className="relative">
                 <FloatInput
