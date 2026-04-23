@@ -20,7 +20,7 @@ interface ImagePickerProps {
 }
 
 const BUCKET = 'articles';
-const CATEGORIES = ['Vie de la mosquée', 'Événements', 'Cours', 'Communauté'];
+const CATEGORIES = ['Vie de la mosquée', 'Événements', 'Cours', 'Communauté', 'Certificat'];
 
 export default function ImagePicker({ open, selectedId, onSelect, onClose }: ImagePickerProps) {
   const supabase = createClient();
@@ -149,14 +149,14 @@ export default function ImagePicker({ open, selectedId, onSelect, onClose }: Ima
           <div className="p-5 border-b border-[var(--color-card-border)]">
             <p className="text-xs font-bold text-on-surface/50 uppercase tracking-wider mb-3">Images par défaut des catégories</p>
             <input ref={catInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCatFile} className="hidden" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 gap-2">
               {CATEGORIES.map((cat) => {
                 const def = categoryDefaults[cat];
                 const isUploading = uploading === cat;
                 return (
                   <div key={cat} className="flex flex-col gap-1.5">
                     <div
-                      className="relative w-full aspect-video rounded-xl overflow-hidden bg-surface-container border border-[var(--color-card-border)]"
+                      className="relative w-full h-20 rounded-xl overflow-hidden bg-surface-container border border-[var(--color-card-border)]"
                       style={def ? { backgroundImage: `url(${def.url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                     >
                       {!def && !isUploading && (

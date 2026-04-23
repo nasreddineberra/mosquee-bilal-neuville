@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, ArrowBigRight, MessageSquareHeart } from 'lucide-react';
+import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, MessageSquareHeart } from 'lucide-react';
+import CardCtaButton from '@/components/CardCtaButton';
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -14,6 +15,7 @@ export default function HeroSection() {
   const { theme } = useTheme();
   const [actualites, setActualites] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [certificatImage, setCertificatImage] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -28,6 +30,7 @@ export default function HeroSection() {
         .order('date_parution', { ascending: false })
         .limit(3),
     ]).then(([defaults, { data }]) => {
+      setCertificatImage(defaults['Certificat'] ?? null);
       if (data) setActualites(data.map((a) => {
         const img = Array.isArray(a.images) ? a.images[0] : a.images;
         return {
@@ -166,6 +169,9 @@ export default function HeroSection() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
+                stroke="white"
+                strokeWidth="1"
+                strokeLinejoin="round"
               >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
@@ -178,9 +184,7 @@ export default function HeroSection() {
             </p>
           </div>
           <div className="absolute -right-3 -bottom-3 w-16 h-16 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
-          <span className="card-green-btn">
-            <ArrowBigRight className="w-4 h-4 fill-white" />
-          </span>
+          <CardCtaButton label="Oui je veux" />
         </Link>
 
         {/* ROW 4 - Cours + Islam (1/3, stacked) */}
@@ -220,19 +224,32 @@ export default function HeroSection() {
         </div>
 
         {/* ROW 4 - Certificat de conversion (1/3) */}
-        <Link href="/certificat" className="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:bg-surface-container transition-colors block">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
-              <h4 className="text-sm font-bold text-primary uppercase tracking-wider">Certificat de conversion</h4>
+        <Link href="/certificat" className="group bg-surface-container-lowest rounded-xl hover:bg-surface-container transition-colors flex flex-col overflow-hidden h-full border border-[var(--color-card-border)]">
+          {certificatImage && (
+            <div className="relative w-full h-1/3 flex-shrink-0">
+              <Image
+                src={certificatImage}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="400px"
+              />
             </div>
-            <span className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-              <ChevronRight className="w-3 h-3" />
-            </span>
+          )}
+          <div className="p-5 flex-1 min-h-0 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <Award className="w-5 h-5 text-primary flex-shrink-0" />
+                <h4 className="text-sm font-bold text-primary uppercase tracking-wider truncate">Certificat de conversion</h4>
+              </div>
+              <span className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+                <ChevronRight className="w-3 h-3" />
+              </span>
+            </div>
+            <p className="text-xs text-on-surface/60 line-clamp-3">
+              Vous souhaitez officialiser votre conversion à l&apos;islam ? La Mosquée Bilal vous accompagne dans vos démarches pour obtenir votre certificat de conversion - un document officiel reconnu, indispensable pour de nombreuses occasions.
+            </p>
           </div>
-          <p className="text-xs text-on-surface/60">
-            Vous souhaitez officialiser votre conversion à l&apos;islam ? La Mosquée Bilal vous accompagne dans vos démarches pour obtenir votre certificat de conversion - un document officiel reconnu, indispensable pour de nombreuses occasions.
-          </p>
         </Link>
 
         {/* ROW 4 - Contact + Assurances (1/3, stacked) */}

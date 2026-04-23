@@ -46,7 +46,7 @@ export function FloatInput({ id, label, type = 'text', value, onChange, required
         onChange={(e) => onChange(applyTransform(e.target.value, transform))}
         placeholder={label}
         maxLength={maxLength}
-        className="w-full bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none"
+        className="w-full bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--color-card-border)]"
       />
     );
   }

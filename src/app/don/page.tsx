@@ -1,6 +1,37 @@
-import { HeartHandshake, Goal, ShieldCheck, ExternalLink, ArrowBigRight, HandHeart } from 'lucide-react';
+import { HeartHandshake, Goal, ShieldCheck, HandHeart } from 'lucide-react';
+import DonsList from '@/components/DonsList';
+import { createClient } from '@/lib/supabase/server';
 
-export default function DonsPage() {
+type Don = {
+  id: string;
+  titre: string;
+  resume: string | null;
+  description: string | null;
+  lien_externe: string | null;
+  a_la_une: boolean;
+  image_url: string | null;
+};
+
+export const revalidate = 60;
+
+export default async function DonsPage() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('dons')
+    .select('id, titre, resume, description, lien_externe, a_la_une, images(url)')
+    .eq('actif', true)
+    .order('a_la_une', { ascending: false })
+    .order('position', { ascending: true, nullsFirst: false })
+    .order('date_parution', { ascending: false });
+
+  type Row = Omit<Don, 'image_url'> & { images: { url: string } | { url: string }[] | null };
+  const dons: Don[] = ((data ?? []) as Row[]).map((r) => {
+    const img = Array.isArray(r.images) ? r.images[0] : r.images;
+    return { ...r, image_url: img?.url ?? null };
+  });
+  const featured = dons.find((d) => d.a_la_une) ?? null;
+  const projets = dons.filter((d) => !d.a_la_une);
+
   return (
     <div className="bg-background pt-8 pb-2 px-4">
       <div className="max-w-7xl mx-auto">
@@ -72,70 +103,7 @@ export default function DonsPage() {
               <h2 className="text-sm font-bold text-primary uppercase tracking-wider">Nos projets</h2>
             </div>
 
-            <div className="space-y-3">
-              {/* CTA Soutenir la mosquée */}
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative card-green card-green-link rounded-2xl p-5 shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <svg
-                      className="w-5 h-5 text-white/80 flex-shrink-0 heart-pulse"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Soutenir la mosquée</h3>
-                  </div>
-                  <p className="text-white/80 text-sm leading-relaxed mb-4">
-                    Contribuez au fonctionnement et au développement de la Mosquée Bilal. Vos dons sont éligibles à une réduction d&apos;impôt de 66%.
-                  </p>
-                </div>
-                <span className="card-green-btn">
-                  <ArrowBigRight className="w-4 h-4 fill-white" />
-                </span>
-              </a>
-
-              {/* Projets */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                {
-                  title: 'Programmes éducatifs',
-                  desc: 'Financement des cours de Tajwid, de langue arabe et des activités pour enfants et adultes.',
-                  url: '#',
-                },
-                {
-                  title: 'Actions sociales',
-                  desc: 'Soutien aux familles en difficulté, distribution de repas durant le Ramadan et aide aux plus démunis.',
-                  url: '#',
-                },
-                {
-                  title: 'Événements communautaires',
-                  desc: 'Organisation des célébrations de l\'Aïd, conférences, sorties et rencontres fraternelles.',
-                  url: '#',
-                },
-              ].map((projet, i) => (
-                <a
-                  key={i}
-                  href={projet.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group/projet block p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container-high transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="text-sm font-bold text-primary">{projet.title}</h4>
-                    <ExternalLink className="w-3.5 h-3.5 text-on-surface/30 group-hover/projet:text-primary transition-colors" />
-                  </div>
-                  <p className="text-on-surface/60 text-xs">{projet.desc}</p>
-                </a>
-              ))}
-              </div>
-            </div>
+            <DonsList featured={featured} projets={projets} />
           </div>
 
         </div>

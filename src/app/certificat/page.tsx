@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Award, CheckCircle, FileText, Users, Heart, Plane, BookOpen, ChevronLeft, ArrowBigRight } from 'lucide-react';
+import { Award, CheckCircle, FileText, Users, Heart, Plane, BookOpen, ChevronLeft } from 'lucide-react';
+import CardCtaButton from '@/components/CardCtaButton';
 
 export default function CertificatPage() {
   return (
@@ -146,9 +147,7 @@ export default function CertificatPage() {
                 N&apos;hésitez pas à nous écrire via le formulaire de contact. Nous vous répondrons dans les meilleurs délais et organiserons une rencontre à votre convenance.
               </p>
             </div>
-            <span className="card-green-btn">
-              <ArrowBigRight className="w-4 h-4 fill-white" />
-            </span>
+            <CardCtaButton label="Oui je veux" />
           </Link>
 
         </div>

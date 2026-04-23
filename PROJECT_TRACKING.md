@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 22 avril 2026 (Session 15)
+**Dernière mise à jour :** 23 avril 2026 (Session 16)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -41,10 +41,11 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Connexion (email + mdp + 2FA) | `/admin` | Finalisé |
 | Dashboard | `/admin/dashboard` | Finalisé |
 | Articles (CRUD) | `/admin/dashboard/articles` | Finalisé |
+| Hadiths (CRUD) | `/admin/dashboard/hadiths` | Finalisé |
 | Communication | `/admin/dashboard/communication` | A faire |
 | Activités | `/admin/dashboard/activites` | Finalisé |
 | Inscriptions | `/admin/dashboard/inscriptions` | Finalisé |
-| Dons | `/admin/dashboard/dons` | A faire |
+| Dons | `/admin/dashboard/dons` | Finalisé |
 | Gestion utilisateurs | `/admin/dashboard/utilisateurs` | Finalisé |
 | Gestion visiteurs | `/admin/dashboard/visiteurs` | Finalisé |
 | Définir mot de passe (invite) | `/auth/set-password` | Finalisé |
@@ -112,7 +113,8 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | `activites_cours_tajwid` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
 | `activites_ecole_arabe` | id, titre, description, niveau, horaire, places_max, places_prises, actif, date_debut |
 | `activites_sorties` | id, titre, description, date_sortie, lieu, places_max, tarif, actif |
-| `dons` | id, titre, texte, lien_externe, a_la_une, actif |
+| `dons` | id, titre, resume, description, lien_externe, date_parution, position, image_id (FK images), a_la_une (unique partiel), actif |
+| `hadiths` | id, texte, narrateur, source, actif, created_at, updated_at |
 | `demandes_acces` | id, email, nom, prenom, telephone, adresse, message, statut (enum), traite_par, traite_at |
 | `inscriptions` | id, activite_type (enum), activite_id, user_id, nom, prenom, email, telephone, adresse, enfants (jsonb), nb_participants, message, statut (enum) |
 
@@ -467,6 +469,58 @@ Administration                   (administrateur uniquement)
 1. Section "Configuration Supabase manuelle" ajoutee en bas du fichier
 2. Liste : Redirect URLs autorisees (obligatoire pour les mails), email templates a uploader, Site URL
 
+### Session 16 - 23 avril 2026 - Admin Dons + Admin Hadiths + CardCtaButton centralise
+
+**Migrations SQL (idempotentes) :**
+1. `2026-04-22_dons_contenu.sql` : rename `texte` → `description` (conditionnel via DO block), ajout `resume`, `date_parution` (default CURRENT_DATE), `position`, `image_id` (FK images). Index unique partiel sur `a_la_une = true` (garantit 1 seul don a la une en DB)
+2. `2026-04-22_hadiths.sql` : table `hadiths` (texte, narrateur, source, actif, timestamps) + RLS (lecture publique si actif, CRUD admin/editeur) + seed conditionnel des 7 hadiths de la demo (INSERT WHERE NOT EXISTS)
+
+**Composant `CardCtaButton` centralise (bouton uiverse thin-duck-22 adapte) :**
+1. `src/components/CardCtaButton.tsx` : cercle ambre (`#F59E0B` light / `#FFB95F` dark) avec bordure blanche 1px qui s'etend en pill 150px au hover pour reveler le label. Icone `ArrowBigRight` fill blanc
+2. CSS dans `globals.css` classe `.card-cta-btn` : hover declenchable par le bouton OU par la card parent (`.card-green-link:hover .card-cta-btn`). `outline: none` + `stroke: none` pour eviter artefacts bord noir
+3. Utilise sur 4 cards : Accueil "Soutenir les projets" (`HeroSection.tsx`), Activites "Aide sociale" (`activites/page.tsx`), Don "Soutenir la mosquee" (`don/page.tsx`), Certificat "Besoin d'accompagnement" (`certificat/page.tsx`). Label "Oui je veux" partout
+4. Ancien pattern `.card-green-btn` (pill ambre qui apparait au hover via translate) conserve pour autres cards mais non utilise sur les 4 ci-dessus
+
+**Admin Dons (`/admin/dashboard/dons`) :**
+1. Pattern aligne sur Articles admin : tableau avec chevrons reorder (actifs non-a-la-une uniquement), ligne vert `card-green` si a_la_une, toggle Star + toggle Eye/EyeOff avec icones au-dessus, actions edit/delete
+2. Modale CRUD (non-fermable sauf croix) : titre 70 car max + compteur, resume 70 car max + compteur, description (textarea sentence case), date_parution (default today), lien externe, `ImagePicker` avec preview "Image associee" encadree + bouton Choisir/Retirer
+3. Transforms FloatField : titre `upperall`, resume `sentence`, description `sentence`
+4. Toggle "a la une" disabled si un autre don est deja a la une (liste + modale) - force l'utilisateur a decocher avant d'activer
+5. Auto-swap retire de `handleSubmit` et `handleToggleUne` : coherent avec la contrainte "max 1 a la une"
+6. Tri : a_la_une DESC, actif DESC, position ASC, date_parution DESC
+
+**Page publique `/don` - branchement DB :**
+1. Passee en server component async (`revalidate = 60`), fetch dons actifs avec `images(url)` joint
+2. Refactor en 2 composants clients :
+   - `src/components/DonDetailModal.tsx` : modale detail non-fermable (sauf croix) - header `card-green`, image en haut (192px), description complete `whitespace-pre-line`, bouton "Faire un don" vers `lien_externe` (target=_blank). Resume non affiche (reserve pour la card)
+   - `src/components/DonsList.tsx` : gere le state `selected`, cards remplacees par `<button>` qui ouvrent la modale (plus de lien externe direct)
+3. Card verte (a la une) : `h-48` (reduite d'1/3 vs initial), image en haut `h-1/3` + `rounded-t-2xl`, bordure `border-white/20` (matche le gradient vert), coeur en haut gauche `items-start`, resume (pas description) + `CardCtaButton label="Oui je veux"` en bas
+4. Cards "Nos projets" : `h-44`, image en haut `h-1/3`, bordure `var(--color-card-border)`, titre full width (pas de truncate ni pr-10), resume `line-clamp-3 pr-10`, icone `ChevronRight` dans cercle ambre en bas droite (pattern card "Cours et Activites" accueil)
+5. Toutes les cards ouvrent la modale detail au clic (pas de redirection directe vers plateforme externe)
+
+**Admin Hadiths (`/admin/dashboard/hadiths`) :**
+1. Refonte de la page demo (state local) en vraie page CRUD Supabase
+2. Sidebar admin : entree "Hadiths" (icone `ScrollText`) ajoutee sous "Edition" entre Articles et Communication, `openSections.edition` etendue pour inclure `/hadiths`
+3. Type `Hadith` renomme (`texte/narrateur/actif` au lieu de `text/narrator/is_active`) pour coherence avec le reste du projet
+4. Liste compacte (py-2, items-center, truncate sur texte + narrateur/source) avec toggle actif inline, actions edit/delete. Badge "Inactif" inline avec texte
+5. Champ recherche `FloatInput compact` a la suite des filtres (max-w-md), filtre sur texte + narrateur + source
+6. `FloatField compact` : au focus, bordure ne change plus de couleur (etait primary) - utilise maintenant `ring-2 ring-inset ring-[var(--color-card-border)]` (meme couleur que la bordure au repos, effet "bordure qui grossit")
+
+**DailyReminder (Hadith du jour accueil) :**
+1. Branche sur Supabase : fetch tous les hadiths actifs ordonnes par id
+2. Rotation stable par jour : `dayOfYear % count` - meme hadith affiche toute la journee, change le lendemain (option B validee)
+3. Affichage repense : titre "Hadith du jour" a gauche + source (meme style que titre : `text-sm font-bold uppercase tracking-wider`) a droite. Texte dessous avec narrateur inline dans le blockquote : `Narrateur : « texte »` (pas de tiret cadratin)
+
+**Bibliotheque d'images (ImagePicker) :**
+1. Ajout categorie "Certificat" dans `CATEGORIES`
+2. Hauteur des cards "Images par defaut des categories" harmonisee avec bibliotheque : `aspect-video` → `h-20` (80px fixe)
+3. Grille passee en `grid-cols-3 gap-2` (identique bibliotheque)
+4. Note : si la colonne `images.category` est de type `article_category` (enum), une migration `ALTER TYPE ... ADD VALUE 'Certificat'` peut etre necessaire. Si `text`, aucune action
+
+**Accueil - Card "Certificat de conversion" :**
+1. Pattern aligne sur les cards "Dernieres actualites" : image en haut `h-1/3` via `<Image>` Next.js fill, texte en bas `flex-1`, bordure 1px `var(--color-card-border)`, `h-full` pour prendre la hauteur de la ligne grid
+2. Fetch de l'image : `certificatImage` recupere depuis `fetchCategoryDefaults(supabase)['Certificat']` - l'admin uploade l'image par defaut dans ImagePicker
+
 ---
 
 ## Ordre d'implementation Phase 3
@@ -480,9 +534,11 @@ Administration                   (administrateur uniquement)
 - [x] 3.7 Inscription publique - 3 modales (Cours Mosquee, Ecole Arabe, Sorties) + back-office Inscriptions
 - [x] 3.8 Admin Activites - CRUD Cours+Tajwid, Ecole Arabe, Sorties
 - [x] 3.9 Auth flow invitation - mail invite custom + page `/auth/set-password` + resend
-- [ ] 3.10 Admin Communication - messagerie visiteurs
-- [ ] 3.11 Admin Dons - CRUD + lien externe
-- [ ] 3.12 Edge Function - cron expiration articles (actif = false si date_expiration < today)
+- [x] 3.10 Admin Dons - CRUD + branchement page publique (card a la une + projets + modale detail)
+- [x] 3.11 Admin Hadiths - CRUD + rotation quotidienne DailyReminder (option B : stable par jour)
+- [x] 3.12 Composant CardCtaButton centralise (bouton uiverse thin-duck-22) sur 4 cards du site
+- [ ] 3.13 Admin Communication - messagerie visiteurs
+- [ ] 3.14 Edge Function - cron expiration articles (actif = false si date_expiration < today)
 
 ---
 

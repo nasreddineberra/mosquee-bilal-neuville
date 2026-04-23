@@ -367,3 +367,72 @@ h1, h2, h3, .font-serif {
   border-color: #FFB95F;
 }
 
+/* Bouton CTA cards vertes (inspire uiverse thin-duck-22) */
+.card-cta-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: 1px solid #fff;
+  outline: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  background-color: #F59E0B;
+  z-index: 20;
+}
+[data-theme="dark"] .card-cta-btn {
+  background-color: #FFB95F;
+}
+.card-cta-btn .sign {
+  width: 100%;
+  transition-duration: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-cta-btn .sign svg {
+  width: 26px;
+  height: 26px;
+  stroke: none;
+}
+.card-cta-btn .sign svg path {
+  fill: white;
+  stroke: none;
+}
+.card-cta-btn .text {
+  position: absolute;
+  right: 0;
+  width: 0;
+  opacity: 0;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition-duration: 0.3s;
+  white-space: nowrap;
+}
+.card-cta-btn:hover,
+.card-green-link:hover .card-cta-btn {
+  width: 150px;
+  border-radius: 40px;
+}
+.card-cta-btn:hover .sign,
+.card-green-link:hover .card-cta-btn .sign {
+  width: 35%;
+  padding-left: 8px;
+}
+.card-cta-btn:hover .text,
+.card-green-link:hover .card-cta-btn .text {
+  opacity: 1;
+  width: 65%;
+  padding-right: 6px;
+}
+.card-green-link:active .card-cta-btn {
+  transform: translate(2px, 2px);
+}
+

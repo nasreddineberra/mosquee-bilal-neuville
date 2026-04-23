@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, FileText, MessageSquare, ChevronDown, ChevronRight,
-  BookOpen, HeartHandshake, Users, UserCheck, ClipboardList, LogOut, ExternalLink,
+  BookOpen, HeartHandshake, Users, UserCheck, ClipboardList, LogOut, ExternalLink, ScrollText,
 } from 'lucide-react';
 
 type Profile = { nom: string | null; prenom: string | null; role: string };
@@ -26,6 +26,7 @@ const menu = [
     key: 'edition',
     items: [
       { label: 'Articles', href: '/admin/dashboard/articles', icon: FileText },
+      { label: 'Hadiths', href: '/admin/dashboard/hadiths', icon: ScrollText },
       { label: 'Communication', href: '/admin/dashboard/communication', icon: MessageSquare },
     ],
   },
@@ -49,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    edition: pathname.includes('/articles') || pathname.includes('/communication'),
+    edition: pathname.includes('/articles') || pathname.includes('/hadiths') || pathname.includes('/communication'),
     administration: pathname.includes('/activites') || pathname.includes('/inscriptions') || pathname.includes('/dons') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
   });
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BookOpenCheck, NotebookPen, Users, Handshake, ArrowBigRight, Info, X } from 'lucide-react';
+import { BookOpenCheck, NotebookPen, Users, Handshake, Info, X } from 'lucide-react';
+import CardCtaButton from '@/components/CardCtaButton';
 import AideSocialeModal from '@/components/AideSocialeModal';
 import InscriptionCoursMosqueeModal from '@/components/InscriptionCoursMosqueeModal';
 import InscriptionEcoleArabeModal from '@/components/InscriptionEcoleArabeModal';
@@ -302,9 +303,7 @@ export default function ActivitesPage() {
                   Accompagnement et soutien pour les membres de la communauté en difficulté. Notre cellule d&apos;aide sociale est à votre écoute.
                 </p>
               </div>
-              <span className="card-green-btn">
-                <ArrowBigRight className="w-4 h-4 fill-white" />
-              </span>
+              <CardCtaButton label="Oui je veux" />
             </button>
           </div>
         </div>
