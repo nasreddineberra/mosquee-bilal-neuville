@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserCheck, Check, X, Mail, Phone, MapPin, Clock, Send, Trash2 } from 'lucide-react';
+import { UserCheck, Check, X, Mail, Phone, MapPin, Clock, Send, Trash2, Shield } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { FloatInput } from '@/components/FloatField';
+import { FloatInput, FloatSelect } from '@/components/FloatField';
 
 type Demande = {
   id: string;
@@ -25,6 +25,7 @@ type Visiteur = {
   telephone: string | null;
   adresse: string | null;
   created_at: string;
+  est_actif: boolean;
 };
 
 type DemandeFilter = 'en_attente' | 'validee' | 'refusee';
@@ -56,6 +57,9 @@ export default function VisiteursAdminPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errorVisiteurs, setErrorVisiteurs] = useState('');
+  const [promoteUser, setPromoteUser] = useState<Visiteur | null>(null);
+  const [promoteRole, setPromoteRole] = useState<'editeur' | 'gestionnaire_obseques' | 'administrateur'>('gestionnaire_obseques');
+  const [promoting, setPromoting] = useState(false);
 
   const fetchDemandes = useCallback(async () => {
     setLoadingDemandes(true);
@@ -71,15 +75,16 @@ export default function VisiteursAdminPage() {
 
   const fetchVisiteurs = useCallback(async () => {
     setLoadingVisiteurs(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, nom, prenom, telephone, adresse, created_at')
-      .eq('role', 'visiteur')
-      .order('created_at', { ascending: false });
-    if (error) setErrorVisiteurs('Impossible de charger les comptes visiteurs.');
-    else { setVisiteurs((data ?? []) as Visiteur[]); setErrorVisiteurs(''); }
+    try {
+      const res = await fetch('/api/admin/list-visiteurs');
+      const json = await res.json();
+      if (!res.ok) { setErrorVisiteurs(json.error || 'Impossible de charger les comptes visiteurs.'); }
+      else { setVisiteurs((json.visiteurs ?? []) as Visiteur[]); setErrorVisiteurs(''); }
+    } catch {
+      setErrorVisiteurs('Impossible de charger les comptes visiteurs.');
+    }
     setLoadingVisiteurs(false);
-  }, [supabase]);
+  }, []);
 
   useEffect(() => { if (tab === 'demandes') fetchDemandes(); }, [tab, fetchDemandes]);
   useEffect(() => { if (tab === 'comptes') fetchVisiteurs(); }, [tab, fetchVisiteurs]);
@@ -133,6 +138,21 @@ export default function VisiteursAdminPage() {
     const json = await res.json();
     setDeletingId(null); setDeleteId(null);
     if (!res.ok) { setErrorVisiteurs(json.error || 'Erreur.'); return; }
+    fetchVisiteurs();
+  };
+
+  const handlePromote = async () => {
+    if (!promoteUser) return;
+    setPromoting(true);
+    setErrorVisiteurs('');
+    const res = await fetch('/api/admin/update-user-role', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: promoteUser.id, role: promoteRole }),
+    });
+    const json = await res.json();
+    setPromoting(false);
+    if (!res.ok) { setErrorVisiteurs(json.error || 'Erreur.'); return; }
+    setPromoteUser(null);
     fetchVisiteurs();
   };
 
@@ -299,8 +319,9 @@ export default function VisiteursAdminPage() {
                   filteredVisiteurs.map((v) => (
                     <tr key={v.id} className="hover:bg-surface-container-low/50 transition-colors">
                       <td className="px-8 py-1.5">
-                        <p className="text-sm font-bold text-on-surface">
+                        <p className="text-sm font-bold text-on-surface flex items-center gap-2">
                           {v.prenom || v.nom ? `${v.prenom ?? ''} ${v.nom ?? ''}`.trim() : <span className="text-on-surface/40">—</span>}
+                          {!v.est_actif && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary uppercase tracking-wider">En attente</span>}
                         </p>
                         <p className="text-xs text-on-surface/60 flex items-center gap-1.5 mt-0.5"><Mail className="w-3 h-3" /> {v.email}</p>
                       </td>
@@ -313,20 +334,71 @@ export default function VisiteursAdminPage() {
                         <p className="text-xs text-on-surface/70">{formatDate(v.created_at)}</p>
                       </td>
                       <td className="px-8 py-1.5 text-right">
-                        <button
-                          onClick={() => setDeleteId(v.id)}
-                          disabled={deletingId === v.id}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors disabled:opacity-50 ml-auto"
-                          aria-label="Supprimer le compte"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => { setPromoteUser(v); setPromoteRole('gestionnaire_obseques'); }}
+                            disabled={!v.est_actif}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-on-surface/40"
+                            aria-label="Promouvoir"
+                            title={v.est_actif ? 'Promouvoir (attribuer un rôle)' : 'Compte non activé - en attente de confirmation du mail'}
+                          >
+                            <Shield className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteId(v.id)}
+                            disabled={deletingId === v.id}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors disabled:opacity-50"
+                            aria-label="Supprimer le compte"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Modale promotion visiteur → role */}
+      {promoteUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md animate-slide-up border border-primary">
+            <div className="card-green rounded-t-2xl p-5 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Promouvoir le compte</h2>
+              {!promoting && (
+                <button onClick={() => setPromoteUser(null)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors" aria-label="Fermer">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-on-surface/80 leading-relaxed">
+                Attribuer un rôle à <strong>{promoteUser.prenom ?? ''} {promoteUser.nom ?? ''}</strong> ({promoteUser.email}). Le compte sera déplacé dans <strong>Gestion des utilisateurs</strong>.
+              </p>
+              <FloatSelect
+                id="promote-role"
+                label="Rôle"
+                value={promoteRole}
+                onChange={(v) => setPromoteRole(v as 'editeur' | 'gestionnaire_obseques' | 'administrateur')}
+                required
+                options={[
+                  { value: 'editeur', label: 'Éditeur' },
+                  { value: 'gestionnaire_obseques', label: 'Gestionnaire obsèques' },
+                  { value: 'administrateur', label: 'Administrateur' },
+                ]}
+              />
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button onClick={() => setPromoteUser(null)} disabled={promoting} className="px-4 py-2 text-xs font-medium text-on-surface/60 hover:text-on-surface transition-colors disabled:opacity-50">Annuler</button>
+                <button onClick={handlePromote} disabled={promoting} className="px-5 py-2 rounded-full text-xs font-bold shadow-sm bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
+                  {promoting ? 'Traitement…' : 'Promouvoir'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

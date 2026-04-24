@@ -1,7 +1,9 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-type Role = 'administrateur' | 'editeur' | 'visiteur';
+type Role = 'administrateur' | 'editeur' | 'gestionnaire_obseques' | 'visiteur';
+
+const VALID_ROLES: Role[] = ['administrateur', 'editeur', 'gestionnaire_obseques', 'visiteur'];
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +11,7 @@ export async function POST(request: Request) {
     if (!userId || !role) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
     }
-    if (!['administrateur', 'editeur', 'visiteur'].includes(role)) {
+    if (!VALID_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Rôle invalide' }, { status: 400 });
     }
 

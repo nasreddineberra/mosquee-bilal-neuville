@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { FloatInput, FloatSelect } from '@/components/FloatField';
 
-type Role = 'administrateur' | 'editeur';
+type Role = 'administrateur' | 'editeur' | 'gestionnaire_obseques';
 
 type Utilisateur = {
   id: string;
@@ -20,6 +20,7 @@ type Utilisateur = {
 const ROLE_META: Record<Role, { label: string; badge: string }> = {
   administrateur: { label: 'Administrateur', badge: 'bg-primary text-on-primary' },
   editeur: { label: 'Éditeur', badge: 'bg-tertiary text-white' },
+  gestionnaire_obseques: { label: 'Gestionnaire obsèques', badge: 'bg-secondary text-white' },
 };
 
 function formatDate(d: string | null) {
@@ -36,6 +37,7 @@ export default function UtilisateursAdminPage() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [downgradeUser, setDowngradeUser] = useState<Utilisateur | null>(null);
 
   // Modale ajout
   const [addOpen, setAddOpen] = useState(false);
@@ -49,7 +51,7 @@ export default function UtilisateursAdminPage() {
     const { data, error: err } = await supabase
       .from('profiles')
       .select('id, email, prenom, nom, role, created_at')
-      .in('role', ['administrateur', 'editeur'])
+      .in('role', ['administrateur', 'editeur', 'gestionnaire_obseques'])
       .order('created_at', { ascending: false });
     if (err) {
       setError('Impossible de charger les utilisateurs.');
@@ -62,7 +64,7 @@ export default function UtilisateursAdminPage() {
 
   useEffect(() => { fetchUtilisateurs(); }, [fetchUtilisateurs]);
 
-  const updateRole = async (userId: string, role: Role) => {
+  const updateRole = async (userId: string, role: Role | 'visiteur') => {
     setProcessingId(userId);
     setError('');
     const res = await fetch('/api/admin/update-user-role', {
@@ -74,6 +76,20 @@ export default function UtilisateursAdminPage() {
     setProcessingId(null);
     if (!res.ok) { setError(json.error || 'Erreur.'); return; }
     fetchUtilisateurs();
+  };
+
+  const handleDowngrade = async () => {
+    if (!downgradeUser) return;
+    await updateRole(downgradeUser.id, 'visiteur');
+    setDowngradeUser(null);
+  };
+
+  const handleRoleSelectChange = (u: Utilisateur, value: string) => {
+    if (value === 'visiteur') {
+      setDowngradeUser(u);
+    } else {
+      updateRole(u.id, value as Role);
+    }
   };
 
   const handleDelete = async () => {
@@ -123,7 +139,7 @@ export default function UtilisateursAdminPage() {
             <Users className="w-8 h-8 text-primary" />
             Gestion des utilisateurs
           </h1>
-          <p className="text-on-surface/60 font-medium">Administrateurs et éditeurs du back-office.</p>
+          <p className="text-on-surface/60 font-medium">Administrateurs, éditeurs et gestionnaires obsèques du back-office.</p>
         </div>
         <button
           onClick={() => { setAddOpen(true); setAddError(''); setAddSuccess(''); }}
@@ -193,12 +209,14 @@ export default function UtilisateursAdminPage() {
                             <>
                               <select
                                 value={u.role}
-                                onChange={(e) => updateRole(u.id, e.target.value as Role)}
+                                onChange={(e) => handleRoleSelectChange(u, e.target.value)}
                                 disabled={processingId === u.id}
                                 className="px-3 py-1.5 text-xs font-medium rounded-full bg-surface-container border border-outline-variant/20 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
                               >
                                 <option value="editeur">Éditeur</option>
+                                <option value="gestionnaire_obseques">Gestionnaire obsèques</option>
                                 <option value="administrateur">Administrateur</option>
+                                <option value="visiteur">— Retirer les droits (visiteur)</option>
                               </select>
                               <button
                                 onClick={() => setDeleteId(u.id)}
@@ -251,6 +269,7 @@ export default function UtilisateursAdminPage() {
                     required
                     options={[
                       { value: 'editeur', label: 'Éditeur' },
+                      { value: 'gestionnaire_obseques', label: 'Gestionnaire obsèques' },
                       { value: 'administrateur', label: 'Administrateur' },
                     ]}
                   />
@@ -267,6 +286,26 @@ export default function UtilisateursAdminPage() {
                   </div>
                 </form>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale confirmation rétrogradation en visiteur */}
+      {downgradeUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center animate-slide-up border border-[var(--color-card-border)]">
+            <Shield className="w-10 h-10 text-tertiary mx-auto mb-3" />
+            <h3 className="text-lg font-serif text-on-surface mb-2">Retirer les droits ?</h3>
+            <p className="text-sm text-on-surface/60 mb-6">
+              <strong>{downgradeUser.prenom ?? ''} {downgradeUser.nom ?? ''}</strong> deviendra un simple visiteur et n&apos;apparaîtra plus dans cette liste. Le compte sera retrouvé dans <strong>Gestion des visiteurs → Comptes visiteurs</strong>.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => setDowngradeUser(null)} disabled={!!processingId} className="px-5 py-2.5 rounded-full text-sm font-bold text-on-surface/60 hover:bg-surface-container transition-colors">Annuler</button>
+              <button onClick={handleDowngrade} disabled={!!processingId} className="px-6 py-2.5 rounded-full text-sm font-bold bg-tertiary text-white hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
+                {processingId ? 'Traitement…' : 'Confirmer'}
+              </button>
             </div>
           </div>
         </div>

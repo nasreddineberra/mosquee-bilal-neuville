@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 23 avril 2026 (Session 16)
+**Dernière mise à jour :** 24 avril 2026 (Session 17 - en cours)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -34,6 +34,7 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Certificat de conversion | `/certificat` | Finalisé |
 | Mentions légales | `/mentions-legales` | Finalisé |
 | Confidentialité (RGPD) | `/confidentialite` | Finalisé |
+| Mon adhésion obsèques (visiteur) | `/mon-adhesion` | A faire (Phase 3 obsèques) |
 
 ### Back-office (Admin)
 | Page | Route | Statut |
@@ -42,10 +43,12 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | Dashboard | `/admin/dashboard` | Finalisé |
 | Articles (CRUD) | `/admin/dashboard/articles` | Finalisé |
 | Hadiths (CRUD) | `/admin/dashboard/hadiths` | Finalisé |
+| Bibliothèque images | `/admin/dashboard/bibliotheque` | Finalisé |
 | Communication | `/admin/dashboard/communication` | A faire |
 | Activités | `/admin/dashboard/activites` | Finalisé |
 | Inscriptions | `/admin/dashboard/inscriptions` | Finalisé |
 | Dons | `/admin/dashboard/dons` | Finalisé |
+| Assurance obsèques | `/admin/dashboard/obseques` | En cours (Phase 1/3) |
 | Gestion utilisateurs | `/admin/dashboard/utilisateurs` | Finalisé |
 | Gestion visiteurs | `/admin/dashboard/visiteurs` | Finalisé |
 | Définir mot de passe (invite) | `/auth/set-password` | Finalisé |
@@ -106,7 +109,7 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 ### Tables
 | Table | Colonnes principales |
 |-------|---------------------|
-| `profiles` | id (= auth.users.id), email, role (enum: administrateur/editeur/visiteur), nom, prenom |
+| `profiles` | id (= auth.users.id), email, role (enum: administrateur/editeur/gestionnaire_obseques/visiteur), nom, prenom |
 | `articles` | id, titre, summary, contenu, category (enum), actif, a_la_une, date_parution, date_expiration, position, image_id (FK images) |
 | `images` | id, url, created_at, created_by (FK auth.users) |
 | `messages` | id, expediteur_id, destinataire_id, sujet, contenu, lu |
@@ -115,6 +118,12 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 | `activites_sorties` | id, titre, description, date_sortie, lieu, places_max, tarif, actif |
 | `dons` | id, titre, resume, description, lien_externe, date_parution, position, image_id (FK images), a_la_une (unique partiel), actif |
 | `hadiths` | id, texte, narrateur, source, actif, created_at, updated_at |
+| `organismes_obseques` | id, nom, adresse, telephone, email, numero_identification, contact_referent_nom/telephone/email, notes, date_debut_collaboration, date_fin_collaboration (unique partial index sur `(date_fin IS NULL)` - 1 seul actif) |
+| `adhesions_obseques` | id, user_id (FK, nullable), organisme_id (FK), organisme_nom_historique (snapshot), reference_contrat, type_contrat (individuel/familial), nom, prenom, date/lieu_naissance, nationalite, telephone, email, adresse, formule (inhumation_france/rapatriement/autre), pays_inhumation, cimetiere_souhaite, instructions, cotisation_annuelle, date_adhesion, statut (actif/suspendu/resilie/deces), notes |
+| `adhesions_obseques_ayants_droit` | id, adhesion_id, nom, prenom, date_naissance, lien_parente (conjoint/enfant/parent) |
+| `adhesions_obseques_contacts_urgence` | id, adhesion_id, nom, prenom, telephone, lien_parente, ordre_priorite |
+| `adhesions_obseques_paiements` | id, adhesion_id, montant, date_paiement, annee_concernee, moyen_paiement (especes/cheque/virement/cb), reference_externe, notes |
+| `adhesions_obseques_documents` | id, adhesion_id, url (bucket prive), type (cni/passeport/domicile/autre), nom_fichier |
 | `demandes_acces` | id, email, nom, prenom, telephone, adresse, message, statut (enum), traite_par, traite_at |
 | `inscriptions` | id, activite_type (enum), activite_id, user_id, nom, prenom, email, telephone, adresse, enfants (jsonb), nb_participants, message, statut (enum) |
 
@@ -127,6 +136,7 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 
 ### Storage
 - Bucket `articles` : public, policies RLS (upload/delete admin uniquement)
+- Bucket `obseques-documents` : **prive** (scans CNI, passeports - donnees sensibles), RLS stricte : admin + gestionnaire_obseques + proprietaire (via `user_id = auth.uid()`)
 - Bibliotheque d'images reutilisables : table `images` + upload via modale admin
 - Fallback par categorie : constante `CATEGORY_IMAGES` dans `src/lib/images.ts` si pas d'image custom
 
@@ -167,15 +177,25 @@ APIs Supabase MFA TOTP :
 
 ```
 Dashboard
-Edition                          (administrateur + editeur)
+Edition                              (administrateur + editeur)
   Articles
+  Hadiths
+  Bibliothèque
   Communication
-Administration                   (administrateur uniquement)
+Administration                       (administrateur)
   Activites
+  Inscriptions
   Dons
-  Gestion des utilisateurs
-  Gestion des visiteurs
+  Assurance obseques                 (+ gestionnaire_obseques)
+  Utilisateurs
+  Visiteurs
 ```
+
+**Roles hierarchiques** : visiteur < gestionnaire_obseques / editeur < administrateur
+- `visiteur` : site public + son profil
+- `gestionnaire_obseques` : visiteur + acces uniquement a `/admin/dashboard/obseques`
+- `editeur` : visiteur + acces Edition (articles, hadiths, biblio, communication)
+- `administrateur` : tout
 
 ---
 
@@ -521,6 +541,48 @@ Administration                   (administrateur uniquement)
 1. Pattern aligne sur les cards "Dernieres actualites" : image en haut `h-1/3` via `<Image>` Next.js fill, texte en bas `flex-1`, bordure 1px `var(--color-card-border)`, `h-full` pour prendre la hauteur de la ligne grid
 2. Fetch de l'image : `certificatImage` recupere depuis `fetchCategoryDefaults(supabase)['Certificat']` - l'admin uploade l'image par defaut dans ImagePicker
 
+### Session 17 - 24 avril 2026 - Assurance obseques (EN COURS)
+
+Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la mosquee. La mosquee agit comme intermediaire d'un organisme tiers (mutuelle partenaire). Volumetrie estimee : 100-300 adherents.
+
+**Decisions produit :**
+- Contrat individuel OU familial (un adherent principal + ayants droit conjoint/enfants)
+- Cotisations annuelles uniquement (pas mensuelles)
+- Contacts d'urgence (pas beneficiaires - mosquee n'est pas assureur)
+- 1 seul organisme tiers actif a la fois (historique conserve avec date_debut/date_fin)
+- Nouveau role `gestionnaire_obseques` : acces uniquement a `/admin/dashboard/obseques`, pas aux autres sections admin
+- L'adherent avec compte visiteur (user_id lie) voit sa fiche en read-only via `/mon-adhesion` (Phase 3)
+- Document scanes (CNI, passeport, attestation domicile) stockes en bucket **prive** Supabase
+- Snapshot du nom de l'organisme dans `adhesions_obseques.organisme_nom_historique` pour preserver l'info meme si l'orga est supprimee
+
+**Phase 1 - Fondations (FAIT) :**
+1. Migration SQL `2026-04-24_obseques.sql` (idempotente) : `ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'gestionnaire_obseques'`, enums `obseques_formule/statut/type_contrat/lien_parente/moyen_paiement/type_document`, table `organismes_obseques` + unique partial index, table `adhesions_obseques` + FK + snapshot nom, tables `_ayants_droit/_contacts_urgence/_paiements/_documents`, fonction helper `is_obseques_manager()`, RLS (manager full CRUD, visiteur SELECT sur `user_id = auth.uid()`)
+2. Migration additionnelle `2026-04-24_obseques_numero_contrat.sql` : ajout colonne `numero_contrat` sur `organismes_obseques` (N° contrat cadre mosquee ↔ organisme)
+3. Migration `2026-04-24_obseques_storage_policies.sql` : policies RLS sur `storage.objects` pour bucket `obseques-documents` (manager CRUD + owner SELECT via convention `{adhesion_id}/{filename}`)
+4. Bucket Supabase prive `obseques-documents` cree manuellement
+5. Middleware : gestionnaire_obseques redirige vers `/admin/dashboard/obseques` pour toute autre route admin. Editeur limite a Edition (articles/hadiths/bibliotheque/communication)
+6. Sidebar admin refonte : chaque item a une prop `roles`, section masquee si aucun item visible pour le role. Constantes `ADMIN_ONLY`, `EDITEURS`, `OBSEQUES` pour reutilisation
+7. Page `/admin/dashboard/obseques` avec 2 onglets :
+   - **Adhesions** : liste + recherche + filtres statut (Tous/Actifs/Suspendus/Resilies/Deces) + CRUD fiche principale. Modale avec identite, volontes, cotisation, statut, reference contrat, selecteur `user_id` parmi visiteurs
+   - **Organismes** : liste + CRUD + resiliation (pose `date_fin_collaboration`) + suppression. Nouvel organisme actif cloture automatiquement l'ancien
+8. Distinction **3 numeros de contrat** dans le systeme : SIRET organisme (`numero_identification`), contrat cadre mosquee-organisme (`numero_contrat`), police individuelle fidele (`adhesions_obseques.reference_contrat`)
+
+**Phase 1 bis - Gestion des roles croises :**
+1. `/admin/dashboard/utilisateurs` : ajout `gestionnaire_obseques` dans la liste (fetch `.in('role', [...3 roles])`), badge `bg-secondary`, dropdown avec option "— Retirer les droits (visiteur)" → ouvre modale de confirmation (icone Shield ambre, texte "deviendra un simple visiteur...")
+2. API routes `/api/admin/update-user-role` et `/api/admin/invite-user` : whitelist etendue a `gestionnaire_obseques`
+3. `/admin/dashboard/visiteurs` onglet Comptes visiteurs : nouveau bouton Shield pour promouvoir un visiteur → modale avec FloatSelect (3 roles), click Promouvoir → update-user-role
+4. Filtrage "compte actif" : API `/api/admin/list-visiteurs` (nouvelle) utilise `admin.auth.admin.listUsers()` pour cross-ref `auth.users.email_confirmed_at` avec profiles. Retourne `est_actif` bool
+5. Badge "En attente" (ambre) sur les comptes visiteurs non confirmes. Bouton Shield **disabled** si `!est_actif` (tooltip "Compte non activé - en attente de confirmation du mail")
+
+**Phase 2 - Extensions metier (a faire) :**
+- Section "ayants droit" (CRUD inline, visible si type_contrat = familial)
+- Section "contacts d'urgence" (CRUD inline, ordre priorite)
+- Section "paiements" (ajout paiement pour une annee, suivi par annee)
+
+**Phase 3 - Documents + portail visiteur (a faire) :**
+- Upload documents scans avec RLS bucket prive
+- Page publique `/mon-adhesion` : fiche read-only visible uniquement si `adhesions_obseques.user_id = auth.uid()`
+
 ---
 
 ## Ordre d'implementation Phase 3
@@ -537,8 +599,11 @@ Administration                   (administrateur uniquement)
 - [x] 3.10 Admin Dons - CRUD + branchement page publique (card a la une + projets + modale detail)
 - [x] 3.11 Admin Hadiths - CRUD + rotation quotidienne DailyReminder (option B : stable par jour)
 - [x] 3.12 Composant CardCtaButton centralise (bouton uiverse thin-duck-22) sur 4 cards du site
-- [ ] 3.13 Admin Communication - messagerie visiteurs
-- [ ] 3.14 Edge Function - cron expiration articles (actif = false si date_expiration < today)
+- [x] 3.13 Assurance obseques Phase 1 - migration SQL + bucket + role gestionnaire_obseques + page admin (adhesions + organismes) + promotion/retrogradation roles
+- [ ] 3.14 Assurance obseques Phase 2 - ayants droit + contacts urgence + paiements
+- [ ] 3.15 Assurance obseques Phase 3 - documents scannes + portail visiteur `/mon-adhesion`
+- [ ] 3.16 Admin Communication - messagerie visiteurs
+- [ ] 3.17 Edge Function - cron expiration articles (actif = false si date_expiration < today)
 
 ---
 

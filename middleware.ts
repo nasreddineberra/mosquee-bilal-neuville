@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  // Vérification du rôle (visiteurs → accès refusé)
+  // Vérification du rôle pour les routes admin
   if (pathname.startsWith('/admin/') && user) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -42,9 +42,29 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
+    // Visiteur : pas d'accès admin du tout
     if (!profile || profile.role === 'visiteur') {
       await supabase.auth.signOut();
       return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // Gestionnaire obsèques : accès uniquement à /admin/dashboard (home) + /admin/dashboard/obseques/*
+    if (profile.role === 'gestionnaire_obseques') {
+      const isHome = pathname === '/admin/dashboard';
+      const isObseques = pathname.startsWith('/admin/dashboard/obseques');
+      if (!isHome && !isObseques) {
+        return NextResponse.redirect(new URL('/admin/dashboard/obseques', request.url));
+      }
+    }
+
+    // Editeur : accès home + routes édition (articles, hadiths, bibliothèque, communication)
+    if (profile.role === 'editeur') {
+      const allowedPrefixes = ['/admin/dashboard/articles', '/admin/dashboard/hadiths', '/admin/dashboard/bibliotheque', '/admin/dashboard/communication'];
+      const isHome = pathname === '/admin/dashboard';
+      const isAllowed = allowedPrefixes.some((p) => pathname.startsWith(p));
+      if (!isHome && !isAllowed) {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
     }
   }
 

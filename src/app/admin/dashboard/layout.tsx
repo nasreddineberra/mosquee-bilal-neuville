@@ -8,10 +8,14 @@ import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard, FileText, MessageSquare, ChevronDown, ChevronRight,
-  BookOpen, HeartHandshake, Users, UserCheck, ClipboardList, LogOut, ExternalLink, ScrollText,
+  BookOpen, HeartHandshake, Users, UserCheck, ClipboardList, LogOut, ExternalLink, ScrollText, Image as ImageIcon, ShieldCheck,
 } from 'lucide-react';
 
 type Profile = { nom: string | null; prenom: string | null; role: string };
+
+const ADMIN_ONLY = ['administrateur'] as const;
+const EDITEURS = ['administrateur', 'editeur'] as const;
+const OBSEQUES = ['administrateur', 'gestionnaire_obseques'] as const;
 
 const menu = [
   {
@@ -25,22 +29,23 @@ const menu = [
     label: 'Édition',
     key: 'edition',
     items: [
-      { label: 'Articles', href: '/admin/dashboard/articles', icon: FileText },
-      { label: 'Hadiths', href: '/admin/dashboard/hadiths', icon: ScrollText },
-      { label: 'Communication', href: '/admin/dashboard/communication', icon: MessageSquare },
+      { label: 'Articles', href: '/admin/dashboard/articles', icon: FileText, roles: EDITEURS },
+      { label: 'Hadiths', href: '/admin/dashboard/hadiths', icon: ScrollText, roles: EDITEURS },
+      { label: 'Bibliothèque', href: '/admin/dashboard/bibliotheque', icon: ImageIcon, roles: EDITEURS },
+      { label: 'Communication', href: '/admin/dashboard/communication', icon: MessageSquare, roles: EDITEURS },
     ],
   },
   {
     type: 'section' as const,
     label: 'Administration',
     key: 'administration',
-    adminOnly: true,
     items: [
-      { label: 'Activités', href: '/admin/dashboard/activites', icon: BookOpen },
-      { label: 'Inscriptions', href: '/admin/dashboard/inscriptions', icon: ClipboardList },
-      { label: 'Dons', href: '/admin/dashboard/dons', icon: HeartHandshake },
-      { label: 'Utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users },
-      { label: 'Visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck },
+      { label: 'Activités', href: '/admin/dashboard/activites', icon: BookOpen, roles: ADMIN_ONLY },
+      { label: 'Inscriptions', href: '/admin/dashboard/inscriptions', icon: ClipboardList, roles: ADMIN_ONLY },
+      { label: 'Dons', href: '/admin/dashboard/dons', icon: HeartHandshake, roles: ADMIN_ONLY },
+      { label: 'Assurance obsèques', href: '/admin/dashboard/obseques', icon: ShieldCheck, roles: OBSEQUES },
+      { label: 'Utilisateurs', href: '/admin/dashboard/utilisateurs', icon: Users, roles: ADMIN_ONLY },
+      { label: 'Visiteurs', href: '/admin/dashboard/visiteurs', icon: UserCheck, roles: ADMIN_ONLY },
     ],
   },
 ];
@@ -50,8 +55,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, logout } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    edition: pathname.includes('/articles') || pathname.includes('/hadiths') || pathname.includes('/communication'),
-    administration: pathname.includes('/activites') || pathname.includes('/inscriptions') || pathname.includes('/dons') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
+    edition: pathname.includes('/articles') || pathname.includes('/hadiths') || pathname.includes('/bibliotheque') || pathname.includes('/communication'),
+    administration: pathname.includes('/activites') || pathname.includes('/inscriptions') || pathname.includes('/dons') || pathname.includes('/obseques') || pathname.includes('/utilisateurs') || pathname.includes('/visiteurs'),
   });
 
   useEffect(() => {
@@ -71,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const isActive = (href: string) => pathname === href;
 
-  const isAdmin = profile?.role === 'administrateur';
+  const role = profile?.role ?? '';
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -113,9 +118,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
 
             if (item.type === 'section') {
-              if (item.adminOnly && !isAdmin) return null;
+              const visibleItems = item.items.filter((i) => (i.roles as readonly string[]).includes(role));
+              if (visibleItems.length === 0) return null;
               const isOpen = openSections[item.key];
-              const hasActiveChild = item.items.some((i) => isActive(i.href));
+              const hasActiveChild = visibleItems.some((i) => isActive(i.href));
 
               return (
                 <div key={item.key}>
@@ -136,7 +142,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                   {isOpen && (
                     <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-outline-variant/20 pl-3">
-                      {item.items.map((sub) => {
+                      {visibleItems.map((sub) => {
                         const Icon = sub.icon;
                         return (
                           <Link
