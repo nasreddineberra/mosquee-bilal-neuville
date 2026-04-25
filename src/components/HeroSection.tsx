@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, MessageSquareHeart } from 'lucide-react';
+import { Newspaper, BookOpenCheck, NotebookTabs, ShieldCheck, ChevronRight, Award, MessageSquareHeart, ExternalLink } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import CardCtaButton from '@/components/CardCtaButton';
 import DailyReminder from './DailyReminder';
 import { useTheme } from './ThemeProvider';
@@ -13,9 +14,11 @@ import ArticleModal, { Article } from './ArticleModal';
 
 export default function HeroSection() {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const [actualites, setActualites] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [certificatImage, setCertificatImage] = useState<string | null>(null);
+  const [hasAdhesion, setHasAdhesion] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -46,6 +49,15 @@ export default function HeroSection() {
       }));
     });
   }, []);
+
+  // Vérifie si le visiteur connecté a un dossier d'adhésion obsèques
+  useEffect(() => {
+    if (!user) { setHasAdhesion(false); return; }
+    const supabase = createClient();
+    supabase.from('adhesions_obseques').select('id').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => setHasAdhesion(!!data));
+  }, [user]);
+
   const heroSrc = theme === 'dark'
     ? '/images/mosquee-hero-dark.png'
     : '/images/mosquee-hero-light.png';
@@ -270,19 +282,23 @@ export default function HeroSection() {
             </p>
           </Link>
 
-          {/* Assurances */}
-          <div className="group bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:bg-surface-container transition-colors">
+          {/* Assurance obsèques */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-primary" />
-                <h4 className="text-sm font-bold text-primary uppercase tracking-wider">Assurances</h4>
+                <h4 className="text-sm font-bold text-primary uppercase tracking-wider">Assurance obsèque</h4>
               </div>
-              <span className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary flex-shrink-0 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-                <ChevronRight className="w-3 h-3" />
-              </span>
+              {hasAdhesion && (
+                <Link href="/mon-adhesion"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-surface-container text-primary hover:bg-primary hover:text-on-primary transition-all">
+                  mon adhésion
+                  <ChevronRight className="w-3 h-3" />
+                </Link>
+              )}
             </div>
             <p className="text-xs text-on-surface/60">
-              Informations et protections
+              Contrat géré par la mosquée (connexion nécessaire)
             </p>
           </div>
         </div>

@@ -24,6 +24,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
+  // /mon-adhesion : authentification requise (redirige vers login si non connecté)
+  if (pathname === '/mon-adhesion' && !user) {
+    return NextResponse.redirect(new URL('/admin', request.url));
+  }
+
   // Page login : redirige vers dashboard si déjà connecté
   if (pathname === '/admin' && user) {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
@@ -42,9 +47,8 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // Visiteur : pas d'accès admin du tout
+    // Visiteur : pas d'accès admin, mais on NE déconnecte pas (session conservée pour /mon-adhesion)
     if (!profile || profile.role === 'visiteur') {
-      await supabase.auth.signOut();
       return NextResponse.redirect(new URL('/', request.url));
     }
 
@@ -72,5 +76,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*'],
+  matcher: ['/admin', '/admin/:path*', '/mon-adhesion'],
 };

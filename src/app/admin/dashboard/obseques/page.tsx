@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ShieldCheck, Plus, Pencil, Trash2, X, Building2, Archive } from 'lucide-react';
+import { ShieldCheck, Plus, Pencil, Trash2, X, Building2, Archive, FolderOpen, ChevronUp, ChevronDown, FileText, Download, Upload } from 'lucide-react';
 import { FloatInput, FloatTextarea, FloatSelect } from '@/components/FloatField';
 import { createClient } from '@/lib/supabase/client';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Organisme = {
   id: string;
@@ -46,6 +48,40 @@ type Adhesion = {
   notes: string | null;
 };
 
+type AyantDroit = {
+  id: string;
+  nom: string;
+  prenom: string;
+  date_naissance: string | null;
+  lien_parente: 'conjoint' | 'enfant' | 'parent';
+};
+
+type ContactUrgence = {
+  id: string;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  lien_parente: string;
+  ordre_priorite: number;
+};
+
+type Paiement = {
+  id: string;
+  montant: number;
+  date_paiement: string;
+  annee_concernee: number;
+  moyen_paiement: 'especes' | 'cheque' | 'virement' | 'cb';
+  reference_externe: string | null;
+  notes: string | null;
+};
+
+type DocObseques = {
+  id: string;
+  url: string;
+  type: 'cni' | 'passeport' | 'domicile' | 'autre';
+  nom_fichier: string;
+};
+
 type Visiteur = { id: string; nom: string | null; prenom: string | null; email: string };
 
 type Tab = 'adhesions' | 'organismes';
@@ -53,21 +89,9 @@ type StatutFilter = 'Tous' | 'Actifs' | 'Suspendus' | 'Résiliés' | 'Décès';
 const STATUT_FILTERS: StatutFilter[] = ['Tous', 'Actifs', 'Suspendus', 'Résiliés', 'Décès'];
 
 const today = () => new Date().toISOString().split('T')[0];
+const currentYear = new Date().getFullYear();
 
-function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={() => !disabled && onChange(!value)}
-      disabled={disabled}
-      className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
-        value ? 'bg-primary' : 'bg-transparent border border-on-surface/30'
-      } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-    >
-      <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full shadow transition-transform ${value ? 'bg-white translate-x-4' : 'bg-on-surface/30'}`} />
-    </button>
-  );
-}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(d: string | null) {
   if (!d) return '-';
@@ -77,6 +101,8 @@ function formatDate(d: string | null) {
 function formatMontant(n: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n);
 }
+
+// ─── Valeurs initiales ────────────────────────────────────────────────────────
 
 const emptyAdhesion = {
   user_id: null as string | null,
@@ -96,24 +122,29 @@ const emptyAdhesion = {
 const emptyOrganisme = {
   nom: '',
   adresse: '', telephone: '', email: '',
-  numero_identification: '',
-  numero_contrat: '',
+  numero_identification: '', numero_contrat: '',
   contact_referent_nom: '', contact_referent_telephone: '', contact_referent_email: '',
   notes: '',
   date_debut_collaboration: today(),
 };
 
+const emptyAd = { prenom: '', nom: '', date_naissance: '', lien_parente: 'enfant' as 'conjoint' | 'enfant' | 'parent' };
+const emptyCu = { prenom: '', nom: '', telephone: '', lien_parente: '' };
+const emptyP = { annee_concernee: currentYear, montant: 0, date_paiement: today(), moyen_paiement: 'especes' as 'especes' | 'cheque' | 'virement' | 'cb', reference_externe: '', notes: '' };
+
+// ─── Composant principal ──────────────────────────────────────────────────────
+
 export default function ObsequesAdminPage() {
   const supabase = createClient();
   const [tab, setTab] = useState<Tab>('adhesions');
 
-  // Données
+  // Données principales
   const [organismes, setOrganismes] = useState<Organisme[]>([]);
   const [adhesions, setAdhesions] = useState<Adhesion[]>([]);
   const [visiteurs, setVisiteurs] = useState<Visiteur[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Adhesion modal
+  // Modale adhésion (create/edit)
   const [adhModalOpen, setAdhModalOpen] = useState(false);
   const [adhEditingId, setAdhEditingId] = useState<string | null>(null);
   const [adhForm, setAdhForm] = useState(emptyAdhesion);
@@ -123,7 +154,7 @@ export default function ObsequesAdminPage() {
   const [adhSearch, setAdhSearch] = useState('');
   const [adhFilter, setAdhFilter] = useState<StatutFilter>('Tous');
 
-  // Organisme modal
+  // Modale organisme
   const [orgModalOpen, setOrgModalOpen] = useState(false);
   const [orgEditingId, setOrgEditingId] = useState<string | null>(null);
   const [orgForm, setOrgForm] = useState(emptyOrganisme);
@@ -132,7 +163,29 @@ export default function ObsequesAdminPage() {
   const [orgDeleteId, setOrgDeleteId] = useState<string | null>(null);
   const [orgError, setOrgError] = useState('');
 
+  // Modale dossier (Phase 2)
+  const [dossierAdhesion, setDossierAdhesion] = useState<Adhesion | null>(null);
+  const [loadingDossier, setLoadingDossier] = useState(false);
+  const [ayantsDroit, setAyantsDroit] = useState<AyantDroit[]>([]);
+  const [contactsUrgence, setContactsUrgence] = useState<ContactUrgence[]>([]);
+  const [paiements, setPaiements] = useState<Paiement[]>([]);
+  // Forms dossier
+  const [adForm, setAdForm] = useState(emptyAd);
+  const [adSaving, setAdSaving] = useState(false);
+  const [cuForm, setCuForm] = useState(emptyCu);
+  const [cuSaving, setCuSaving] = useState(false);
+  const [pForm, setPForm] = useState(emptyP);
+  const [pSaving, setPSaving] = useState(false);
+  const [pDeleteId, setPDeleteId] = useState<string | null>(null);
+  // Documents
+  const [documents, setDocuments] = useState<DocObseques[]>([]);
+  const [docUploading, setDocUploading] = useState(false);
+  const [docType, setDocType] = useState<DocObseques['type']>('cni');
+  const [docDeleteId, setDocDeleteId] = useState<string | null>(null);
+
   const organismeActif = organismes.find((o) => !o.date_fin_collaboration) ?? null;
+
+  // ── Fetch principal ──────────────────────────────────────────────────────────
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -158,7 +211,36 @@ export default function ObsequesAdminPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // ============ Adhesions ============
+  // ── Fetch dossier ────────────────────────────────────────────────────────────
+
+  const fetchDossier = async (id: string) => {
+    setLoadingDossier(true);
+    const [adRes, cuRes, pRes, docRes] = await Promise.all([
+      supabase.from('adhesions_obseques_ayants_droit').select('*').eq('adhesion_id', id).order('id'),
+      supabase.from('adhesions_obseques_contacts_urgence').select('*').eq('adhesion_id', id).order('ordre_priorite'),
+      supabase.from('adhesions_obseques_paiements').select('*').eq('adhesion_id', id).order('annee_concernee', { ascending: false }),
+      supabase.from('adhesions_obseques_documents').select('*').eq('adhesion_id', id).order('created_at', { ascending: false }),
+    ]);
+    setAyantsDroit((adRes.data ?? []) as AyantDroit[]);
+    setContactsUrgence((cuRes.data ?? []) as ContactUrgence[]);
+    setPaiements((pRes.data ?? []) as Paiement[]);
+    setDocuments((docRes.data ?? []) as DocObseques[]);
+    setLoadingDossier(false);
+  };
+
+  const openDossier = (a: Adhesion) => {
+    setDossierAdhesion(a);
+    setAdForm(emptyAd);
+    setCuForm(emptyCu);
+    setPForm(emptyP);
+    setPDeleteId(null);
+    setDocDeleteId(null);
+    setDocType('cni');
+    fetchDossier(a.id);
+  };
+
+  // ── Handlers adhésion ────────────────────────────────────────────────────────
+
   const openAdhCreate = () => {
     if (!organismeActif) {
       setAdhError('Aucun organisme tiers actif. Créez-en un dans l\'onglet Organismes avant d\'ajouter une adhésion.');
@@ -197,24 +279,17 @@ export default function ObsequesAdminPage() {
     setAdhModalOpen(true);
   };
 
-  const handleAdhSubmit = async (e: React.FormEvent) => {
+  const handleAdhSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAdhError('');
-    if (!adhForm.nom.trim() || !adhForm.prenom.trim()) {
-      setAdhError('Nom et prénom obligatoires.');
-      return;
-    }
-    if (!adhEditingId && !organismeActif) {
-      setAdhError('Aucun organisme actif.');
-      return;
-    }
+    if (!adhForm.nom.trim() || !adhForm.prenom.trim()) { setAdhError('Nom et prénom obligatoires.'); return; }
+    if (!adhEditingId && !organismeActif) { setAdhError('Aucun organisme actif.'); return; }
     setAdhSubmitting(true);
     const payload = {
       user_id: adhForm.user_id,
       reference_contrat: adhForm.reference_contrat.trim() || null,
       type_contrat: adhForm.type_contrat,
-      nom: adhForm.nom.trim(),
-      prenom: adhForm.prenom.trim(),
+      nom: adhForm.nom.trim(), prenom: adhForm.prenom.trim(),
       date_naissance: adhForm.date_naissance || null,
       lieu_naissance: adhForm.lieu_naissance.trim() || null,
       nationalite: adhForm.nationalite.trim() || null,
@@ -252,17 +327,8 @@ export default function ObsequesAdminPage() {
     fetchAll();
   };
 
-  const qAdh = adhSearch.toLowerCase().trim();
-  const filteredAdhesions = adhesions.filter((a) => {
-    if (adhFilter === 'Actifs' && a.statut !== 'actif') return false;
-    if (adhFilter === 'Suspendus' && a.statut !== 'suspendu') return false;
-    if (adhFilter === 'Résiliés' && a.statut !== 'resilie') return false;
-    if (adhFilter === 'Décès' && a.statut !== 'deces') return false;
-    if (qAdh && !`${a.prenom} ${a.nom} ${a.email ?? ''} ${a.reference_contrat ?? ''}`.toLowerCase().includes(qAdh)) return false;
-    return true;
-  });
+  // ── Handlers organisme ───────────────────────────────────────────────────────
 
-  // ============ Organismes ============
   const openOrgCreate = () => {
     setOrgEditingId(null);
     setOrgForm({ ...emptyOrganisme, date_debut_collaboration: today() });
@@ -273,12 +339,8 @@ export default function ObsequesAdminPage() {
   const openOrgEdit = (o: Organisme) => {
     setOrgEditingId(o.id);
     setOrgForm({
-      nom: o.nom,
-      adresse: o.adresse ?? '',
-      telephone: o.telephone ?? '',
-      email: o.email ?? '',
-      numero_identification: o.numero_identification ?? '',
-      numero_contrat: o.numero_contrat ?? '',
+      nom: o.nom, adresse: o.adresse ?? '', telephone: o.telephone ?? '', email: o.email ?? '',
+      numero_identification: o.numero_identification ?? '', numero_contrat: o.numero_contrat ?? '',
       contact_referent_nom: o.contact_referent_nom ?? '',
       contact_referent_telephone: o.contact_referent_telephone ?? '',
       contact_referent_email: o.contact_referent_email ?? '',
@@ -289,19 +351,14 @@ export default function ObsequesAdminPage() {
     setOrgModalOpen(true);
   };
 
-  const handleOrgSubmit = async (e: React.FormEvent) => {
+  const handleOrgSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setOrgError('');
-    if (!orgForm.nom.trim()) {
-      setOrgError('Nom de l\'organisme obligatoire.');
-      return;
-    }
+    if (!orgForm.nom.trim()) { setOrgError('Nom de l\'organisme obligatoire.'); return; }
     setOrgSubmitting(true);
     const payload = {
-      nom: orgForm.nom.trim(),
-      adresse: orgForm.adresse.trim() || null,
-      telephone: orgForm.telephone.trim() || null,
-      email: orgForm.email.trim() || null,
+      nom: orgForm.nom.trim(), adresse: orgForm.adresse.trim() || null,
+      telephone: orgForm.telephone.trim() || null, email: orgForm.email.trim() || null,
       numero_identification: orgForm.numero_identification.trim() || null,
       numero_contrat: orgForm.numero_contrat.trim() || null,
       contact_referent_nom: orgForm.contact_referent_nom.trim() || null,
@@ -314,11 +371,8 @@ export default function ObsequesAdminPage() {
     if (orgEditingId) {
       await supabase.from('organismes_obseques').update(payload).eq('id', orgEditingId);
     } else {
-      // Nouvel organisme actif : on cloture d'abord l'ancien si existant
       if (organismeActif) {
-        await supabase.from('organismes_obseques')
-          .update({ date_fin_collaboration: today() })
-          .eq('id', organismeActif.id);
+        await supabase.from('organismes_obseques').update({ date_fin_collaboration: today() }).eq('id', organismeActif.id);
       }
       await supabase.from('organismes_obseques').insert(payload);
     }
@@ -329,9 +383,7 @@ export default function ObsequesAdminPage() {
 
   const handleOrgResilier = async () => {
     if (!orgResilierId) return;
-    await supabase.from('organismes_obseques')
-      .update({ date_fin_collaboration: today() })
-      .eq('id', orgResilierId);
+    await supabase.from('organismes_obseques').update({ date_fin_collaboration: today() }).eq('id', orgResilierId);
     setOrgResilierId(null);
     fetchAll();
   };
@@ -343,7 +395,162 @@ export default function ObsequesAdminPage() {
     fetchAll();
   };
 
-  // ============ Render ============
+  // ── Handlers dossier - Ayants droit ─────────────────────────────────────────
+
+  const handleAdAdd = async () => {
+    if (!dossierAdhesion || !adForm.prenom.trim() || !adForm.nom.trim()) return;
+    setAdSaving(true);
+    await supabase.from('adhesions_obseques_ayants_droit').insert({
+      adhesion_id: dossierAdhesion.id,
+      nom: adForm.nom.trim(),
+      prenom: adForm.prenom.trim(),
+      date_naissance: adForm.date_naissance || null,
+      lien_parente: adForm.lien_parente,
+    });
+    setAdForm(emptyAd);
+    setAdSaving(false);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  const handleAdDelete = async (id: string) => {
+    if (!dossierAdhesion) return;
+    await supabase.from('adhesions_obseques_ayants_droit').delete().eq('id', id);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  // ── Handlers dossier - Contacts urgence ─────────────────────────────────────
+
+  const handleCuAdd = async () => {
+    if (!dossierAdhesion || !cuForm.nom.trim() || !cuForm.telephone.trim()) return;
+    setCuSaving(true);
+    const nextOrdre = contactsUrgence.length > 0
+      ? Math.max(...contactsUrgence.map((c) => c.ordre_priorite)) + 1
+      : 1;
+    await supabase.from('adhesions_obseques_contacts_urgence').insert({
+      adhesion_id: dossierAdhesion.id,
+      nom: cuForm.nom.trim(),
+      prenom: cuForm.prenom.trim(),
+      telephone: cuForm.telephone.trim(),
+      lien_parente: cuForm.lien_parente.trim(),
+      ordre_priorite: nextOrdre,
+    });
+    setCuForm(emptyCu);
+    setCuSaving(false);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  const handleCuDelete = async (id: string) => {
+    if (!dossierAdhesion) return;
+    await supabase.from('adhesions_obseques_contacts_urgence').delete().eq('id', id);
+    const remaining = contactsUrgence.filter((c) => c.id !== id);
+    if (remaining.length > 0) {
+      await Promise.all(remaining.map((c, i) =>
+        supabase.from('adhesions_obseques_contacts_urgence').update({ ordre_priorite: i + 1 }).eq('id', c.id)
+      ));
+    }
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  const handleCuReorder = async (id: string, direction: 'up' | 'down') => {
+    if (!dossierAdhesion) return;
+    const idx = contactsUrgence.findIndex((c) => c.id === id);
+    if (direction === 'up' && idx === 0) return;
+    if (direction === 'down' && idx === contactsUrgence.length - 1) return;
+    const otherIdx = direction === 'up' ? idx - 1 : idx + 1;
+    const curr = contactsUrgence[idx];
+    const other = contactsUrgence[otherIdx];
+    await Promise.all([
+      supabase.from('adhesions_obseques_contacts_urgence').update({ ordre_priorite: other.ordre_priorite }).eq('id', curr.id),
+      supabase.from('adhesions_obseques_contacts_urgence').update({ ordre_priorite: curr.ordre_priorite }).eq('id', other.id),
+    ]);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  // ── Handlers dossier - Paiements ─────────────────────────────────────────────
+
+  const handlePAdd = async () => {
+    if (!dossierAdhesion || !pForm.montant || !pForm.date_paiement) return;
+    setPSaving(true);
+    await supabase.from('adhesions_obseques_paiements').insert({
+      adhesion_id: dossierAdhesion.id,
+      montant: Number(pForm.montant),
+      date_paiement: pForm.date_paiement,
+      annee_concernee: Number(pForm.annee_concernee),
+      moyen_paiement: pForm.moyen_paiement,
+      reference_externe: pForm.reference_externe.trim() || null,
+      notes: pForm.notes.trim() || null,
+    });
+    setPForm(emptyP);
+    setPSaving(false);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  const handlePDelete = async () => {
+    if (!dossierAdhesion || !pDeleteId) return;
+    await supabase.from('adhesions_obseques_paiements').delete().eq('id', pDeleteId);
+    setPDeleteId(null);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  // ── Handlers dossier - Documents ─────────────────────────────────────────────
+
+  const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!dossierAdhesion || !e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    setDocUploading(true);
+    const ext = file.name.split('.').pop() ?? 'bin';
+    const path = `${dossierAdhesion.id}/${Date.now()}.${ext}`;
+    const { error: uploadErr } = await supabase.storage.from('obseques-documents').upload(path, file);
+    if (!uploadErr) {
+      await supabase.from('adhesions_obseques_documents').insert({
+        adhesion_id: dossierAdhesion.id,
+        url: path,
+        type: docType,
+        nom_fichier: file.name,
+      });
+      fetchDossier(dossierAdhesion.id);
+    }
+    setDocUploading(false);
+    e.target.value = '';
+  };
+
+  const handleDocDownload = async (path: string, nom: string) => {
+    const { data } = await supabase.storage.from('obseques-documents').createSignedUrl(path, 60);
+    if (data?.signedUrl) {
+      const a = document.createElement('a');
+      a.href = data.signedUrl;
+      a.download = nom;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  };
+
+  const handleDocDelete = async () => {
+    if (!dossierAdhesion || !docDeleteId) return;
+    const doc = documents.find((d) => d.id === docDeleteId);
+    if (doc) await supabase.storage.from('obseques-documents').remove([doc.url]);
+    await supabase.from('adhesions_obseques_documents').delete().eq('id', docDeleteId);
+    setDocDeleteId(null);
+    fetchDossier(dossierAdhesion.id);
+  };
+
+  // ── Filtres ──────────────────────────────────────────────────────────────────
+
+  const qAdh = adhSearch.toLowerCase().trim();
+  const filteredAdhesions = adhesions.filter((a) => {
+    if (adhFilter === 'Actifs' && a.statut !== 'actif') return false;
+    if (adhFilter === 'Suspendus' && a.statut !== 'suspendu') return false;
+    if (adhFilter === 'Résiliés' && a.statut !== 'resilie') return false;
+    if (adhFilter === 'Décès' && a.statut !== 'deces') return false;
+    if (qAdh && !`${a.prenom} ${a.nom} ${a.email ?? ''} ${a.reference_contrat ?? ''}`.toLowerCase().includes(qAdh)) return false;
+    return true;
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -354,31 +561,25 @@ export default function ObsequesAdminPage() {
       {/* Onglets */}
       <div className="flex gap-2">
         {([['adhesions', 'Adhésions'], ['organismes', 'Organismes']] as [Tab, string][]).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
+          <button key={key} onClick={() => setTab(key)}
             className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
               tab === key ? 'bg-primary text-on-primary shadow-md' : 'bg-surface-container-lowest text-on-surface/60 hover:text-primary border border-[var(--color-card-border)]'
-            }`}
-          >
+            }`}>
             {label}
           </button>
         ))}
       </div>
 
-      {/* ========== ONGLET ADHESIONS ========== */}
+      {/* ══════════════ ONGLET ADHESIONS ══════════════ */}
       {tab === 'adhesions' && (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-wrap gap-2">
               {STATUT_FILTERS.map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setAdhFilter(f)}
+                <button key={f} onClick={() => setAdhFilter(f)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
                     adhFilter === f ? 'bg-primary text-on-primary shadow-md' : 'bg-surface-container-lowest text-on-surface/60 hover:text-primary border border-[var(--color-card-border)]'
-                  }`}
-                >
+                  }`}>
                   {f}
                 </button>
               ))}
@@ -386,12 +587,9 @@ export default function ObsequesAdminPage() {
             <div className="w-full max-w-xs">
               <FloatInput id="adh-search" label="Rechercher..." value={adhSearch} onChange={setAdhSearch} compact />
             </div>
-            <button
-              onClick={openAdhCreate}
-              className="ml-auto flex items-center gap-2 card-green text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:opacity-90 transition-all active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              Nouvelle adhésion
+            <button onClick={openAdhCreate}
+              className="ml-auto flex items-center gap-2 card-green text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:opacity-90 transition-all active:scale-95">
+              <Plus className="w-4 h-4" /> Nouvelle adhésion
             </button>
           </div>
 
@@ -411,13 +609,13 @@ export default function ObsequesAdminPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="card-green text-white/70 text-[10px] uppercase tracking-wider">
                     <tr>
-                      <th className="px-4 py-3 font-bold">Adhérent</th>
-                      <th className="px-4 py-3 font-bold">Type</th>
-                      <th className="px-4 py-3 font-bold">Statut</th>
-                      <th className="px-4 py-3 font-bold text-right">Cotisation</th>
-                      <th className="px-4 py-3 font-bold">Adhésion</th>
-                      <th className="px-4 py-3 font-bold">Référence</th>
-                      <th className="px-4 py-3 font-bold text-right">Actions</th>
+                      <th className="px-4 py-2 font-bold">Adhérent</th>
+                      <th className="px-4 py-2 font-bold">Type</th>
+                      <th className="px-4 py-2 font-bold">Statut</th>
+                      <th className="px-4 py-2 font-bold text-right">Cotisation</th>
+                      <th className="px-4 py-2 font-bold">Adhésion</th>
+                      <th className="px-4 py-2 font-bold">Référence</th>
+                      <th className="px-4 py-2 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
@@ -441,8 +639,9 @@ export default function ObsequesAdminPage() {
                         <td className="px-4 py-2 text-xs text-on-surface/60">{a.reference_contrat ?? '-'}</td>
                         <td className="px-4 py-2 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => openAdhEdit(a)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
-                            <button onClick={() => setAdhDeleteId(a.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors"><Trash2 className="w-4 h-4" /></button>
+                            <button onClick={() => openAdhEdit(a)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors" title="Modifier les infos"><Pencil className="w-4 h-4" /></button>
+                            <button onClick={() => openDossier(a)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors" title="Dossier complet"><FolderOpen className="w-4 h-4" /></button>
+                            <button onClick={() => setAdhDeleteId(a.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors" title="Supprimer"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -455,17 +654,14 @@ export default function ObsequesAdminPage() {
         </div>
       )}
 
-      {/* ========== ONGLET ORGANISMES ========== */}
+      {/* ══════════════ ONGLET ORGANISMES ══════════════ */}
       {tab === 'organismes' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <p className="text-sm text-on-surface/60">Historique des organismes tiers partenaires. Un seul organisme peut être actif à la fois.</p>
-            <button
-              onClick={openOrgCreate}
-              className="flex items-center gap-2 card-green text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:opacity-90 transition-all active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              Nouvel organisme
+            <button onClick={openOrgCreate}
+              className="flex items-center gap-2 card-green text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:opacity-90 transition-all active:scale-95">
+              <Plus className="w-4 h-4" /> Nouvel organisme
             </button>
           </div>
 
@@ -479,12 +675,12 @@ export default function ObsequesAdminPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="card-green text-white/70 text-[10px] uppercase tracking-wider">
                     <tr>
-                      <th className="px-4 py-3 font-bold">Organisme</th>
-                      <th className="px-4 py-3 font-bold">Référent</th>
-                      <th className="px-4 py-3 font-bold">Statut</th>
-                      <th className="px-4 py-3 font-bold">Début</th>
-                      <th className="px-4 py-3 font-bold">Fin</th>
-                      <th className="px-4 py-3 font-bold text-right">Actions</th>
+                      <th className="px-4 py-2 font-bold">Organisme</th>
+                      <th className="px-4 py-2 font-bold">Référent</th>
+                      <th className="px-4 py-2 font-bold">Statut</th>
+                      <th className="px-4 py-2 font-bold">Début</th>
+                      <th className="px-4 py-2 font-bold">Fin</th>
+                      <th className="px-4 py-2 font-bold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
@@ -506,21 +702,21 @@ export default function ObsequesAdminPage() {
                             {o.contact_referent_telephone && <p className="text-on-surface/50">{o.contact_referent_telephone}</p>}
                           </td>
                           <td className="px-4 py-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                              actif ? 'bg-primary/10 text-primary' : 'bg-on-surface/10 text-on-surface/60'
-                            }`}>{actif ? 'Actif' : 'Archivé'}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${actif ? 'bg-primary/10 text-primary' : 'bg-on-surface/10 text-on-surface/60'}`}>
+                              {actif ? 'Actif' : 'Archivé'}
+                            </span>
                           </td>
                           <td className="px-4 py-2 text-xs text-on-surface/60">{formatDate(o.date_debut_collaboration)}</td>
                           <td className="px-4 py-2 text-xs text-on-surface/60">{formatDate(o.date_fin_collaboration)}</td>
                           <td className="px-4 py-2 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => openOrgEdit(o)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors" aria-label="Modifier"><Pencil className="w-4 h-4" /></button>
+                              <button onClick={() => openOrgEdit(o)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors"><Pencil className="w-4 h-4" /></button>
                               {actif && (
-                                <button onClick={() => setOrgResilierId(o.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-tertiary/10 hover:text-tertiary transition-colors" aria-label="Résilier" title="Résilier (clôturer la collaboration)">
+                                <button onClick={() => setOrgResilierId(o.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-tertiary/10 hover:text-tertiary transition-colors" title="Résilier">
                                   <Archive className="w-4 h-4" />
                                 </button>
                               )}
-                              <button onClick={() => setOrgDeleteId(o.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors" aria-label="Supprimer"><Trash2 className="w-4 h-4" /></button>
+                              <button onClick={() => setOrgDeleteId(o.id)} className="w-8 h-8 rounded-xl flex items-center justify-center text-on-surface/40 hover:bg-error/10 hover:text-error transition-colors"><Trash2 className="w-4 h-4" /></button>
                             </div>
                           </td>
                         </tr>
@@ -534,7 +730,279 @@ export default function ObsequesAdminPage() {
         </div>
       )}
 
-      {/* ============ Modale ADHESION ============ */}
+      {/* ══════════════ MODALE DOSSIER ══════════════ */}
+      {dossierAdhesion && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-slide-up border border-primary">
+
+            {/* Header */}
+            <div className="card-green rounded-t-2xl p-5 flex items-center justify-between sticky top-0 z-10">
+              <div>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">Dossier complet</h2>
+                <p className="text-white/70 text-xs mt-0.5">{dossierAdhesion.prenom} {dossierAdhesion.nom} — {dossierAdhesion.organisme_nom_historique}</p>
+              </div>
+              <button onClick={() => setDossierAdhesion(null)} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors" aria-label="Fermer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {loadingDossier ? (
+              <p className="text-center text-on-surface/40 text-sm py-12">Chargement...</p>
+            ) : (
+              <div className="p-6 space-y-8">
+
+                {/* ── Section 1 : Ayants droit ── */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Ayants droit</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                      dossierAdhesion.type_contrat === 'familial' ? 'bg-primary/10 text-primary' : 'bg-on-surface/10 text-on-surface/40'
+                    }`}>{dossierAdhesion.type_contrat}</span>
+                  </div>
+
+                  {dossierAdhesion.type_contrat === 'familial' ? (
+                    <>
+                      {ayantsDroit.length > 0 && (
+                        <div className="mb-4 space-y-1.5">
+                          {ayantsDroit.map((ad) => (
+                            <div key={ad.id} className="flex items-center gap-3 px-4 py-2.5 bg-surface-container-low rounded-xl">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-on-surface">{ad.prenom} {ad.nom}</p>
+                                <p className="text-xs text-on-surface/50 capitalize">{ad.lien_parente}{ad.date_naissance ? ` — né(e) le ${formatDate(ad.date_naissance)}` : ''}</p>
+                              </div>
+                              <button onClick={() => handleAdDelete(ad.id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/30 hover:bg-error/10 hover:text-error transition-colors flex-shrink-0">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex gap-2 flex-wrap items-end">
+                        <div className="w-36"><FloatInput id="ad-prenom" label="Prénom" value={adForm.prenom} onChange={(v) => setAdForm({ ...adForm, prenom: v })} transform="capitalize" compact /></div>
+                        <div className="w-36"><FloatInput id="ad-nom" label="Nom" value={adForm.nom} onChange={(v) => setAdForm({ ...adForm, nom: v })} transform="uppercase" compact /></div>
+                        <div className="w-40"><FloatInput id="ad-naiss" label="Date de naissance" type="date" value={adForm.date_naissance} onChange={(v) => setAdForm({ ...adForm, date_naissance: v })} compact /></div>
+                        <select value={adForm.lien_parente} onChange={(e) => setAdForm({ ...adForm, lien_parente: e.target.value as 'conjoint' | 'enfant' | 'parent' })}
+                          className="bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:outline-none">
+                          <option value="conjoint">Conjoint(e)</option>
+                          <option value="enfant">Enfant</option>
+                          <option value="parent">Parent</option>
+                        </select>
+                        <button onClick={handleAdAdd} disabled={adSaving || !adForm.prenom.trim() || !adForm.nom.trim()}
+                          className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all disabled:opacity-40">
+                          <Plus className="w-3.5 h-3.5" /> Ajouter
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-on-surface/40 italic">Non applicable pour un contrat individuel.</p>
+                  )}
+                </div>
+
+                <hr className="border-outline-variant/15" />
+
+                {/* ── Section 2 : Contacts d'urgence ── */}
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider mb-4">Contacts d&apos;urgence</h3>
+
+                  {contactsUrgence.length > 0 && (
+                    <div className="mb-4 space-y-1.5">
+                      {contactsUrgence.map((cu, idx) => (
+                        <div key={cu.id} className="flex items-center gap-3 px-4 py-2.5 bg-surface-container-low rounded-xl">
+                          <span className="w-5 h-5 rounded-full bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center flex-shrink-0">{cu.ordre_priorite}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-on-surface">{cu.prenom} {cu.nom}{cu.lien_parente ? <span className="text-on-surface/50 font-normal text-xs"> — {cu.lien_parente}</span> : null}</p>
+                            <p className="text-xs text-on-surface/50">{cu.telephone}</p>
+                          </div>
+                          <div className="flex items-center gap-0.5 flex-shrink-0">
+                            <button onClick={() => handleCuReorder(cu.id, 'up')} disabled={idx === 0} className="w-6 h-6 rounded flex items-center justify-center text-on-surface/30 hover:text-primary disabled:opacity-20 transition-colors">
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleCuReorder(cu.id, 'down')} disabled={idx === contactsUrgence.length - 1} className="w-6 h-6 rounded flex items-center justify-center text-on-surface/30 hover:text-primary disabled:opacity-20 transition-colors">
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleCuDelete(cu.id)} className="w-6 h-6 rounded flex items-center justify-center text-on-surface/30 hover:bg-error/10 hover:text-error transition-colors ml-1">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 flex-wrap items-end">
+                    <div className="w-32"><FloatInput id="cu-prenom" label="Prénom" value={cuForm.prenom} onChange={(v) => setCuForm({ ...cuForm, prenom: v })} transform="capitalize" compact /></div>
+                    <div className="w-32"><FloatInput id="cu-nom" label="Nom" value={cuForm.nom} onChange={(v) => setCuForm({ ...cuForm, nom: v })} transform="uppercase" compact /></div>
+                    <div className="w-36"><FloatInput id="cu-tel" label="Téléphone" type="tel" value={cuForm.telephone} onChange={(v) => setCuForm({ ...cuForm, telephone: v })} transform="phone" compact /></div>
+                    <div className="w-36"><FloatInput id="cu-lien" label="Lien (fils, épouse...)" value={cuForm.lien_parente} onChange={(v) => setCuForm({ ...cuForm, lien_parente: v })} compact /></div>
+                    <button onClick={handleCuAdd} disabled={cuSaving || !cuForm.nom.trim() || !cuForm.telephone.trim()}
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all disabled:opacity-40">
+                      <Plus className="w-3.5 h-3.5" /> Ajouter
+                    </button>
+                  </div>
+                </div>
+
+                <hr className="border-outline-variant/15" />
+
+                {/* ── Section 3 : Paiements ── */}
+                <div>
+                  <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Paiements</h3>
+                    {paiements.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {[...new Set(paiements.map((p) => p.annee_concernee))].sort((a, b) => b - a).map((year) => (
+                          <span key={year} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{year}</span>
+                        ))}
+                      </div>
+                    )}
+                    {paiements.length > 0 && (
+                      <span className="ml-auto text-xs text-on-surface/60 font-semibold">
+                        Total : {formatMontant(paiements.reduce((s, p) => s + p.montant, 0))}
+                      </span>
+                    )}
+                  </div>
+
+                  {paiements.length > 0 && (
+                    <div className="mb-4 overflow-x-auto rounded-xl border border-outline-variant/10">
+                      <table className="w-full text-left text-xs">
+                        <thead className="card-green text-white/70 text-[9px] uppercase tracking-wider">
+                          <tr>
+                            <th className="px-3 py-2 font-bold">Année</th>
+                            <th className="px-3 py-2 font-bold">Date</th>
+                            <th className="px-3 py-2 font-bold text-right">Montant</th>
+                            <th className="px-3 py-2 font-bold">Moyen</th>
+                            <th className="px-3 py-2 font-bold">Référence</th>
+                            <th className="px-3 py-2"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-outline-variant/10">
+                          {paiements.map((p) => (
+                            <tr key={p.id} className="hover:bg-surface-container/50">
+                              <td className="px-3 py-2 font-bold text-primary">{p.annee_concernee}</td>
+                              <td className="px-3 py-2 text-on-surface/60">{formatDate(p.date_paiement)}</td>
+                              <td className="px-3 py-2 text-right font-semibold text-on-surface">{formatMontant(p.montant)}</td>
+                              <td className="px-3 py-2 text-on-surface/60 uppercase tracking-wider">{p.moyen_paiement}</td>
+                              <td className="px-3 py-2 text-on-surface/60">{p.reference_externe ?? '-'}</td>
+                              <td className="px-3 py-2 text-right">
+                                <button onClick={() => setPDeleteId(p.id)} className="w-6 h-6 rounded flex items-center justify-center text-on-surface/30 hover:bg-error/10 hover:text-error transition-colors">
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 flex-wrap items-end">
+                    <div className="w-20"><FloatInput id="p-annee" label="Année" type="number" value={String(pForm.annee_concernee)} onChange={(v) => setPForm({ ...pForm, annee_concernee: Number(v) })} compact /></div>
+                    <div className="w-28"><FloatInput id="p-montant" label="Montant (€)" type="number" value={String(pForm.montant || '')} onChange={(v) => setPForm({ ...pForm, montant: Number(v) })} compact /></div>
+                    <div className="w-36"><FloatInput id="p-date" label="Date de paiement" type="date" value={pForm.date_paiement} onChange={(v) => setPForm({ ...pForm, date_paiement: v })} compact /></div>
+                    <select value={pForm.moyen_paiement} onChange={(e) => setPForm({ ...pForm, moyen_paiement: e.target.value as 'especes' | 'cheque' | 'virement' | 'cb' })}
+                      className="bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:outline-none">
+                      <option value="especes">Espèces</option>
+                      <option value="cheque">Chèque</option>
+                      <option value="virement">Virement</option>
+                      <option value="cb">Carte bancaire</option>
+                    </select>
+                    <div className="w-32"><FloatInput id="p-ref" label="Référence" value={pForm.reference_externe} onChange={(v) => setPForm({ ...pForm, reference_externe: v })} compact /></div>
+                    <button onClick={handlePAdd} disabled={pSaving || !pForm.montant || !pForm.date_paiement}
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary hover:bg-primary hover:text-on-primary transition-all disabled:opacity-40">
+                      <Plus className="w-3.5 h-3.5" /> Enregistrer
+                    </button>
+                  </div>
+                </div>
+
+                <hr className="border-outline-variant/15" />
+
+                {/* ── Section 4 : Documents ── */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Documents</h3>
+                    <span className="text-[10px] text-on-surface/40 uppercase tracking-wider font-medium">Bucket privé - accès sécurisé</span>
+                  </div>
+
+                  {documents.length > 0 && (
+                    <div className="mb-4 space-y-1.5">
+                      {documents.map((doc) => (
+                        <div key={doc.id} className="flex items-center gap-3 px-4 py-2.5 bg-surface-container-low rounded-xl">
+                          <FileText className="w-4 h-4 text-on-surface/40 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-on-surface truncate">{doc.nom_fichier}</p>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary uppercase tracking-wider">{doc.type}</span>
+                          </div>
+                          <button onClick={() => handleDocDownload(doc.url, doc.nom_fichier)} title="Télécharger"
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/40 hover:bg-primary/10 hover:text-primary transition-colors flex-shrink-0">
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => setDocDeleteId(doc.id)} title="Supprimer"
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface/30 hover:bg-error/10 hover:text-error transition-colors flex-shrink-0">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 items-center flex-wrap">
+                    <select value={docType} onChange={(e) => setDocType(e.target.value as DocObseques['type'])}
+                      className="bg-surface-container-low border border-[var(--color-card-border)] rounded-xl py-1.5 px-3 text-xs focus:outline-none">
+                      <option value="cni">CNI</option>
+                      <option value="passeport">Passeport</option>
+                      <option value="domicile">Justificatif domicile</option>
+                      <option value="autre">Autre</option>
+                    </select>
+                    <label className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all ${
+                      docUploading ? 'bg-on-surface/10 text-on-surface/30 cursor-not-allowed' : 'bg-primary/10 text-primary hover:bg-primary hover:text-on-primary'
+                    }`}>
+                      <Upload className="w-3.5 h-3.5" />
+                      {docUploading ? 'Envoi...' : 'Choisir un fichier'}
+                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={handleDocUpload} disabled={docUploading} />
+                    </label>
+                    <span className="text-[10px] text-on-surface/40">PDF, JPG, PNG, WebP</span>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm suppression document */}
+      {docDeleteId && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center border border-[var(--color-card-border)]">
+            <Trash2 className="w-10 h-10 text-error mx-auto mb-3" />
+            <h3 className="text-lg font-serif text-on-surface mb-2">Supprimer ce document ?</h3>
+            <p className="text-sm text-on-surface/60 mb-6">Le fichier sera supprimé du stockage sécurisé. Cette action est irréversible.</p>
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => setDocDeleteId(null)} className="px-5 py-2.5 rounded-full text-sm font-bold text-on-surface/60 hover:bg-surface-container transition-colors">Annuler</button>
+              <button onClick={handleDocDelete} className="px-6 py-2.5 rounded-full text-sm font-bold bg-error text-white hover:opacity-90 transition-all active:scale-95">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm suppression paiement */}
+      {pDeleteId && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center border border-[var(--color-card-border)]">
+            <Trash2 className="w-10 h-10 text-error mx-auto mb-3" />
+            <h3 className="text-lg font-serif text-on-surface mb-2">Supprimer ce paiement ?</h3>
+            <p className="text-sm text-on-surface/60 mb-6">Cette action est irréversible.</p>
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => setPDeleteId(null)} className="px-5 py-2.5 rounded-full text-sm font-bold text-on-surface/60 hover:bg-surface-container transition-colors">Annuler</button>
+              <button onClick={handlePDelete} className="px-6 py-2.5 rounded-full text-sm font-bold bg-error text-white hover:opacity-90 transition-all active:scale-95">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════ MODALE ADHESION ══════════════ */}
       {adhModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -545,25 +1013,19 @@ export default function ObsequesAdminPage() {
             </div>
 
             {!organismeActif && !adhEditingId ? (
-              <div className="p-6">
-                <p className="text-sm text-on-surface">{adhError}</p>
-              </div>
+              <div className="p-6"><p className="text-sm text-on-surface">{adhError}</p></div>
             ) : (
               <form onSubmit={handleAdhSubmit} className="p-6 space-y-4">
-                {/* Organisme (lecture seule) */}
                 <div className="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
                   <Building2 className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-on-surface/60 uppercase tracking-wider">Organisme tiers</p>
                     <p className="text-sm font-semibold text-on-surface truncate">
-                      {adhEditingId
-                        ? adhesions.find((a) => a.id === adhEditingId)?.organisme_nom_historique ?? '-'
-                        : organismeActif?.nom ?? '-'}
+                      {adhEditingId ? adhesions.find((a) => a.id === adhEditingId)?.organisme_nom_historique ?? '-' : organismeActif?.nom ?? '-'}
                     </p>
                   </div>
                 </div>
 
-                {/* Identité */}
                 <div className="grid grid-cols-2 gap-3">
                   <FloatInput id="adh-prenom" label="Prénom" value={adhForm.prenom} onChange={(v) => setAdhForm({ ...adhForm, prenom: v })} transform="capitalize" required />
                   <FloatInput id="adh-nom" label="Nom" value={adhForm.nom} onChange={(v) => setAdhForm({ ...adhForm, nom: v })} transform="uppercase" required />
@@ -579,10 +1041,7 @@ export default function ObsequesAdminPage() {
                 </div>
                 <FloatInput id="adh-adr" label="Adresse" value={adhForm.adresse} onChange={(v) => setAdhForm({ ...adhForm, adresse: v })} />
 
-                {/* Lien compte visiteur */}
-                <FloatSelect
-                  id="adh-user"
-                  label="Lier à un compte visiteur (optionnel)"
+                <FloatSelect id="adh-user" label="Lier à un compte visiteur (optionnel)"
                   value={adhForm.user_id ?? ''}
                   onChange={(v) => setAdhForm({ ...adhForm, user_id: v || null })}
                   options={[
@@ -591,46 +1050,32 @@ export default function ObsequesAdminPage() {
                   ]}
                 />
 
-                {/* Contrat */}
                 <div className="grid grid-cols-2 gap-3">
-                  <FloatSelect
-                    id="adh-type"
-                    label="Type de contrat"
-                    value={adhForm.type_contrat}
+                  <FloatSelect id="adh-type" label="Type de contrat" value={adhForm.type_contrat}
                     onChange={(v) => setAdhForm({ ...adhForm, type_contrat: v as 'individuel' | 'familial' })}
                     options={[{ value: 'individuel', label: 'Individuel' }, { value: 'familial', label: 'Familial' }]}
-                    required
-                  />
+                    required />
                   <FloatInput id="adh-ref" label="Référence contrat" value={adhForm.reference_contrat} onChange={(v) => setAdhForm({ ...adhForm, reference_contrat: v })} />
                 </div>
 
-                {/* Volontés */}
-                <FloatSelect
-                  id="adh-form"
-                  label="Formule"
-                  value={adhForm.formule}
+                <FloatSelect id="adh-form" label="Formule" value={adhForm.formule}
                   onChange={(v) => setAdhForm({ ...adhForm, formule: v as 'inhumation_france' | 'rapatriement' | 'autre' })}
                   options={[
                     { value: 'inhumation_france', label: 'Inhumation en France' },
                     { value: 'rapatriement', label: 'Rapatriement' },
                     { value: 'autre', label: 'Autre' },
                   ]}
-                  required
-                />
+                  required />
                 <div className="grid grid-cols-2 gap-3">
                   <FloatInput id="adh-pays" label="Pays d'inhumation" value={adhForm.pays_inhumation} onChange={(v) => setAdhForm({ ...adhForm, pays_inhumation: v })} transform="sentence" />
                   <FloatInput id="adh-cim" label="Cimetière souhaité" value={adhForm.cimetiere_souhaite} onChange={(v) => setAdhForm({ ...adhForm, cimetiere_souhaite: v })} transform="sentence" />
                 </div>
                 <FloatTextarea id="adh-instr" label="Instructions spécifiques" value={adhForm.instructions_specifiques} onChange={(v) => setAdhForm({ ...adhForm, instructions_specifiques: v })} rows={2} />
 
-                {/* Cotisation + statut */}
                 <div className="grid grid-cols-3 gap-3">
                   <FloatInput id="adh-cot" label="Cotisation annuelle (€)" type="number" value={String(adhForm.cotisation_annuelle)} onChange={(v) => setAdhForm({ ...adhForm, cotisation_annuelle: Number(v) || 0 })} />
                   <FloatInput id="adh-date" label="Date d'adhésion" type="date" value={adhForm.date_adhesion} onChange={(v) => setAdhForm({ ...adhForm, date_adhesion: v })} required />
-                  <FloatSelect
-                    id="adh-statut"
-                    label="Statut"
-                    value={adhForm.statut}
+                  <FloatSelect id="adh-statut" label="Statut" value={adhForm.statut}
                     onChange={(v) => setAdhForm({ ...adhForm, statut: v as 'actif' | 'suspendu' | 'resilie' | 'deces' })}
                     options={[
                       { value: 'actif', label: 'Actif' },
@@ -638,8 +1083,7 @@ export default function ObsequesAdminPage() {
                       { value: 'resilie', label: 'Résilié' },
                       { value: 'deces', label: 'Décès' },
                     ]}
-                    required
-                  />
+                    required />
                 </div>
 
                 <FloatTextarea id="adh-notes" label="Notes internes" value={adhForm.notes} onChange={(v) => setAdhForm({ ...adhForm, notes: v })} rows={2} />
@@ -649,7 +1093,6 @@ export default function ObsequesAdminPage() {
                     <p className="text-error text-xs">{adhError}</p>
                   </div>
                 )}
-
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button type="button" onClick={() => setAdhModalOpen(false)} disabled={adhSubmitting} className="px-4 py-2 text-xs font-medium text-on-surface/60 hover:text-on-surface transition-colors disabled:opacity-50">Annuler</button>
                   <button type="submit" disabled={adhSubmitting} className="px-5 py-2 rounded-full text-xs font-bold shadow-sm bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
@@ -662,7 +1105,7 @@ export default function ObsequesAdminPage() {
         </div>
       )}
 
-      {/* Confirm suppression adhesion */}
+      {/* Confirm suppression adhésion */}
       {adhDeleteId && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -678,7 +1121,7 @@ export default function ObsequesAdminPage() {
         </div>
       )}
 
-      {/* ============ Modale ORGANISME ============ */}
+      {/* ══════════════ MODALE ORGANISME ══════════════ */}
       {orgModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -693,7 +1136,6 @@ export default function ObsequesAdminPage() {
                   <p className="text-xs text-on-surface">L&apos;organisme actuel <strong>{organismeActif.nom}</strong> sera automatiquement clôturé (date de fin = aujourd&apos;hui) lors de la création du nouveau.</p>
                 </div>
               )}
-
               <FloatInput id="org-nom" label="Nom de l'organisme" value={orgForm.nom} onChange={(v) => setOrgForm({ ...orgForm, nom: v })} transform="sentence" required />
               <FloatInput id="org-adr" label="Adresse" value={orgForm.adresse} onChange={(v) => setOrgForm({ ...orgForm, adresse: v })} />
               <div className="grid grid-cols-2 gap-3">
@@ -704,7 +1146,6 @@ export default function ObsequesAdminPage() {
                 <FloatInput id="org-ni" label="N° d'identification / SIRET" value={orgForm.numero_identification} onChange={(v) => setOrgForm({ ...orgForm, numero_identification: v })} />
                 <FloatInput id="org-contrat" label="N° de contrat (mosquée ↔ organisme)" value={orgForm.numero_contrat} onChange={(v) => setOrgForm({ ...orgForm, numero_contrat: v })} />
               </div>
-
               <div className="pt-2 border-t border-outline-variant/10">
                 <p className="text-xs font-bold text-on-surface/60 uppercase tracking-wider mb-3">Contact référent</p>
                 <div className="space-y-3">
@@ -715,16 +1156,13 @@ export default function ObsequesAdminPage() {
                   </div>
                 </div>
               </div>
-
               <FloatInput id="org-debut" label="Date de début de collaboration" type="date" value={orgForm.date_debut_collaboration} onChange={(v) => setOrgForm({ ...orgForm, date_debut_collaboration: v })} required />
               <FloatTextarea id="org-notes" label="Notes" value={orgForm.notes} onChange={(v) => setOrgForm({ ...orgForm, notes: v })} rows={2} />
-
               {orgError && (
                 <div className="bg-error-container/20 border border-error/20 rounded-xl p-3">
                   <p className="text-error text-xs">{orgError}</p>
                 </div>
               )}
-
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setOrgModalOpen(false)} disabled={orgSubmitting} className="px-4 py-2 text-xs font-medium text-on-surface/60 hover:text-on-surface transition-colors disabled:opacity-50">Annuler</button>
                 <button type="submit" disabled={orgSubmitting} className="px-5 py-2 rounded-full text-xs font-bold shadow-sm bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
@@ -743,7 +1181,7 @@ export default function ObsequesAdminPage() {
           <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center border border-[var(--color-card-border)]">
             <Archive className="w-10 h-10 text-tertiary mx-auto mb-3" />
             <h3 className="text-lg font-serif text-on-surface mb-2">Résilier cet organisme ?</h3>
-            <p className="text-sm text-on-surface/60 mb-6">La date de fin de collaboration sera fixée à aujourd&apos;hui. Aucune nouvelle adhésion ne pourra être rattachée à cet organisme. L&apos;historique est conservé.</p>
+            <p className="text-sm text-on-surface/60 mb-6">La date de fin de collaboration sera fixée à aujourd&apos;hui. L&apos;historique est conservé.</p>
             <div className="flex items-center justify-center gap-3">
               <button onClick={() => setOrgResilierId(null)} className="px-5 py-2.5 rounded-full text-sm font-bold text-on-surface/60 hover:bg-surface-container transition-colors">Annuler</button>
               <button onClick={handleOrgResilier} className="px-6 py-2.5 rounded-full text-sm font-bold bg-tertiary text-white hover:opacity-90 transition-all active:scale-95">Résilier</button>
@@ -759,7 +1197,7 @@ export default function ObsequesAdminPage() {
           <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center border border-[var(--color-card-border)]">
             <Trash2 className="w-10 h-10 text-error mx-auto mb-3" />
             <h3 className="text-lg font-serif text-on-surface mb-2">Supprimer cet organisme ?</h3>
-            <p className="text-sm text-on-surface/60 mb-6">Les adhésions existantes conserveront le nom de l&apos;organisme en historique (snapshot) mais perdront la référence directe. Préférez la résiliation pour garder l&apos;historique.</p>
+            <p className="text-sm text-on-surface/60 mb-6">Les adhésions existantes conserveront le nom de l&apos;organisme en historique (snapshot). Préférez la résiliation pour garder l&apos;historique complet.</p>
             <div className="flex items-center justify-center gap-3">
               <button onClick={() => setOrgDeleteId(null)} className="px-5 py-2.5 rounded-full text-sm font-bold text-on-surface/60 hover:bg-surface-container transition-colors">Annuler</button>
               <button onClick={handleOrgDelete} className="px-6 py-2.5 rounded-full text-sm font-bold bg-error text-white hover:opacity-90 transition-all active:scale-95">Supprimer</button>

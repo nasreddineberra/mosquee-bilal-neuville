@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 24 avril 2026 (Session 17 - en cours)
+**Dernière mise à jour :** 25 avril 2026 (Session 17)
 **Statut :** Phase 3 en cours (back-office)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -574,14 +574,19 @@ Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la m
 4. Filtrage "compte actif" : API `/api/admin/list-visiteurs` (nouvelle) utilise `admin.auth.admin.listUsers()` pour cross-ref `auth.users.email_confirmed_at` avec profiles. Retourne `est_actif` bool
 5. Badge "En attente" (ambre) sur les comptes visiteurs non confirmes. Bouton Shield **disabled** si `!est_actif` (tooltip "Compte non activé - en attente de confirmation du mail")
 
-**Phase 2 - Extensions metier (a faire) :**
-- Section "ayants droit" (CRUD inline, visible si type_contrat = familial)
-- Section "contacts d'urgence" (CRUD inline, ordre priorite)
-- Section "paiements" (ajout paiement pour une annee, suivi par annee)
+**Phase 2 - Extensions metier (FAIT) :**
+1. Bouton `FolderOpen` par ligne adhesion -> modale "Dossier complet" (max-w-4xl)
+2. Section "Ayants droit" : CRUD inline (prenom/nom/date_naissance/lien_parente), visible uniquement si contrat familial, message informatif si individuel
+3. Section "Contacts d'urgence" : CRUD inline (prenom/nom/telephone/lien), reordonnancement haut/bas avec swap `ordre_priorite`, badge numero de priorite
+4. Section "Paiements" : tableau des paiements (annee/date/montant/moyen/reference), badges annees couvertes, total cumule, formulaire ajout rapide (annee/montant/date/moyen/reference), suppression avec confirmation (z-[120])
+5. Suppression contact urgence : renum les `ordre_priorite` restants (1,2,3...)
 
-**Phase 3 - Documents + portail visiteur (a faire) :**
-- Upload documents scans avec RLS bucket prive
-- Page publique `/mon-adhesion` : fiche read-only visible uniquement si `adhesions_obseques.user_id = auth.uid()`
+**Phase 3 - Documents + portail visiteur (FAIT) :**
+1. Section "Documents" dans modale dossier (4e section) : upload fichier (CNI/passeport/domicile/autre) → bucket prive `obseques-documents/{adhesion_id}/{timestamp}.ext`, liste avec badge type + telechargement URL signee 60s + suppression confirmee (z-[120]). Metadonnees dans `adhesions_obseques_documents`
+2. `middleware.ts` : suppression du `signOut()` pour visiteurs (session preservee pour portail), protection `/mon-adhesion` ajoutee au matcher
+3. Page `/mon-adhesion` : fiche read-only complète via `useAuth` (pas de formulaire login). Sections : en-tete statut+organisme, identite, volontes funeraires, ayants droit (si familial), contacts urgence, historique paiements + total, documents telechargeable. Redirect vers `/admin` par middleware si non connecte
+4. `HeroSection.tsx` : card "Assurance obsèque" refondee - titre sans s, sans chevron, texte "Contrat gere par la mosquee (connexion necessaire)", bouton "mon adhesion" conditionnel (`hasAdhesion` via query `adhesions_obseques.user_id = user.id`) en haut a droite, style `bg-surface-container` au repos
+5. `Footer.tsx` : lien "Mon adhesion" ajoute dans les liens de bas de page
 
 ---
 
@@ -600,8 +605,8 @@ Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la m
 - [x] 3.11 Admin Hadiths - CRUD + rotation quotidienne DailyReminder (option B : stable par jour)
 - [x] 3.12 Composant CardCtaButton centralise (bouton uiverse thin-duck-22) sur 4 cards du site
 - [x] 3.13 Assurance obseques Phase 1 - migration SQL + bucket + role gestionnaire_obseques + page admin (adhesions + organismes) + promotion/retrogradation roles
-- [ ] 3.14 Assurance obseques Phase 2 - ayants droit + contacts urgence + paiements
-- [ ] 3.15 Assurance obseques Phase 3 - documents scannes + portail visiteur `/mon-adhesion`
+- [x] 3.14 Assurance obseques Phase 2 - ayants droit + contacts urgence + paiements
+- [x] 3.15 Assurance obseques Phase 3 - documents scannes + portail visiteur `/mon-adhesion`
 - [ ] 3.16 Admin Communication - messagerie visiteurs
 - [ ] 3.17 Edge Function - cron expiration articles (actif = false si date_expiration < today)
 
