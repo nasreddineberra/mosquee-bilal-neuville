@@ -29,7 +29,7 @@ export async function GET() {
 
     const { data: profiles, error: profErr } = await admin
       .from('profiles')
-      .select('id, email, nom, prenom, telephone, adresse, created_at')
+      .select('id, email, nom, prenom, telephone, adresse, created_at, newsletter_opt_in')
       .eq('role', 'visiteur')
       .order('created_at', { ascending: false });
     if (profErr) return NextResponse.json({ error: profErr.message }, { status: 500 });

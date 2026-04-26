@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const { data: demande, error: fetchErr } = await admin
       .from('demandes_acces')
-      .select('id, email, nom, prenom, telephone, adresse, statut')
+      .select('id, email, nom, prenom, telephone, adresse, statut, newsletter_opt_in')
       .eq('id', demandeId)
       .single();
 
@@ -57,6 +57,7 @@ export async function POST(request: Request) {
         nom: demande.nom,
         telephone: demande.telephone,
         adresse: demande.adresse,
+        newsletter_opt_in: demande.newsletter_opt_in,
       })
       .eq('id', invited.user.id);
 

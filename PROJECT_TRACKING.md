@@ -1,8 +1,8 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 25 avril 2026 (Session 17)
-**Statut :** Phase 3 en cours (back-office)
+**Dernière mise à jour :** 26 avril 2026 (Session 18)
+**Statut :** Phase 3 terminée (back-office complet)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
 ---
@@ -39,12 +39,13 @@ Créer une plateforme numérique moderne, apaisante et fonctionnelle pour la Mos
 ### Back-office (Admin)
 | Page | Route | Statut |
 |------|-------|--------|
-| Connexion (email + mdp + 2FA) | `/admin` | Finalisé |
+| Connexion (email + mdp + 2FA) | `/connexion` | Finalisé |
+| Mon profil (tous rôles connectés) | `/mon-profil` | Finalisé |
 | Dashboard | `/admin/dashboard` | Finalisé |
 | Articles (CRUD) | `/admin/dashboard/articles` | Finalisé |
 | Hadiths (CRUD) | `/admin/dashboard/hadiths` | Finalisé |
 | Bibliothèque images | `/admin/dashboard/bibliotheque` | Finalisé |
-| Communication | `/admin/dashboard/communication` | A faire |
+| Communication | `/admin/dashboard/communication` | Finalisé |
 | Activités | `/admin/dashboard/activites` | Finalisé |
 | Inscriptions | `/admin/dashboard/inscriptions` | Finalisé |
 | Dons | `/admin/dashboard/dons` | Finalisé |
@@ -541,7 +542,94 @@ Administration                       (administrateur)
 1. Pattern aligne sur les cards "Dernieres actualites" : image en haut `h-1/3` via `<Image>` Next.js fill, texte en bas `flex-1`, bordure 1px `var(--color-card-border)`, `h-full` pour prendre la hauteur de la ligne grid
 2. Fetch de l'image : `certificatImage` recupere depuis `fetchCategoryDefaults(supabase)['Certificat']` - l'admin uploade l'image par defaut dans ImagePicker
 
-### Session 17 - 24 avril 2026 - Assurance obseques (EN COURS)
+### Session 18 - 26 avril 2026 - Newsletter + refactor login + Communication + cron expiration
+
+**Cron expiration articles (3.18) :**
+1. Migration SQL `2026-04-26_articles_cron_expiration.sql` (idempotente)
+2. Active `pg_cron` extension Supabase
+3. `cron.unschedule()` conditionnel sur job existant pour permettre re-execution
+4. `cron.schedule('expire-articles', '0 2 * * *', ...)` : tous les jours a 02h00 UTC
+5. UPDATE articles SET actif = false WHERE actif = true AND date_expiration IS NOT NULL AND date_expiration < CURRENT_DATE
+6. Aucune suppression : contenu integralement conserve, seul `actif` passe a `false`. Reactivation manuelle possible via toggle Eye dans le tableau admin
+7. Verification : `SELECT * FROM cron.job WHERE jobname = 'expire-articles'`
+8. Historique : `SELECT * FROM cron.job_run_details WHERE jobid = ...`
+
+**Migration SQL `2026-04-25_newsletter_opt_in.sql` :**
+1. Colonne `newsletter_opt_in BOOLEAN DEFAULT false` ajoutee sur `profiles` ET `demandes_acces`
+2. Index partiel `idx_profiles_newsletter` sur `newsletter_opt_in = true` (pour la requete d'envoi)
+3. Choix RGPD : default `false` (consentement explicite)
+
+**Newsletter opt-in - integration UI :**
+1. Modale demande d'acces (`/connexion`) : checkbox "Je souhaite recevoir les informations..." (default decoche)
+2. `ProfileModal` : checkbox modifiable, persiste dans `profiles`
+3. `/mon-profil` : section dediee avec checkbox + label complet
+4. `/api/admin/validate-demande` : propage `newsletter_opt_in` de la demande vers le profil cree
+5. Tableau `/admin/dashboard/utilisateurs` : colonne "Newsletter" avec badge `MailCheck` "Abonné"
+6. Tableau `/admin/dashboard/visiteurs` onglet Comptes : meme colonne
+7. API `/api/admin/list-visiteurs` : retourne `newsletter_opt_in`
+
+**Refactor architecture login :**
+1. `src/app/admin/page.tsx` : reduit a un simple `redirect('/connexion')` (Next.js)
+2. `src/app/connexion/page.tsx` : copie de l'ancienne page admin/page.tsx avec :
+   - Titre "Connexion" (au lieu de "Accès réservé")
+   - Redirection role-based apres MFA verify (visiteur → `/mon-profil`, gestionnaire → `/admin/dashboard/obseques`, autres → `/admin/dashboard`)
+   - Support du parametre `?next=...` pour retour vers la page demandee apres login
+3. `middleware.ts` :
+   - Matcher etendu : `['/admin', '/admin/:path*', '/connexion', '/mon-adhesion', '/mon-profil']`
+   - `/mon-profil` et `/mon-adhesion` non connecte → redirect `/connexion?next=...`
+   - `/connexion` deja connecte → redirect role-based (meme logique que post-login)
+   - Visiteur sur `/admin/*` → redirect `/mon-profil` (au lieu de `/`)
+   - Plus de `signOut()` pour visiteur (session preservee)
+4. `Header.tsx` :
+   - "Accès réservé" → "Connexion" pointant vers `/connexion`
+   - Bouton "Mon profil" du dropdown : `Link` vers `/mon-profil` (au lieu d'ouvrir `ProfileModal`)
+   - Lien "Administration" visible aussi pour `gestionnaire_obseques`
+   - Suppression de l'import `ProfileModal` et state associe (la modale reste dispo dans le layout admin sidebar)
+5. `Footer.tsx` : "Accès réservé" → "Connexion" vers `/connexion`
+6. `auth/set-password/page.tsx` : lien retour vers `/connexion`
+
+**Page `/mon-profil` (tous roles) :**
+1. Page autonome avec son propre header (logo + titre "Mon profil" + bouton "Mon adhesion" si visiteur a un dossier + Deconnexion)
+2. Sections : Email + role (avec bouton modifier email), Mot de passe (bouton reset), Identite (prenom/nom/tel/adresse), Newsletter (checkbox dediee)
+3. Bouton "Enregistrer" actif uniquement si dirty + valid
+4. Reutilise les memes API/handlers que `ProfileModal`
+5. Verifie `adhesions_obseques` lie au user pour afficher conditionnellement le lien "Mon adhesion"
+
+**Module Communication (3.16) :**
+
+Migration `2026-04-25_newsletters.sql` : table `newsletters` (id, sujet, corps, expediteur_id, nb_destinataires, date_envoi, created_at) + RLS admin/editeur + index sur `date_envoi DESC`.
+
+Template `supabase/email-templates/newsletter.html` : meme branding que les autres templates (header `#064E3B` + footer Association ACM). Placeholders `{{SUJET}}`, `{{CORPS_HTML}}`, `{{UNSUBSCRIBE_URL}}`. Le footer contient le lien "Gérer mon abonnement" pointant vers `/mon-profil`. Ce template **n'est PAS** uploade dans Supabase (different des templates auth) - lu directement par notre code via `fs.readFileSync()`.
+
+`src/lib/mailer.ts` (abstraction provider-agnostic) :
+- `nodemailer` over SMTP (compatible Brevo, OVH, Gandi, Infomaniak...)
+- Variables env : `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM_EMAIL`, `MAIL_FROM_NAME`
+- Helper `textToHtmlParagraphs()` : convertit texte brut en `<p>` HTML (double saut ligne = nouveau paragraphe, simple saut ligne = `<br>`)
+- Helper `buildNewsletterHtml()` : lit le template, remplace les placeholders
+- Pour changer de fournisseur : modifier les variables env, zero code a toucher
+
+`src/app/api/admin/send-newsletter/route.ts` :
+- Verification role admin/editeur
+- Recupere les abonnes (`newsletter_opt_in = true`)
+- `Promise.allSettled` pour envoi parallele
+- Insere dans la table `newsletters` avec `nb_destinataires` (nombre de succes)
+- Retourne `{ success, sent, failed, total }`
+
+`src/app/admin/dashboard/communication/page.tsx` :
+- 2 onglets : Composer + Historique
+- Composer : compteur abonnes en temps reel (count exact) + FloatInput sujet + FloatTextarea corps + bouton Apercu (modale rendu HTML exact) + bouton Envoyer (modale confirmation)
+- Historique : tableau (date, sujet, destinataires) clic ligne → modale relecture du HTML envoye
+- Composant `NewsletterPreview` reutilise pour apercu et relecture
+
+Dependance : `npm install nodemailer @types/nodemailer` (a executer manuellement).
+
+**Note RGPD - bulk vs transactionnel :**
+- Newsletter (bulk) : opt-in obligatoire (`newsletter_opt_in = true`)
+- Emails transactionnels (invitation, reset mdp, confirmation email) : pas d'opt-in requis car repondent a une action explicite de l'utilisateur
+
+---
+
+### Session 17 - 24-25 avril 2026 - Assurance obseques (Phases 1+2+3)
 
 Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la mosquee. La mosquee agit comme intermediaire d'un organisme tiers (mutuelle partenaire). Volumetrie estimee : 100-300 adherents.
 
@@ -607,8 +695,9 @@ Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la m
 - [x] 3.13 Assurance obseques Phase 1 - migration SQL + bucket + role gestionnaire_obseques + page admin (adhesions + organismes) + promotion/retrogradation roles
 - [x] 3.14 Assurance obseques Phase 2 - ayants droit + contacts urgence + paiements
 - [x] 3.15 Assurance obseques Phase 3 - documents scannes + portail visiteur `/mon-adhesion`
-- [ ] 3.16 Admin Communication - messagerie visiteurs
-- [ ] 3.17 Edge Function - cron expiration articles (actif = false si date_expiration < today)
+- [x] 3.16 Admin Communication - newsletter opt-in + envoi via SMTP + historique
+- [x] 3.17 Refactor architecture login - page neutre `/connexion` + page profil `/mon-profil` (tous roles)
+- [x] 3.18 Cron pg_cron - expiration automatique articles (actif = false si date_expiration < today, 02h UTC quotidien)
 
 ---
 

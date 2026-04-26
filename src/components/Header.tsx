@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LogOut, User as UserIcon, ChevronDown } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
-import ProfileModal from './ProfileModal';
 import { createClient } from '@/lib/supabase/client';
 
 const navLinks = [
@@ -23,7 +22,6 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -118,14 +116,15 @@ export default function Header() {
                     <p className="text-sm font-bold text-on-surface truncate">{displayName}</p>
                     <p className="text-xs text-on-surface/50 capitalize">{profile.role}</p>
                   </div>
-                  <button
-                    onClick={() => { setMenuOpen(false); setProfileOpen(true); }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                  <Link
+                    href="/mon-profil"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors"
                   >
                     <UserIcon className="w-4 h-4" />
                     Mon profil
-                  </button>
-                  {profile.role === 'administrateur' || profile.role === 'editeur' ? (
+                  </Link>
+                  {(profile.role === 'administrateur' || profile.role === 'editeur' || profile.role === 'gestionnaire_obseques') && (
                     <Link
                       href="/admin/dashboard"
                       onClick={() => setMenuOpen(false)}
@@ -134,7 +133,7 @@ export default function Header() {
                       <UserIcon className="w-4 h-4" />
                       Administration
                     </Link>
-                  ) : null}
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low transition-colors border-t border-outline-variant/10"
@@ -147,10 +146,10 @@ export default function Header() {
             </div>
           ) : (
             <Link
-              href="/admin"
+              href="/connexion"
               className="btn-admin-link bg-primary text-on-primary px-6 py-2.5 rounded-full text-sm font-bold text-center shadow-md transition-all active:scale-95 whitespace-nowrap"
             >
-              Accès réservé
+              Connexion
             </Link>
           )}
 
@@ -195,7 +194,6 @@ export default function Header() {
         </div>
       )}
 
-      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </header>
   );
 }

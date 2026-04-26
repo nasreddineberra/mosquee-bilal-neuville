@@ -99,7 +99,7 @@ export default function SetPasswordPage() {
               <p className="text-sm text-on-surface/80 mb-4">
                 Ce lien d&apos;invitation est invalide ou a expiré.
               </p>
-              <a href="/admin" className="inline-block bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all">
+              <a href="/connexion" className="inline-block bg-primary text-on-primary px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all">
                 Retour à l&apos;accueil
               </a>
             </div>

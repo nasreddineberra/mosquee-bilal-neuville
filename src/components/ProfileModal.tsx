@@ -13,6 +13,7 @@ type ProfileData = {
   nom: string;
   telephone: string;
   adresse: string;
+  newsletter_opt_in: boolean;
 };
 
 export default function ProfileModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -22,8 +23,8 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  const [form, setForm] = useState<ProfileData>({ email: '', role: '', prenom: '', nom: '', telephone: '', adresse: '' });
-  const [initial, setInitial] = useState<ProfileData>({ email: '', role: '', prenom: '', nom: '', telephone: '', adresse: '' });
+  const [form, setForm] = useState<ProfileData>({ email: '', role: '', prenom: '', nom: '', telephone: '', adresse: '', newsletter_opt_in: false });
+  const [initial, setInitial] = useState<ProfileData>({ email: '', role: '', prenom: '', nom: '', telephone: '', adresse: '', newsletter_opt_in: false });
   const [emailEditOpen, setEmailEditOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [emailSending, setEmailSending] = useState(false);
@@ -87,7 +88,7 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
       try {
         const { data, error: fetchErr } = await supabase
           .from('profiles')
-          .select('email, role, prenom, nom, telephone, adresse')
+          .select('email, role, prenom, nom, telephone, adresse, newsletter_opt_in')
           .eq('id', userId)
           .maybeSingle();
         if (cancelled) return;
@@ -102,6 +103,7 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
             nom: data.nom ?? '',
             telephone: data.telephone ?? '',
             adresse: data.adresse ?? '',
+            newsletter_opt_in: !!data.newsletter_opt_in,
           };
           setForm(next);
           setInitial(next);
@@ -132,6 +134,7 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
       nom: form.nom.trim(),
       telephone: form.telephone.trim() || null,
       adresse: form.adresse.trim() || null,
+      newsletter_opt_in: form.newsletter_opt_in,
     }).eq('id', userId);
     setSaving(false);
     if (err) {
@@ -253,6 +256,18 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
               </div>
               <FloatInput id="profil-tel" label="Téléphone" type="tel" value={form.telephone} onChange={(v) => setForm({ ...form, telephone: v })} transform="phone" />
               <FloatInput id="profil-adresse" label="Adresse" value={form.adresse} onChange={(v) => setForm({ ...form, adresse: v })} />
+
+              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+                <input
+                  type="checkbox"
+                  checked={form.newsletter_opt_in}
+                  onChange={(e) => setForm({ ...form, newsletter_opt_in: e.target.checked })}
+                  className="mt-0.5 w-4 h-4 accent-primary cursor-pointer flex-shrink-0"
+                />
+                <span className="text-xs text-on-surface/80 leading-relaxed">
+                  Je souhaite recevoir les informations et actualités de la Mosquée Bilal par email.
+                </span>
+              </label>
 
               {error && (
                 <div className="bg-error-container/20 border border-error/20 rounded-xl p-3">

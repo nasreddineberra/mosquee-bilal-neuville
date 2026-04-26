@@ -130,7 +130,7 @@ export default function Footer() {
             <Link href="/mentions-legales" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Mentions légales</Link>
             <Link href="/confidentialite" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Confidentialité</Link>
             <Link href="/mon-adhesion" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Mon adhésion</Link>
-            <Link href="/admin" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Accès réservé</Link>
+            <Link href="/connexion" className="text-xs text-on-surface/35 hover:text-primary transition-colors">Connexion</Link>
           </div>
         </div>
 

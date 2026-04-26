@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { UserCheck, Check, X, Mail, Phone, MapPin, Clock, Send, Trash2, Shield } from 'lucide-react';
+import { UserCheck, Check, X, Mail, Phone, MapPin, Clock, Send, Trash2, Shield, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { FloatInput, FloatSelect } from '@/components/FloatField';
 
@@ -26,6 +26,7 @@ type Visiteur = {
   adresse: string | null;
   created_at: string;
   est_actif: boolean;
+  newsletter_opt_in: boolean;
 };
 
 type DemandeFilter = 'en_attente' | 'validee' | 'refusee';
@@ -307,14 +308,15 @@ export default function VisiteursAdminPage() {
                   <th className="px-8 py-1.5">Visiteur</th>
                   <th className="px-4 py-1.5">Contact</th>
                   <th className="px-4 py-1.5">Inscrit le</th>
+                  <th className="px-4 py-1.5">Newsletter</th>
                   <th className="px-8 py-1.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {loadingVisiteurs ? (
-                  <tr><td colSpan={4} className="px-8 py-8 text-center text-sm text-on-surface/60">Chargement…</td></tr>
+                  <tr><td colSpan={5} className="px-8 py-8 text-center text-sm text-on-surface/60">Chargement…</td></tr>
                 ) : filteredVisiteurs.length === 0 ? (
-                  <tr><td colSpan={4} className="px-8 py-8 text-center text-sm text-on-surface/60">Aucun compte visiteur.</td></tr>
+                  <tr><td colSpan={5} className="px-8 py-8 text-center text-sm text-on-surface/60">Aucun compte visiteur.</td></tr>
                 ) : (
                   filteredVisiteurs.map((v) => (
                     <tr key={v.id} className="hover:bg-surface-container-low/50 transition-colors">
@@ -332,6 +334,16 @@ export default function VisiteursAdminPage() {
                       </td>
                       <td className="px-4 py-1.5">
                         <p className="text-xs text-on-surface/70">{formatDate(v.created_at)}</p>
+                      </td>
+                      <td className="px-4 py-1.5">
+                        {v.newsletter_opt_in ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase inline-flex items-center gap-1 bg-primary/10 text-primary">
+                            <MailCheck className="w-3 h-3" />
+                            Abonné
+                          </span>
+                        ) : (
+                          <span className="text-xs text-on-surface/30">—</span>
+                        )}
                       </td>
                       <td className="px-8 py-1.5 text-right">
                         <div className="flex items-center justify-end gap-1">

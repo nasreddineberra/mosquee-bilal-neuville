@@ -24,22 +24,27 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  // /mon-adhesion : authentification requise (redirige vers login si non connecté)
-  if (pathname === '/mon-adhesion' && !user) {
-    return NextResponse.redirect(new URL('/admin', request.url));
+  // /mon-profil et /mon-adhesion : authentification requise (tous roles)
+  if ((pathname === '/mon-profil' || pathname === '/mon-adhesion') && !user) {
+    const next = encodeURIComponent(pathname);
+    return NextResponse.redirect(new URL(`/connexion?next=${next}`, request.url));
   }
 
-  // Page login : redirige vers dashboard si déjà connecté
-  if (pathname === '/admin' && user) {
+  // Page /connexion : redirige vers la home selon role si deja connecte
+  if (pathname === '/connexion' && user) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    const role = profile?.role ?? 'visiteur';
+    if (role === 'visiteur') return NextResponse.redirect(new URL('/mon-profil', request.url));
+    if (role === 'gestionnaire_obseques') return NextResponse.redirect(new URL('/admin/dashboard/obseques', request.url));
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
   // Routes admin protégées : authentification requise
   if (pathname.startsWith('/admin/') && !user) {
-    return NextResponse.redirect(new URL('/admin', request.url));
+    return NextResponse.redirect(new URL('/connexion', request.url));
   }
 
-  // Vérification du rôle pour les routes admin
+  // Vérification du rôle pour les routes admin/dashboard/*
   if (pathname.startsWith('/admin/') && user) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -47,9 +52,9 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // Visiteur : pas d'accès admin, mais on NE déconnecte pas (session conservée pour /mon-adhesion)
+    // Visiteur : pas d'accès aux routes admin (session conservee)
     if (!profile || profile.role === 'visiteur') {
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL('/mon-profil', request.url));
     }
 
     // Gestionnaire obsèques : accès uniquement à /admin/dashboard (home) + /admin/dashboard/obseques/*
@@ -76,5 +81,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*', '/mon-adhesion'],
+  matcher: ['/admin', '/admin/:path*', '/connexion', '/mon-adhesion', '/mon-profil'],
 };

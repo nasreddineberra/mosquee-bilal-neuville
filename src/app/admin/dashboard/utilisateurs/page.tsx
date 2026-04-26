@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Users, Mail, Shield, Plus, Trash2, X } from 'lucide-react';
+import { Users, Mail, Shield, Plus, Trash2, X, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { FloatInput, FloatSelect } from '@/components/FloatField';
@@ -15,6 +15,7 @@ type Utilisateur = {
   nom: string | null;
   role: Role;
   created_at: string;
+  newsletter_opt_in: boolean;
 };
 
 const ROLE_META: Record<Role, { label: string; badge: string }> = {
@@ -50,7 +51,7 @@ export default function UtilisateursAdminPage() {
     setLoading(true);
     const { data, error: err } = await supabase
       .from('profiles')
-      .select('id, email, prenom, nom, role, created_at')
+      .select('id, email, prenom, nom, role, created_at, newsletter_opt_in')
       .in('role', ['administrateur', 'editeur', 'gestionnaire_obseques'])
       .order('created_at', { ascending: false });
     if (err) {
@@ -170,14 +171,15 @@ export default function UtilisateursAdminPage() {
                 <th className="px-8 py-1.5">Utilisateur</th>
                 <th className="px-4 py-1.5">Inscrit le</th>
                 <th className="px-4 py-1.5">Rôle</th>
+                <th className="px-4 py-1.5">Newsletter</th>
                 <th className="px-8 py-1.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
               {loading ? (
-                <tr><td colSpan={4} className="px-8 py-8 text-center text-sm text-on-surface/60">Chargement…</td></tr>
+                <tr><td colSpan={5} className="px-8 py-8 text-center text-sm text-on-surface/60">Chargement…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={4} className="px-8 py-8 text-center text-sm text-on-surface/60">Aucun utilisateur.</td></tr>
+                <tr><td colSpan={5} className="px-8 py-8 text-center text-sm text-on-surface/60">Aucun utilisateur.</td></tr>
               ) : (
                 filtered.map((u) => {
                   const isMe = user?.id === u.id;
@@ -200,6 +202,16 @@ export default function UtilisateursAdminPage() {
                           <Shield className="w-3 h-3" />
                           {ROLE_META[u.role].label}
                         </span>
+                      </td>
+                      <td className="px-4 py-1.5">
+                        {u.newsletter_opt_in ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase inline-flex items-center gap-1 bg-primary/10 text-primary">
+                            <MailCheck className="w-3 h-3" />
+                            Abonné
+                          </span>
+                        ) : (
+                          <span className="text-xs text-on-surface/30">—</span>
+                        )}
                       </td>
                       <td className="px-8 py-1.5 text-right">
                         <div className="flex items-center justify-end gap-2">
