@@ -1,20 +1,28 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+// ─── POST /api/admin/resend-invite ──────────────────────────────────────────
+// Renvoie une invitation email à une demande validée mais dont l'utilisateur
+// ne s'est pas encore connecté. Réservé administrateur.
+// Protection CSRF + rate-limit (10/heure).
+import { serverLog } from '@/lib/logger';
+import { checkOrigin } from '@/lib/csrf';
+import { createAdminClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
+    const originCheck = checkOrigin(request);
+    if (originCheck) return originCheck;
+
     const { demandeId } = await request.json();
     if (!demandeId) {
       return NextResponse.json({ error: 'demandeId manquant' }, { status: 400 });
     }
 
-    const userClient = await createClient();
-    const { data: { user } } = await userClient.auth.getUser();
+    const admin = await createAdminClient();
+    const { data: { user } } = await admin.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const admin = await createAdminClient();
 
     const { data: me } = await admin
       .from('profiles')
@@ -26,6 +34,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
+    const allowed = await checkRateLimit(user.id, 'resend_invite', 10, 3600000);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Trop d\'invitations. Réessaye dans une heure.' }, { status: 429 });
+    }
+
+    // Récupérer l'email de la demande validée
     const { data: demande, error: fetchErr } = await admin
       .from('demandes_acces')
       .select('email, statut')
@@ -35,28 +49,23 @@ export async function POST(request: Request) {
     if (fetchErr || !demande) {
       return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 });
     }
-
     if (demande.statut !== 'validee') {
-      return NextResponse.json({ error: 'La demande doit être validée pour renvoyer le mail.' }, { status: 400 });
+      return NextResponse.json({ error: 'Seules les demandes validées peuvent être renvoyées.' }, { status: 400 });
     }
 
+    // Renvoyer l'invitation Supabase (vérifie si l'utilisateur existe déjà)
     const origin = new URL(request.url).origin;
-    const redirectTo = `${origin}/auth/set-password`;
-
-    // Tenter d'abord un renvoi d'invitation (utilisateur non encore confirmé)
-    const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(demande.email, { redirectTo });
+    const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(demande.email, {
+      redirectTo: `${origin}/mon-profil`,
+    });
 
     if (inviteErr) {
-      // Utilisateur déjà confirmé : envoyer un reset de mot de passe
-      const { error: resetErr } = await admin.auth.resetPasswordForEmail(demande.email, { redirectTo });
-      if (resetErr) {
-        return NextResponse.json({ error: resetErr.message || 'Erreur lors du renvoi.' }, { status: 500 });
-      }
+      return NextResponse.json({ error: inviteErr.message || 'Erreur lors du renvoi.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error('[resend-invite] exception:', e);
+    await serverLog('error', '[resend-invite]', 'Erreur', { error: e });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

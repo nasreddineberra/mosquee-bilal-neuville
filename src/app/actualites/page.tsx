@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Page publique des actualités ───────────────────────────────────────────
+// Liste tous les articles publiés (actifs) avec pagination.
+// Les articles "À la une" sont mis en avant en haut de page.
+// Filtrage par catégorie et recherche par mot-clé.
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Newspaper, Building, CalendarArrowUp, BookOpenCheck, Users, ChevronRight, type LucideIcon } from 'lucide-react';

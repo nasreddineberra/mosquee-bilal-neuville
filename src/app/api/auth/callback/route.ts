@@ -1,3 +1,8 @@
+// ─── Callback d'authentification (GET) ─────────────────────────────────────
+// Gère les redirections après connexion via magic link ou réinitialisation.
+// Traite le token dans l'URL (type email_otp) et initialise la session.
+// Redirige ensuite vers la page appropriée selon le besoin (next, set-password, etc.)
+
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
@@ -7,7 +12,11 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const tokenHash = searchParams.get('token_hash');
   const type = searchParams.get('type') as EmailOtpType | null;
-  const next = searchParams.get('next') ?? '/admin/dashboard';
+  // Validation anti-open redirect : ne rediriger que vers des chemins internes
+  const rawNext = searchParams.get('next') ?? '/admin/dashboard';
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') && !rawNext.startsWith('/\\')
+    ? rawNext
+    : '/admin/dashboard';
 
   const supabase = await createClient();
 

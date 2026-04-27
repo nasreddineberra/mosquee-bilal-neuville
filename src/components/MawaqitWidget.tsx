@@ -44,6 +44,8 @@ export default function MawaqitWidget() {
           frameBorder="0"
           scrolling="no"
           title="Horaires de prière Mawaqit"
+          sandbox="allow-scripts allow-same-origin"
+          referrerPolicy="no-referrer"
         />
       </div>
     </div>

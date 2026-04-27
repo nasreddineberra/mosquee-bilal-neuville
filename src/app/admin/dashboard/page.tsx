@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Page d'accueil du dashboard admin ───────────────────────────────────────
+// Affiche les accès rapides aux différentes sections de gestion.
+// Permet de créer un nouveau post rapidement.
+
 export default function AdminDashboardPage() {
   return (
     <div>

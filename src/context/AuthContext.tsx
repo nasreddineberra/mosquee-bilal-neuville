@@ -27,8 +27,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then(({ data }) => setUser(data.user ?? null))
       .catch(() => { /* lock steal bénin : onAuthStateChange prendra le relais */ });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+
+      if (event === 'SIGNED_OUT') {
+        // Session expirée ou refresh token invalide → rediriger vers connexion
+        window.location.href = '/connexion';
+      }
     });
 
     return () => subscription.unsubscribe();

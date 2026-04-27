@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Page Mon Profil (espace membre) ───────────────────────────────────────
+// Affiche et permet la modification des informations personnelles.
+// Synchronise les données entre la table `profiles` et la table `users` de Supabase Auth.
+// Permet la mise à jour du nom, prénom, téléphone, adresse et newsletter.
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -44,7 +49,7 @@ export default function MonProfilPage() {
   const [pwdSent, setPwdSent] = useState<string | null>(null);
   const [pwdError, setPwdError] = useState('');
 
-  // Has obseques adhesion (pour afficher lien "Mon adhesion")
+  // Présence d'une adhésion obsèques (indépendant du rôle : même un admin peut être adhérent)
   const [hasAdhesion, setHasAdhesion] = useState(false);
 
   const isNewEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && newEmail.toLowerCase() !== form.email.toLowerCase();
@@ -53,34 +58,39 @@ export default function MonProfilPage() {
     document.title = 'Mon profil - Mosquée Bilal';
   }, []);
 
+  // Chargement du profil (via API serveur, pas d'appel Supabase direct depuis le client)
+  // /api/user/profile → table 'profiles' : email, role, prenom, nom, telephone, adresse
+  // /api/user/adhesion → table 'adhesions_obseques' : détection si adhésion liée
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
-    const supabase = createClient();
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from('profiles')
-        .select('email, role, prenom, nom, telephone, adresse, newsletter_opt_in')
-        .eq('id', userId)
-        .maybeSingle();
-      if (cancelled) return;
-      if (data) {
-        const next: ProfileData = {
-          email: data.email ?? '',
-          role: data.role ?? '',
-          prenom: data.prenom ?? '',
-          nom: data.nom ?? '',
-          telephone: data.telephone ?? '',
-          adresse: data.adresse ?? '',
-          newsletter_opt_in: !!data.newsletter_opt_in,
-        };
-        setForm(next);
-        setInitial(next);
+      try {
+        const [profRes, adhRes] = await Promise.all([
+          fetch('/api/user/profile'),
+          fetch('/api/user/adhesion'),
+        ]);
+        if (cancelled) return;
+        const prof = await profRes.json();
+        const adh = await adhRes.json();
+        if (prof.data) {
+          const next: ProfileData = {
+            email: prof.data.email ?? '',
+            role: prof.data.role ?? '',
+            prenom: prof.data.prenom ?? '',
+            nom: prof.data.nom ?? '',
+            telephone: prof.data.telephone ?? '',
+            adresse: prof.data.adresse ?? '',
+            newsletter_opt_in: !!prof.data.newsletter_opt_in,
+          };
+          setForm(next);
+          setInitial(next);
+        }
+        setHasAdhesion(!!adh.adhesion);
+      } catch (e) {
+        console.error('[mon-profil] load error:', e);
       }
-      // Verifier si visiteur a une adhesion obseques liee
-      const { data: adh } = await supabase.from('adhesions_obseques').select('id').eq('user_id', userId).maybeSingle();
-      if (!cancelled) setHasAdhesion(!!adh);
       setLoading(false);
     };
     load();
@@ -90,30 +100,37 @@ export default function MonProfilPage() {
   const isDirty = JSON.stringify(form) !== JSON.stringify(initial);
   const isValid = form.prenom.trim() !== '' && form.nom.trim() !== '';
 
+  // Sauvegarde du profil via API serveur (PUT /api/user/profile)
+  // Le serveur filtre les champs autorisés (pas de mass-assignment)
   const handleSave = async () => {
     if (!userId || !isDirty || !isValid) return;
     setSaving(true);
     setError('');
     setSaved(false);
-    const supabase = createClient();
-    const { error: err } = await supabase.from('profiles').update({
-      prenom: form.prenom.trim(),
-      nom: form.nom.trim(),
-      telephone: form.telephone.trim() || null,
-      adresse: form.adresse.trim() || null,
-      newsletter_opt_in: form.newsletter_opt_in,
-    }).eq('id', userId);
+    const res = await fetch('/api/user/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prenom: form.prenom.trim(),
+        nom: form.nom.trim(),
+        telephone: form.telephone.trim() || null,
+        adresse: form.adresse.trim() || null,
+        newsletter_opt_in: form.newsletter_opt_in,
+      }),
+    });
     setSaving(false);
-    if (err) { setError('Erreur lors de l\'enregistrement.'); return; }
+    if (!res.ok) { setError('Erreur lors de l\'enregistrement.'); return; }
     setInitial(form);
     setSaved(true);
   };
 
+  // Changement d'email : appel direct Supabase (auth.updateUser) via import dynamique
+  // Reste côté client car nécessite le cookie de session navigateur
   const handleEmailChange = async () => {
     if (!isNewEmailValid) return;
     setEmailSending(true);
     setEmailError('');
-    const supabase = createClient();
+    const supabase = (await import('@/lib/supabase/client')).createClient();
     const { error: err } = await supabase.auth.updateUser({ email: newEmail.toLowerCase().trim() });
     setEmailSending(false);
     if (err) { setEmailError(err.message || 'Erreur.'); return; }
@@ -122,20 +139,20 @@ export default function MonProfilPage() {
     setNewEmail('');
   };
 
+  // Réinitialisation mot de passe : appel direct Supabase (resetPasswordForEmail) via import dynamique
+  // Reste côté client car nécessite le cookie de session et le redirectTo du navigateur
   const handlePasswordReset = async () => {
     if (!form.email) return;
     setPwdSending(true);
     setPwdError('');
     setPwdSent(null);
-    const supabase = createClient();
+    const supabase = (await import('@/lib/supabase/client')).createClient();
     const redirectTo = `${window.location.origin}/auth/set-password`;
     const { error: err } = await supabase.auth.resetPasswordForEmail(form.email, { redirectTo });
     setPwdSending(false);
     if (err) { setPwdError(err.message || 'Erreur.'); return; }
     setPwdSent(form.email);
   };
-
-  const isVisiteur = form.role === 'visiteur';
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,7 +170,7 @@ export default function MonProfilPage() {
             </div>
           </Link>
           <div className="flex items-center gap-4">
-            {isVisiteur && hasAdhesion && (
+            {hasAdhesion && (
               <Link href="/mon-adhesion" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Mon adhésion

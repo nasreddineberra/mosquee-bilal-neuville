@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des utilisateurs (dashboard admin) ──────────────────────────────
+// Liste, recherche, invitation, changement de rôle et suppression.
+// Réservé aux administrateurs. Les éditeurs et gestionnaires ne sont pas listés ici.
+
 import { useState, useEffect, useCallback } from 'react';
 import { Users, Mail, Shield, Plus, Trash2, X, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';

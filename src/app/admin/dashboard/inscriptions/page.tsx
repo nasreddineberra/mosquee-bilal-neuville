@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des inscriptions aux activités (dashboard admin) ────────────────
+// Affiche les inscriptions pour les cours mosquée, école arabe et sorties.
+// Validation/refus des inscriptions en attente.
+
 import { useState, useEffect, useCallback, Fragment } from 'react';
 import {
   ClipboardList, Check, X, Mail, Phone, MapPin, Users as UsersIcon,

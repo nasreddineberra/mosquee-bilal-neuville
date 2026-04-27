@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Layout shell principal ─────────────────────────────────────────────────
+// Wrapper minimal qui ajuste l'affichage en fonction de la route active.
+// Cache le footer et le layout "page" par défaut pour les pages d'admin.
+
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';

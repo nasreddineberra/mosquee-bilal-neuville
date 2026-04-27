@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Page publique des activités ────────────────────────────────────────────
+// Affiche les cours mosquée, école arabe et sorties disponibles.
+// Permet l'inscription via des modales dédiées.
+// Trois onglets (tabs) organisés par type d'activité.
+
 import { useState, useEffect } from 'react';
 import { BookOpenCheck, NotebookPen, Users, Handshake, Info, X } from 'lucide-react';
 import CardCtaButton from '@/components/CardCtaButton';

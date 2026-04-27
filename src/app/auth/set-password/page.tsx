@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Définition du mot de passe après invitation ────────────────────────────
+// Page accessible via le lien d'invitation. Vérifie le token hash dans l'URL,
+// crée la session et finalise le compte. Affiche un message de bienvenue.
+// Redirige vers /mon-profil une fois le mot de passe enregistré.
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -20,6 +25,17 @@ export default function SetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [debouncedPassword, setDebouncedPassword] = useState('');
+  const [tokensProcessed, setTokensProcessed] = useState(false);
+
+  // Empêche la fuite du token via le Referer header
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = 'referrer';
+    meta.content = 'no-referrer';
+    document.head.appendChild(meta);
+    return () => meta.remove();
+  }, []);
 
   useEffect(() => {
     document.title = 'Définir votre mot de passe - Mosquée Bilal';
@@ -50,16 +66,23 @@ export default function SetPasswordPage() {
         console.warn('[set-password] init warning:', e);
       } finally {
         setChecking(false);
+        setTokensProcessed(true);
       }
     })();
   }, [supabase]);
 
+  // Debounce l'affichage des règles de validation (500ms) pour ne pas exposer la politique mot de passe en temps réel
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedPassword(password), 500);
+    return () => clearTimeout(t);
+  }, [password]);
+
   const rules = {
-    length: password.length >= 8,
-    upper: /[A-Z]/.test(password),
-    lower: /[a-z]/.test(password),
-    digit: /[0-9]/.test(password),
-    special: /[^A-Za-z0-9]/.test(password),
+    length: debouncedPassword.length >= 8,
+    upper: /[A-Z]/.test(debouncedPassword),
+    lower: /[a-z]/.test(debouncedPassword),
+    digit: /[0-9]/.test(debouncedPassword),
+    special: /[^A-Za-z0-9]/.test(debouncedPassword),
   };
   const isPasswordValid = rules.length && rules.upper && rules.lower && rules.digit && rules.special;
   const passwordsMatch = password.length > 0 && password === confirm;
@@ -85,7 +108,9 @@ export default function SetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-32 h-32 rounded-2xl overflow-hidden mx-auto mb-6">
-            <Image src="/logo.png" alt="Mosquée Bilal" width={128} height={128} className="object-cover logo-invert" loading="eager" />
+            {tokensProcessed && (
+              <Image src="/logo.png" alt="Mosquée Bilal" width={128} height={128} className="object-cover logo-invert" loading="eager" />
+            )}
           </div>
           <h1 className="text-3xl font-serif text-primary mb-2">Bienvenue</h1>
           <p className="text-sm text-on-surface/60">Définissez votre mot de passe pour finaliser votre accès.</p>

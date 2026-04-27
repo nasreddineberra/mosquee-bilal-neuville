@@ -1,8 +1,8 @@
-// ─── Validation d'une demande d'accès (POST) ───────────────────────────────
-// Valide une demande d'accès visiteur : crée un utilisateur Supabase Auth,
-// copie les infos dans la table `profiles`, envoie un email d'invitation
-// et archive la demande.
-
+// ─── POST /api/admin/validate-demande ───────────────────────────────────────
+// Valide une demande d'accès visiteur : crée l'utilisateur auth + profil.
+// Réservé administrateur. Protection CSRF + rate-limit (10/heure).
+// Chiffre les données personnelles (téléphone, adresse) avant insertion.
+// Log l'action dans admin_logs.
 import { encrypt } from '@/lib/encryption';
 import { serverLog } from '@/lib/logger';
 import { logAdminAction } from '@/lib/admin-logger';
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Trop d\'invitations. Réessaye dans une heure.' }, { status: 429 });
     }
 
+    // Récupérer la demande
     const { data: demande, error: fetchErr } = await admin
       .from('demandes_acces')
       .select('id, email, nom, prenom, telephone, adresse, statut, newsletter_opt_in')
@@ -53,46 +54,48 @@ export async function POST(request: Request) {
     }
 
     if (demande.statut !== 'en_attente') {
-      return NextResponse.json({ error: 'Demande déjà traitée' }, { status: 400 });
+      return NextResponse.json({ error: 'Cette demande a déjà été traitée.' }, { status: 400 });
     }
 
-    const origin = new URL(request.url).origin;
+    // Créer l'utilisateur auth
     const { data: invited, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
       demande.email,
-      { redirectTo: `${origin}/auth/set-password` }
+      { redirectTo: `${new URL(request.url).origin}/mon-profil` }
     );
 
-    if (inviteErr || !invited?.user) {
-      return NextResponse.json({ error: inviteErr?.message || 'Erreur invitation' }, { status: 500 });
+    if (inviteErr) {
+      return NextResponse.json({ error: inviteErr.message }, { status: 500 });
     }
 
-    const { error: updateProfileErr } = await admin
-      .from('profiles')
-      .update({
-        prenom: demande.prenom,
-        nom: demande.nom,
-        telephone: null,
-        adresse: null,
-        telephone_encrypted: encrypt(demande.telephone),
-        adresse_encrypted: encrypt(demande.adresse),
-        newsletter_opt_in: demande.newsletter_opt_in,
-      })
-      .eq('id', invited.user.id);
+    // Créer le profil avec données chiffrées
+    const { error: profileErr } = await admin.from('profiles').insert({
+      id: invited.user.id,
+      email: demande.email.toLowerCase().trim(),
+      nom: demande.nom?.toUpperCase() ?? null,
+      prenom: demande.prenom ?? null,
+      telephone_encrypted: encrypt(demande.telephone),
+      adresse_encrypted: encrypt(demande.adresse),
+      newsletter_opt_in: demande.newsletter_opt_in ?? false,
+      role: 'visiteur',
+    });
 
-    if (updateProfileErr) {
-      return NextResponse.json({ error: 'Erreur mise à jour profil' }, { status: 500 });
+    if (profileErr) {
+      // Rollback : supprimer l'utilisateur auth si le profil échoue
+      await admin.auth.admin.deleteUser(invited.user.id);
+      return NextResponse.json({ error: profileErr.message }, { status: 500 });
     }
 
-    await admin
-      .from('demandes_acces')
-      .update({
-        statut: 'validee',
-        traite_par: user.id,
-        traite_at: new Date().toISOString(),
-      })
-      .eq('id', demandeId);
+    // Marquer la demande comme traitée
+    await admin.from('demandes_acces').update({
+      statut: 'validee',
+      traite_par: user.id,
+      traite_at: new Date().toISOString(),
+    }).eq('id', demandeId);
 
-    await logAdminAction(user.id, 'validate_demande', 'demande_acces', demandeId, { email: demande.email });
+    await logAdminAction(user.id, 'validate_demande', 'demande_acces', demandeId, {
+      email: demande.email,
+      user_id: invited.user.id,
+    });
 
     return NextResponse.json({ success: true });
   } catch (e) {

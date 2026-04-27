@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion de la newsletter (dashboard admin) ─────────────────────────────
+// Composer et envoyer des emails à tous les abonnés newsletter.
+// Historique des envois et gestion des brouillons.
+
 import { useState, useEffect, useCallback } from 'react';
 import { MessageSquare, Send, X, Eye, Users, Mail, Clock, CheckCircle2 } from 'lucide-react';
 import { FloatInput, FloatTextarea } from '@/components/FloatField';

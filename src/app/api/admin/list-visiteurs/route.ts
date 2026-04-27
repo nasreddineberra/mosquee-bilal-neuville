@@ -1,19 +1,23 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+// ─── GET /api/admin/list-visiteurs ──────────────────────────────────────────
+// Liste tous les visiteurs (role = 'visiteur') avec leurs données personnelles
+// déchiffrées. Réservé administrateur.
+// Pagination auth : 1000 utilisateurs par page (boucle jusqu'à épuisement).
+import { decrypt } from '@/lib/encryption';
+import { serverLog } from '@/lib/logger';
+import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const userClient = await createClient();
-    const { data: { user } } = await userClient.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-
     const admin = await createAdminClient();
+    const { data: { user } } = await admin.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     const { data: me } = await admin.from('profiles').select('role').eq('id', user.id).single();
     if (me?.role !== 'administrateur') {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
-    // Fetch confirmed_at pour tous les utilisateurs auth (pagination 1000/page)
+    // Récupérer les emails confirmés de tous les utilisateurs auth (pagination)
     const confirmedMap: Record<string, boolean> = {};
     let page = 1;
     const perPage = 1000;
@@ -27,21 +31,27 @@ export async function GET() {
       page++;
     }
 
+    // Récupérer les profils visiteurs
     const { data: profiles, error: profErr } = await admin
       .from('profiles')
-      .select('id, email, nom, prenom, telephone, adresse, created_at, newsletter_opt_in')
+      .select('id, email, nom, prenom, telephone, adresse, telephone_encrypted, adresse_encrypted, created_at, newsletter_opt_in')
       .eq('role', 'visiteur')
       .order('created_at', { ascending: false });
     if (profErr) return NextResponse.json({ error: profErr.message }, { status: 500 });
 
+    // Déchiffrer les données personnelles
     const visiteurs = (profiles ?? []).map((p) => ({
       ...p,
-      est_actif: confirmedMap[p.id] ?? false,
+      telephone: decrypt(p.telephone_encrypted) ?? p.telephone,
+      adresse: decrypt(p.adresse_encrypted) ?? p.adresse,
+      telephone_encrypted: undefined,
+      adresse_encrypted: undefined,
+      email_confirme: confirmedMap[p.id] ?? false,
     }));
 
     return NextResponse.json({ visiteurs });
   } catch (e) {
-    console.error('[list-visiteurs]', e);
+    await serverLog('error', '[list-visiteurs]', 'Erreur', { error: e });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

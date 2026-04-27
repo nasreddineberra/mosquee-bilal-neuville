@@ -102,13 +102,13 @@ export default function HeroSection() {
 
         {/* ROW 1-2 - Mawaqit Widget (1/3, spans 2 rows) */}
         <div className="lg:row-span-2 bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden h-[560px]">
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore scrolling is deprecated in HTML5 but required to hide Mawaqit scrollbar */}
           <iframe
             className="w-full h-full border-0"
             src="//mawaqit.net/fr/m/bilal-neuville?showNotification=0&showSearchButton=0&showFooter=0&showFlashMessage=0&view=mobile"
             title="Horaires de prière Mawaqit"
             scrolling="no"
+            sandbox="allow-scripts allow-same-origin"
+            referrerPolicy="no-referrer"
           />
         </div>
 

@@ -1,20 +1,28 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+// ─── POST /api/admin/refuse-demande ─────────────────────────────────────────
+// Refuse une demande d'accès visiteur (passe son statut à 'refusee').
+// Réservé administrateur. Protection CSRF.
+// Log l'action dans admin_logs.
+import { serverLog } from '@/lib/logger';
+import { logAdminAction } from '@/lib/admin-logger';
+import { checkOrigin } from '@/lib/csrf';
+import { createAdminClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
+    const originCheck = checkOrigin(request);
+    if (originCheck) return originCheck;
+
     const { demandeId } = await request.json();
     if (!demandeId) {
       return NextResponse.json({ error: 'demandeId manquant' }, { status: 400 });
     }
 
-    const userClient = await createClient();
-    const { data: { user } } = await userClient.auth.getUser();
+    const admin = await createAdminClient();
+    const { data: { user } } = await admin.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
-
-    const admin = await createAdminClient();
 
     const { data: me } = await admin
       .from('profiles')
@@ -34,15 +42,17 @@ export async function POST(request: Request) {
         traite_at: new Date().toISOString(),
       })
       .eq('id', demandeId)
-      .eq('statut', 'en_attente');
+      .eq('statut', 'en_attente'); // Ne pas refuser une demande déjà traitée
 
     if (updateErr) {
-      return NextResponse.json({ error: 'Erreur mise à jour' }, { status: 500 });
+      return NextResponse.json({ error: updateErr.message }, { status: 500 });
     }
+
+    await logAdminAction(user.id, 'refuse_demande', 'demande_acces', demandeId, null);
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error('[refuse-demande] exception:', e);
+    await serverLog('error', '[refuse-demande]', 'Erreur', { error: e });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

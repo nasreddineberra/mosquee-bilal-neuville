@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Gestion de l'assurance obsèques (dashboard admin) ──────────────────────
+// Liste et recherche des adhérents obsèques.
+// Consultation des fiches, paiements, ayants droit et documents.
+// Export des données et suivi des cotisations.
+
 import { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, Plus, Pencil, Trash2, X, Building2, Archive, FolderOpen, ChevronUp, ChevronDown, FileText, Download, Upload } from 'lucide-react';
 import { FloatInput, FloatTextarea, FloatSelect } from '@/components/FloatField';
@@ -494,9 +499,16 @@ export default function ObsequesAdminPage() {
 
   // ── Handlers dossier - Documents ─────────────────────────────────────────────
 
+  const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+
   const handleDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!dossierAdhesion || !e.target.files?.[0]) return;
     const file = e.target.files[0];
+    if (!ALLOWED_MIME.includes(file.type)) {
+      alert('Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG, WebP.');
+      e.target.value = '';
+      return;
+    }
     setDocUploading(true);
     const ext = file.name.split('.').pop() ?? 'bin';
     const path = `${dossierAdhesion.id}/${Date.now()}.${ext}`;

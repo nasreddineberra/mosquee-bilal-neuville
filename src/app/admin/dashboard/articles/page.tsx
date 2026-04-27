@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des articles (dashboard admin) ─────────────────────────────────
+// CRUD complet pour les actualités publiées sur le site.
+// Gère le statut, la mise en avant (à la une), l'image, la position.
+
 import { useState, useEffect, useCallback } from 'react';
 import { FileText, Plus, Pencil, Trash2, Star, Eye, EyeOff, X, ScanEye, Image as ImageIcon, ChevronUp, ChevronDown } from 'lucide-react';
 import { FloatInput, FloatTextarea, FloatSelect } from '@/components/FloatField';

@@ -1,3 +1,8 @@
+// ─── Middleware Next.js : rafraîchissement session Supabase ─────────────────
+// Exécuté sur toutes les routes. Rafraîchit le cookie de session à chaque requête
+// pour maintenir la session active côté serveur.
+// Ignore les assets statiques et les appels API Supabase internes.
+
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 

@@ -1,3 +1,8 @@
+// ─── Client Supabase côté navigateur ────────────────────────────────────────
+// Utilise createBrowserClient de @supabase/ssr pour la gestion des cookies.
+// Factory function createClient() retourne une instance unique.
+// Ne JAMAIS importer côté serveur (préférer server.ts).
+
 import { createBrowserClient } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 

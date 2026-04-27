@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des activités (dashboard admin) ────────────────────────────────
+// CRUD complet pour les cours mosquée, école arabe et sorties.
+// Gère le statut, les places, le prix et l'ordre d'affichage.
+
 import { useState, useEffect, useCallback } from 'react';
 import {
   BookOpenCheck, NotebookPen, Users, Plus, Pencil, Trash2,

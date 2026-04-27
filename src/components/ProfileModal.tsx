@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { X, User, Mail, KeyRound } from 'lucide-react';
 import { FloatInput } from '@/components/FloatField';
-import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
 type ProfileData = {
@@ -36,11 +35,13 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
 
   const isNewEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && newEmail.toLowerCase() !== form.email.toLowerCase();
 
+  // Changement d'email : appel direct Supabase (auth.updateUser) via import dynamique
+  // Reste côté client car nécessite le cookie de session navigateur (pas de table exposée)
   const handleEmailChange = async () => {
     if (!isNewEmailValid) return;
     setEmailSending(true);
     setEmailError('');
-    const supabase = createClient();
+    const supabase = (await import('@/lib/supabase/client')).createClient();
     const { error: err } = await supabase.auth.updateUser({ email: newEmail.toLowerCase().trim() });
     setEmailSending(false);
     if (err) {
@@ -58,12 +59,14 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
     setEmailError('');
   };
 
+  // Réinitialisation mot de passe : appel direct Supabase via import dynamique
+  // Reste côté client car nécessite le cookie de session et l'URL de redirection navigateur
   const handlePasswordReset = async () => {
     if (!form.email) return;
     setPwdSending(true);
     setPwdError('');
     setPwdSent(null);
-    const supabase = createClient();
+    const supabase = (await import('@/lib/supabase/client')).createClient();
     const redirectTo = `${window.location.origin}/auth/set-password`;
     const { error: err } = await supabase.auth.resetPasswordForEmail(form.email, { redirectTo });
     setPwdSending(false);
@@ -74,11 +77,12 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
     setPwdSent(form.email);
   };
 
+  // Chargement du profil via API serveur (GET /api/user/profile → table 'profiles')
+  // Appel serveur : pas d'exposition des noms de tables dans le bundle JS client
   useEffect(() => {
     if (!open) return;
     if (!userId) { setLoading(true); return; }
     let cancelled = false;
-    const supabase = createClient();
     const load = async () => {
       setLoading(true);
       setError('');
@@ -86,24 +90,20 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
       setPwdSent(null);
       setPwdError('');
       try {
-        const { data, error: fetchErr } = await supabase
-          .from('profiles')
-          .select('email, role, prenom, nom, telephone, adresse, newsletter_opt_in')
-          .eq('id', userId)
-          .maybeSingle();
+        const res = await fetch('/api/user/profile');
+        const json = await res.json();
         if (cancelled) return;
-        if (fetchErr) {
-          console.error('[ProfileModal] fetch error:', fetchErr);
+        if (json.error) {
           setError('Impossible de charger le profil.');
-        } else if (data) {
+        } else if (json.data) {
           const next: ProfileData = {
-            email: data.email ?? '',
-            role: data.role ?? '',
-            prenom: data.prenom ?? '',
-            nom: data.nom ?? '',
-            telephone: data.telephone ?? '',
-            adresse: data.adresse ?? '',
-            newsletter_opt_in: !!data.newsletter_opt_in,
+            email: json.data.email ?? '',
+            role: json.data.role ?? '',
+            prenom: json.data.prenom ?? '',
+            nom: json.data.nom ?? '',
+            telephone: json.data.telephone ?? '',
+            adresse: json.data.adresse ?? '',
+            newsletter_opt_in: !!json.data.newsletter_opt_in,
           };
           setForm(next);
           setInitial(next);
@@ -123,26 +123,33 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
   const isDirty = JSON.stringify(form) !== JSON.stringify(initial);
   const isValid = form.prenom.trim() !== '' && form.nom.trim() !== '';
 
+  // Sauvegarde du profil via API serveur (PUT /api/user/profile)
+  // Le serveur filtre les champs autorisés (protection mass-assignment)
   const handleSave = async () => {
     if (!userId || !isDirty || !isValid) return;
     setSaving(true);
     setError('');
     setSaved(false);
-    const supabase = createClient();
-    const { error: err } = await supabase.from('profiles').update({
-      prenom: form.prenom.trim(),
-      nom: form.nom.trim(),
-      telephone: form.telephone.trim() || null,
-      adresse: form.adresse.trim() || null,
-      newsletter_opt_in: form.newsletter_opt_in,
-    }).eq('id', userId);
-    setSaving(false);
-    if (err) {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prenom: form.prenom.trim(),
+          nom: form.nom.trim(),
+          telephone: form.telephone.trim() || null,
+          adresse: form.adresse.trim() || null,
+          newsletter_opt_in: form.newsletter_opt_in,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setInitial(form);
+      setSaved(true);
+    } catch (e) {
       setError('Erreur lors de l\'enregistrement.');
-      return;
+    } finally {
+      setSaving(false);
     }
-    setInitial(form);
-    setSaved(true);
   };
 
   if (!open) return null;

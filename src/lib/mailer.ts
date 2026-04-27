@@ -1,9 +1,14 @@
+// ─── Mailer : envoi d'emails via SMTP (nodemailer) ─────────────────────────
+// Configuration via variables d'environnement : SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+// Gère l'envoi transactionnel (invitations, newsletters) avec template HTML.
+
 import nodemailer, { type Transporter } from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
 
 let transporter: Transporter | null = null;
 
+/** Retourne le transporteur SMTP (singleton) */
 function getTransporter(): Transporter {
   if (!transporter) {
     const port = Number(process.env.SMTP_PORT ?? 587);

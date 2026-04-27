@@ -1,5 +1,10 @@
 'use client';
 
+// ─── Page de connexion / inscription ────────────────────────────────────────
+// Permet la connexion par email/mot de passe ou par magic link.
+// Affiche un message de bienvenue avec les horaires de prière.
+// Redirige vers l'accueil après connexion réussie.
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Eye, EyeOff, X, ShieldCheck, QrCode } from 'lucide-react';
@@ -27,6 +32,8 @@ export default function ConnexionPage() {
   const [qrCode, setQrCode] = useState('');
   const [factorId, setFactorId] = useState('');
   const [challengeId, setChallengeId] = useState('');
+
+  const MFA_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
   const [showVisiteur, setShowVisiteur] = useState(false);
   const [visiteurSubmitted, setVisiteurSubmitted] = useState(false);
@@ -173,6 +180,20 @@ export default function ConnexionPage() {
     setVisiteurSubmitted(false);
     setVisiteurForm({ firstname: '', lastname: '', email: '', phone: '', address: '', newsletter: false });
   };
+
+  // Timeout MFA : reset après 5 minutes d'inactivité sur les étapes MFA
+  useEffect(() => {
+    if (step !== 'mfa-enroll' && step !== 'mfa-verify') return;
+    const t = setTimeout(() => {
+      setStep('email');
+      setError('Session 2FA expirée. Veuillez recommencer.');
+      setQrCode('');
+      setFactorId('');
+      setChallengeId('');
+      setCode('');
+    }, MFA_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [step]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">

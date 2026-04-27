@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des dons / campagnes (dashboard admin) ─────────────────────────
+// CRUD complet pour les campagnes de dons affichées sur la page /don.
+// Gère le statut, la mise en avant (à la une), l'image, le lien externe.
+
 import { useState, useEffect, useCallback } from 'react';
 import { HeartHandshake, Plus, Pencil, Trash2, Star, Eye, EyeOff, X, ChevronUp, ChevronDown, Image as ImageIcon } from 'lucide-react';
 import { FloatInput, FloatTextarea } from '@/components/FloatField';

@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des visiteurs (dashboard admin) ────────────────────────────────
+// Deux onglets : Demandes d'accès (validation/refus) et Comptes visiteurs.
+// Permet de valider, refuser, renvoyer une invitation aux demandeurs.
+
 import { useState, useEffect, useCallback } from 'react';
 import { UserCheck, Check, X, Mail, Phone, MapPin, Clock, Send, Trash2, Shield, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';

@@ -1,10 +1,14 @@
-'use client';
+4 roles'use client';
+
+// ─── Page Mon Adhésion (espace membre) ──────────────────────────────────────
+// Affiche le statut de l'adhésion (cotisation annuelle) de l'utilisateur.
+// Permet de souscrire, suspendre ou résilier son adhésion.
+// Vérifie que l'utilisateur est connecté, redirige vers /connexion sinon.
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShieldCheck, LogOut, Download, User, Phone, MapPin, Mail, FileText } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -91,7 +95,6 @@ const FORMULE_LABEL: Record<string, string> = {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MonAdhesionPage() {
-  const supabase = createClient();
   const { user, logout } = useAuth();
 
   const [adhesion, setAdhesion] = useState<Adhesion | null | undefined>(undefined);
@@ -101,36 +104,37 @@ export default function MonAdhesionPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Chargement du dossier obsèques via API serveur (GET /api/user/adhesion)
+  // Appel serveur : pas d'exposition des noms de tables (adhesions_obseques, ayants_droit, etc.) dans le bundle JS
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      const { data: adh } = await supabase
-        .from('adhesions_obseques')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!adh) { setAdhesion(null); setLoading(false); return; }
-      setAdhesion(adh as Adhesion);
-
-      const [adRes, cuRes, pRes, docRes] = await Promise.all([
-        supabase.from('adhesions_obseques_ayants_droit').select('*').eq('adhesion_id', adh.id).order('id'),
-        supabase.from('adhesions_obseques_contacts_urgence').select('*').eq('adhesion_id', adh.id).order('ordre_priorite'),
-        supabase.from('adhesions_obseques_paiements').select('*').eq('adhesion_id', adh.id).order('annee_concernee', { ascending: false }),
-        supabase.from('adhesions_obseques_documents').select('*').eq('adhesion_id', adh.id).order('created_at', { ascending: false }),
-      ]);
-      setAyantsDroit((adRes.data ?? []) as AyantDroit[]);
-      setContacts((cuRes.data ?? []) as ContactUrgence[]);
-      setPaiements((pRes.data ?? []) as Paiement[]);
-      setDocuments((docRes.data ?? []) as Document[]);
+      try {
+        const res = await fetch('/api/user/adhesion');
+        const json = await res.json();
+        if (json.adhesion === null) {
+          setAdhesion(null);
+          setLoading(false);
+          return;
+        }
+        setAdhesion(json.adhesion as Adhesion);
+        setAyantsDroit(json.ayantsDroit as AyantDroit[]);
+        setContacts(json.contacts as ContactUrgence[]);
+        setPaiements(json.paiements as Paiement[]);
+        setDocuments(json.documents as Document[]);
+      } catch (e) {
+        console.error('[mon-adhesion] load error:', e);
+      }
       setLoading(false);
     };
     load();
-  }, [user, supabase]);
+  }, [user]);
 
+  // Téléchargement d'un document depuis le bucket Supabase 'obseques-documents'
+  // Via import dynamique (uniquement nécessaire au clic, pas dans le bundle initial)
   const handleDownload = async (path: string, nom: string) => {
-    const { data } = await supabase.storage.from('obseques-documents').createSignedUrl(path, 60);
+    const { data } = await (await import('@/lib/supabase/client')).createClient().storage.from('obseques-documents').createSignedUrl(path, 60);
     if (data?.signedUrl) {
       const a = document.createElement('a');
       a.href = data.signedUrl;

@@ -1,19 +1,25 @@
-import { createAdminClient } from '@/lib/supabase/server';
+// ─── Vérification email (POST) ─────────────────────────────────────────────
+// Ne vérifie pas si l'email existe pour éviter l'énumération d'emails.
+// Retourne TOUJOURS { exists: true } — la vraie vérification se fait côté serveur.
+
 import { NextResponse } from 'next/server';
 
+/**
+ * Vérifie si un email existe déjà pour la demande d'accès.
+ * Retourne TOUJOURS { exists: true } pour éviter l'énumération d'emails.
+ * La vraie vérification est faite côté client avant soumission uniquement
+ * pour améliorer l'UX (pas de sécurité).
+ */
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
     if (!email) return NextResponse.json({ exists: false });
 
-    const supabase = await createAdminClient();
-    const { data } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email.toLowerCase().trim())
-      .single();
+    // Toujours retourner true pour ne pas exposer l'existence des comptes
+    const emailRegistre = email.toLowerCase().trim();
+    if (!emailRegistre) return NextResponse.json({ exists: false });
 
-    return NextResponse.json({ exists: !!data });
+    return NextResponse.json({ exists: true });
   } catch {
     return NextResponse.json({ exists: false });
   }

@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Gestion des hadiths (dashboard admin) ───────────────────────────────────
+// CRUD complet : liste, ajout, modification, suppression avec filtre statut.
+// Les hadiths actifs sont affichés aléatoirement sur la page d'accueil.
+
 import { useState, useEffect, useCallback } from 'react';
 import { ScrollText, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { FloatInput, FloatTextarea } from '@/components/FloatField';

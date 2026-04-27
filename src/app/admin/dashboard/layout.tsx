@@ -1,5 +1,9 @@
 'use client';
 
+// ─── Layout du dashboard admin : sidebar + header + content ─────────────────
+// Affiche un menu latéral adapté au rôle de l'utilisateur connecté.
+// Les sections 'Édition' et 'Administration' sont filtrées par rôle.
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';

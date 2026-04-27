@@ -1,7 +1,7 @@
 # Mosquée Bilal - Fichier de Suivi du Projet
 
 **Date de début :** 11 avril 2026
-**Dernière mise à jour :** 26 avril 2026 (Session 18)
+**Dernière mise à jour :** 27 avril 2026 (Session 19 - Audit & Documentation)
 **Statut :** Phase 3 terminée (back-office complet)
 **Architecture :** Next.js 16 + React 19 + Tailwind CSS 3.4 + TypeScript + Supabase
 
@@ -711,6 +711,33 @@ Systeme de gestion des adhesions a l'assurance obseques pour les fideles de la m
 - **Commits :** En fin de journee uniquement
 - **Sous-etapes :** Chaque sous-etape validee par l'utilisateur avant developpement
 - **Turbopack :** bloque par politique WDAC d'entreprise (evenement 3033, signature non "Enterprise") - fallback webpack si necessaire
+
+### Session 19 - 27 avril 2026 - Audit de sécurité complet (22 failles) + Documentation + Migration API
+
+**Audit de sécurité complet :**
+1. Examen systématique de tous les fichiers du projet (routes API, auth, DB, composants, emails)
+2. **22 vulnérabilités identifiées et corrigées** :
+   - 🔴 4 critiques : proxy désactivé, double auth, RLS récursion, énumération emails
+   - 🟠 4 élevés : rate limiting, newsletter anti-doublon, session refresh, open redirect
+   - 🟡 6 moyens : chiffrement téléphone/adresse, CSP, CSRF, upload MIME, logs exposés, iframe Mawaqit sans sandbox
+   - 🔵 5 faibles : journalisation admin, debounce mdp, timeout MFA, token Referer, URL email exposée
+   - ⚪ 3 info : rôles centralisés, doc noOpLock, templates inutilisés
+3. **Nouveaux fichiers créés** : `src/lib/rate-limit.ts`, `src/lib/encryption.ts`, `src/lib/admin-logger.ts`, `src/lib/logger.ts`, `src/lib/csrf.ts`, `src/lib/roles.ts`
+4. **Migrations SQL** : `2026-04-27_rate_limits.sql`, `2026-04-27_encryption.sql`, `2026-04-27_admin_logs.sql`, `2026-04-27_rls_fix.sql`
+5. **Corrections cross-site** : CSP + headers de sécurité (`next.config.mjs`), sandbox iframes Mawaqit, protection open redirect callback
+
+**Migration des appels Supabase côté serveur :**
+1. `src/app/mon-profil/page.tsx` : `createClient()` + appels directs → `fetch('/api/user/profile')` + `fetch('/api/user/adhesion')`
+2. `src/app/mon-adhesion/page.tsx` : `supabase.from('adhesions_obseques*')` → `fetch('/api/user/adhesion')`
+3. `src/components/ProfileModal.tsx` : `supabase.from('profiles')` → `fetch('/api/user/profile')` GET + PUT
+4. Nouvelles routes API : `GET/PUT /api/user/profile`, `GET /api/user/adhesion`
+
+**Documentation des fichiers :**
+1. En-têtes de section `// ─── Titre ───` ajoutés sur tous les fichiers du projet (scripts, composants, pages, routes API, librairies, middleware, proxy)
+2. Chaque en-tête explique le rôle et le comportement du fichier en 2-4 lignes
+3. Fichiers concernés : `scripts/generate-report.js`, `src/proxy.ts`, `middleware.ts`, tous les `src/app/api/*/route.ts`, toutes les pages admin (layout, dashboard, activites, articles, hadiths, dons, utilisateurs, visiteurs, inscriptions, obseques, communication), pages publiques (connexion, set-password, mon-profil, mon-adhesion, activites, actualites), composants (LayoutShell, ProfileModal), librairies (supabase/client, supabase/server, csrf, rate-limit, admin-logger, logger, encryption, roles, mailer)
+
+---
 
 ## Commandes utiles
 
